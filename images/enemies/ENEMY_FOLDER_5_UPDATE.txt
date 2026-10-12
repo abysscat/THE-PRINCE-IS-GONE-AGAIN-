@@ -1,5 +1,0 @@
-敵人素材整理說明
-
-新增 custom/5，收納原本 enemies 最外層的 enemy_attack.png、enemy_hit.png、enemy_idle.png，並補上 enemy_nornal.png。
-每個敵人資料夾（custom/1、2、3、4、boss、5）均包含：enemy_attack.png、enemy_hit.png、enemy_idle.png、enemy_nornal.png。
-注意：對於原始 ZIP 中不存在的姿勢，為維持現有美術而以最接近的既有姿勢複製補位；這些不是新繪製的不同動作。
