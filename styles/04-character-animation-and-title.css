@@ -1,0 +1,230 @@
+/* 角色動作動畫與首頁版面。本檔只負責外觀；不控制遊戲規則。 */
+
+/*General enemy animation states: idle breathing, attack lunge, hit recoil, and death fall*/
+.enemy {
+  transform-origin: 50% 100%;
+  will-change: transform,opacity,filter;
+}
+.enemy .enemySprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 85%;
+  animation: enemyIdle 1.7s ease-in-out infinite;
+  transition: filter .08s;
+}
+.enemy .ehealth {
+  z-index: 2;
+}
+.enemy.enemy-attacking {
+  animation: enemyAttackLunge .42s ease-out;
+}
+.enemy.enemy-attacking .enemySprite {
+  animation: enemyAttackPose .42s ease-out;
+}
+.enemy.enemy-hit {
+  animation: enemyHitRecoil .32s ease-out;
+}
+.enemy.enemy-hit .enemySprite {
+  animation: enemyHitPose .32s ease-out;
+}
+.enemy.dead {
+  pointer-events: none;
+  opacity: 0;
+  filter: grayscale(1) brightness(1.6) drop-shadow(0 0 10px #b8dfff);
+  transform: translateY(24px) rotate(28deg) scale(.72);
+  transition: opacity .52s ease,transform .52s ease,filter .52s ease;
+}
+.enemy.dead .enemySprite {
+  animation: none;
+  filter: grayscale(1) brightness(1.5);
+}
+.enemy.dead .ehealth {
+  opacity: 0;
+  transition: opacity .12s;
+}
+@keyframes enemyIdle {
+  0%,100% {
+    transform: translateY(0) scale(1,1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.015,.99);
+  }
+}
+@keyframes enemyAttackLunge {
+  0%,100% {
+    translate: 0 0;
+  }
+  30% {
+    translate: -5px -1px;
+  }
+  65% {
+    translate: 10px 0;
+  }
+}
+@keyframes enemyAttackPose {
+  0%,100% {
+    transform: rotate(0) scale(1);
+  }
+  35% {
+    transform: rotate(-9deg) scale(1.04,1.02);
+  }
+  68% {
+    transform: rotate(7deg) scale(1.06,.98);
+  }
+}
+@keyframes enemyHitRecoil {
+  0%,100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -7px 0;
+  }
+  55% {
+    translate: 4px -2px;
+  }
+}
+@keyframes enemyHitPose {
+  0%,100% {
+    transform: translateX(0) rotate(0);
+  }
+  35% {
+    transform: translateX(-5px) rotate(-7deg);
+  }
+  70% {
+    transform: translateX(2px) rotate(3deg);
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .enemy .enemySprite {
+    animation: none;
+  }
+  .enemy.enemy-attacking,.enemy.enemy-hit {
+    animation: none;
+  }
+}
+/*Hero thrust fix: keep the artwork at the same character height and ground anchor as idle.*/
+.hero #heroSprite.thrust-sprite {
+  position: absolute !important;
+  width: auto !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: 100% !important;
+  object-fit: contain;
+  left: 50% !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+  transform-origin: 50% 100%;
+  z-index: 3;
+}
+/*EDITABLE TITLE SCREEN: original composition 1671 x 941*/
+.title-layer {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  object-fit: fill;
+}
+.layer-background {
+  left: 0.0000%;
+  top: 0.0000%;
+  width: 100.0000%;
+  height: 100.0000%;
+}
+.layer-flag-left {
+  left: 30.5206%;
+  top: 2.6567%;
+  width: 13.1658%;
+  height: 15.9405%;
+}
+.layer-flag-right {
+  left: 86.1759%;
+  top: 6.5887%;
+  width: 12.8665%;
+  height: 12.2210%;
+}
+.layer-flag-side {
+  left: 90.3651%;
+  top: 40.9139%;
+  width: 7.4806%;
+  height: 48.8842%;
+}
+.layer-cat {
+  left: 2.5135%;
+  top: 58.2359%;
+  width: 12.8665%;
+  height: 21.2540%;
+}
+.layer-heroine {
+  left: 14.0634%;
+  top: 15.4091%;
+  width: 41.2926%;
+  height: 73.3262%;
+}
+.layer-spear {
+  left: 11.2507%;
+  top: 43.0393%;
+  width: 45.1825%;
+  height: 23.9107%;
+}
+.layer-logo {
+  left: 46.6786%;
+  top: 7.4389%;
+  width: 48.4740%;
+  height: 46.1211%;
+}
+.layer-start {
+  left: 56.1341%;
+  top: 55.7917%;
+  width: 29.6230%;
+  height: 14.0276%;
+}
+.layer-settings {
+  left: 59.5452%;
+  top: 73.7513%;
+  width: 6.8821%;
+  height: 12.3273%;
+}
+.layer-tutorial {
+  left: 67.5045%;
+  top: 73.7513%;
+  width: 6.8821%;
+  height: 12.3273%;
+}
+.layer-ranking {
+  left: 75.4039%;
+  top: 73.7513%;
+  width: 6.8821%;
+  height: 12.3273%;
+}
+.title-hotspot {
+  z-index: 5;
+}
+.start-hotspot {
+  left: 56.1%;
+  top: 55.7%;
+  width: 29.6%;
+  height: 14.1%;
+}
+.settings-hotspot {
+  left: 59.5%;
+  top: 73.7%;
+  width: 6.9%;
+  height: 12.4%;
+}
+.tutorial-hotspot {
+  left: 67.5%;
+  top: 73.7%;
+  width: 6.9%;
+  height: 12.4%;
+}
+.ranking-hotspot {
+  left: 75.4%;
+  top: 73.7%;
+  width: 6.9%;
+  height: 12.4%;
+}
