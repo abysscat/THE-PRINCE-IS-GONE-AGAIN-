@@ -1,0 +1,901 @@
+/*
+ * 王子又不見了！— 遊戲主程式（第三階段：角色顯示工具已分拆）
+ *
+ * 用途：遊戲流程總管，負責開始／暫停、關卡流程、操作及每幀更新。
+ *
+ * 已分拆的工具：
+ * - game-settings.js：設定資料、圖片路徑及關卡數值
+ * - player.js：角色圖片切換及大絕影格的顯示尺寸
+ * - enemies.js：依敵人種類和動作尋找圖片路徑
+ *
+ * 為了降低出錯風險，這一階段只搬走敵人圖片路徑判斷；
+ * 敵人生成、戰鬥和遊戲迴圈暫時仍留在本檔案。
+ */
+(()=> {
+    const $=id=>document.getElementById(id),stage=$('stage'),hero=$('hero'),enemies=$('enemies'),overlay=$('overlay');
+    let running=false,paused=false,x=0,cameraX=0,worldW=0,stageW=0,stageH=0,bgW=0,hp=100,mp=65,kills=0,levelKills=0,level=1,combo=0,lastHit=0,attackCd=0,jumpT=0,last=0,spawnTimer=0,keys= {
+    },moveV=0,jumpY=0,jumpV=0,onGround=true,coyoteMs=0,jumpBufferMs=0,faceDir=1,spawnedThisLevel=0,clues=[],clueIndex=0,exitOpen=false,exitX=0,heroActionUntil=0,heroActionSprite='images/hero_stand.png',ultimateActive=false,ultimateCooldownUntil=0,ultimateToken=0,ultimateStartedAt=0;
+    const world=$('world'),levelBackground=$('levelBackground'),exitPrompt=$('exitPrompt');
+    const gameSettings=window.GAME_SETTINGS;
+    // Q 大絕音效由 js/ultimate-sound.js 獨立管理，避免混在戰鬥邏輯中。
+    const ultimateSound=window.createUltimateSound();
+    const targets=gameSettings.targets,levelConfigs=gameSettings.levels,enemyList=[];
+    let pendingChapterTransition=false;
+    const bgFiles=gameSettings.backgroundFiles;
+    const ultimateSpriteFiles=gameSettings.ultimateSpriteFiles;
+    const ultimateFrameImages=ultimateSpriteFiles.map(path=> {
+        const image=new Image();
+        image.src=path;
+        return image
+    });
+    const heroSpriteFiles=gameSettings.heroSpriteFiles;
+    heroSpriteFiles.forEach(path=> {
+        const image=new Image();
+        image.src=path
+    });
+    const playerVisuals=window.createPlayerVisuals( {
+        getElement:$,hero,gameSettings,getStageHeight:()=>stageH
+    });
+    const setHeroSprite=playerVisuals.setHeroSprite;
+    const setUltimateFrame=playerVisuals.setUltimateFrame;
+    const clueItems=gameSettings.clueItems;
+    const titleAudio=new Audio('audio/title_bgm.wav');
+    titleAudio.loop=true;
+    titleAudio.volume=0.25;
+    const bgmAudio=new Audio('audio/fantasy_rpg_bgm.wav');
+    bgmAudio.loop=true;
+    bgmAudio.volume=0.28;
+    let musicEnabled=true;
+    function startTitleMusic() {
+        if(!musicEnabled)return;
+        try {
+            const p=titleAudio.play();
+            if(p&&p.catch)p.catch(()=> {
+            });
+        }
+        catch(e) {
+        }
+    }
+    startTitleMusic();
+    const shieldAudio=new Audio('audio/shield_bash.wav');
+    shieldAudio.volume=0.2;
+    const spearAudio=new Audio('audio/spear_thrust.wav');
+    spearAudio.volume=0.2;
+    function playSfx(kind) {
+        const a=kind==='bash'?shieldAudio:spearAudio;
+        try {
+            a.pause();
+            a.currentTime=0;
+            const p=a.play();
+            if(p&&p.catch)p.catch(()=> {
+            });
+        }
+        catch(e) {
+        }
+    }
+    // ===== 畫面提示：顯示傷害、線索等浮動文字 =====
+    function floatText(txt,worldX,bottom) {
+        const f=document.createElement('div');
+        f.className='effects';
+        f.textContent=txt;
+        f.style.left=((worldX-cameraX)/Math.max(1,stageW)*100)+'%';
+        f.style.bottom=bottom+'%';
+        stage.appendChild(f);
+        setTimeout(()=>f.remove(),950)
+    }
+    // ===== 線索掉落：每關指定一件；成功時暫停並進入兩階段點擊流程 =====
+    let clueModalPhase=0, activeClue=null;
+    const clueByLevel={
+        1:{id:'king',name:'王室徽章',dialog:'你發現了一枚王室徽章，上面的紋章似乎屬於失蹤的王子。',frame:'images/clues/king_layer1.png',item:'images/clues/king_layer2.png',glow:'images/clues/king_layer3.png'},
+        2:{id:'letter',name:'染血密信',dialog:'這封染血的密信似乎隱藏著秘密，信中的內容指向一場不為人知的陰謀。',frame:'images/clues/letter_layer1.png',item:'images/clues/letter_layer2.png',glow:'images/clues/letter_layer3.png'},
+        3:{id:'piece',name:'披風碎片',dialog:'這片紫色披風似乎曾經屬於王子。附近或許還藏著最後的線索。',frame:'images/clues/piece_layer1.png',item:'images/clues/piece_layer2.png',glow:'images/clues/piece_layer3.png'},
+        5:{id:'chapter2_clock',name:'古老時鐘',dialog:'時鐘的指針停在王子失蹤的那一刻。',frame:'images/chapter2/clues/clock_layer1.png',item:'images/chapter2/clues/clock_layer2.png',glow:'images/chapter2/clues/clock_layer3.png'},
+        6:{id:'chapter2_jelwellery',name:'王室珠寶',dialog:'珠寶上的紋章揭示了王室深處的秘密。',frame:'images/chapter2/clues/jelwellery_layer1.png',item:'images/chapter2/clues/jelwellery_layer2.png',glow:'images/chapter2/clues/jelwellery_layer3.png'},
+        7:{id:'chapter2_sword',name:'王者之劍',dialog:'這把劍似乎能開啟通往王國真相的道路。',frame:'images/chapter2/clues/sword_layer1.png',item:'images/chapter2/clues/sword_layer2.png',glow:'images/chapter2/clues/sword_layer3.png'}
+    };
+    const foundClues=new Set();
+    function showClue(item) {
+        if(!item || foundClues.has(item.id) || clueModalPhase)return;
+        foundClues.add(item.id);
+        clues.push(item.id);
+        activeClue=item;
+        clueModalPhase=1;
+        paused=true;
+        keys={};
+        hero.classList.remove('walking');
+        $('clueReveal').hidden=false;
+        $('clueRevealGlow').src=item.glow;
+        $('clueRevealItem').src=item.item;
+        $('clueDialogFrame').src=item.frame;
+        $('clueDialogTitle').textContent='發現'+item.name+'！';
+        $('clueDialogText').textContent=item.dialog;
+        $('clueDialog').hidden=true;
+        $('clueContinue').hidden=true;
+        $('clueBook').textContent='線索 '+clues.length+'/6';
+        $('pause').textContent='▶';
+    }
+    function closeClue() {
+        $('clueReveal').hidden=true;
+        $('clueDialog').hidden=true;
+        clueModalPhase=0;
+        activeClue=null;
+        paused=false;
+        $('pause').textContent='Ⅱ';
+        last=performance.now();
+        keys={};
+    }
+    // ===== 世界與鏡頭：計算關卡寬度、角色位置及鏡頭跟隨 =====
+    function sizeWorld() {
+        stageW=stage.clientWidth;
+        stageH=stage.clientHeight;
+        const ratio=(levelBackground.naturalWidth&&levelBackground.naturalHeight)?levelBackground.naturalWidth/levelBackground.naturalHeight:7.5;
+        bgW=Math.max(stageW,stageH*ratio);
+        worldW=bgW;
+        world.style.width=worldW+'px';
+        world.style.height='100%';
+        levelBackground.style.width=bgW+'px';
+        levelBackground.style.height='100%';
+        const blank=world.querySelector('.world-blank');
+        blank.style.left=bgW+'px';
+        blank.style.width='0px';
+        blank.style.height='100%';
+        updateCamera()
+    }
+    function heroExitX() {
+        const hw=hero.getBoundingClientRect().width||116;
+        return Math.max(0,bgW-hw*.52)
+    }
+    function updateCamera() {
+        if(!stageW) return;
+        const maxCamera=Math.max(0,worldW-stageW);
+        cameraX=Math.max(0,Math.min(maxCamera,x-stageW*.45));
+        world.style.transform='translate3d('+(-cameraX)+'px,0,0)';
+        hero.style.left=x+'px';
+        exitPrompt.hidden=!exitOpen;
+    }
+    // ===== Phase 1：惡魔城式角色物理 =====
+    // 加速/減速、空中控制、重力、土狼時間與跳躍預輸入；不改動原有戰鬥與關卡規則。
+    const PHYSICS={maxRun:.255,groundAccel:.00155,groundBrake:.00215,airAccel:.00082,gravity:.00205,jumpSpeed:.72,maxFall:.92,coyote:105,jumpBuffer:120};
+    function resetMovementPhysics(){
+        moveV=0;jumpY=0;jumpV=0;onGround=true;coyoteMs=0;jumpBufferMs=0;jumpT=0;
+        hero.style.setProperty('bottom','14%','important');
+        hero.classList.remove('jump');
+    }
+    function requestJump(){
+        if(ultimateActive)return;
+        jumpBufferMs=PHYSICS.jumpBuffer;
+    }
+    function updatePlayerPhysics(dt){
+        const dir=(keys.right?1:0)-(keys.left?1:0);
+        const accel=onGround?PHYSICS.groundAccel:PHYSICS.airAccel;
+        if(dir){
+            moveV+=dir*accel*dt;
+            moveV=Math.max(-PHYSICS.maxRun,Math.min(PHYSICS.maxRun,moveV));
+            faceDir=dir;
+            hero.classList.toggle('face-left',dir<0);
+        }else if(onGround){
+            const brake=PHYSICS.groundBrake*dt;
+            moveV=Math.abs(moveV)<=brake?0:moveV-Math.sign(moveV)*brake;
+        }
+        if(ultimateActive) moveV*=Math.max(0,1-dt*.012);
+        x=Math.max(0,Math.min(heroExitX(),x+moveV*dt));
+
+        if(onGround)coyoteMs=PHYSICS.coyote; else coyoteMs=Math.max(0,coyoteMs-dt);
+        jumpBufferMs=Math.max(0,jumpBufferMs-dt);
+        if(jumpBufferMs>0&&(onGround||coyoteMs>0)&&!ultimateActive){
+            jumpBufferMs=0;coyoteMs=0;onGround=false;jumpV=PHYSICS.jumpSpeed;jumpT=1;
+            setHeroSprite('images/hero_jump.png');hero.classList.add('jump');
+        }
+        if(!onGround){
+            jumpV-=PHYSICS.gravity*dt;
+            jumpV=Math.max(-PHYSICS.maxFall,jumpV);
+            jumpY+=jumpV*dt;
+            jumpT+=dt;
+            if(jumpY<=0){jumpY=0;jumpV=0;onGround=true;jumpT=0;hero.classList.remove('jump');}
+        }
+        hero.style.setProperty('bottom','calc(14% + '+jumpY.toFixed(1)+'px)','important');
+        hero.classList.toggle('walking',!ultimateActive&&onGround&&Math.abs(moveV)>.035);
+    }
+
+    function placeEnemy(e,px) {
+        e.dataset.x=px;
+        e.style.left=px+'px'
+    }
+    function setupLevelBackground() {
+        levelBackground.src=(levelConfigs[level-1]&&levelConfigs[level-1].background)||bgFiles[level-1];
+        levelBackground.onload=()=> {
+            sizeWorld()
+        };
+        if(levelBackground.complete)sizeWorld()
+    }
+    window.addEventListener('resize',()=> {
+        if(running) {
+            sizeWorld();
+            updateCamera()
+        }
+    });
+    // ===== HUD：更新血量、能量、關卡與線索數字 =====
+    function updateHud() {
+        $('hpbar').style.width=hp+'%';
+        $('mpbar').style.width=mp+'%';
+        const config=levelConfigs[level-1]||{};
+        $('count').textContent='第 '+level+' 關 · '+levelKills+' / '+targets[level-1];
+        $('count').title='第 '+(config.chapter||1)+' 章：'+(config.name||'冒險');
+        $('gems').textContent='◆ '.repeat(Math.max(0,Math.min(3,Math.ceil(mp/34)))).trim()||'◇ ◇ ◇';
+        $('clueBook').textContent='線索 '+clues.length+'/6'
+    }
+    // ===== 敵人圖片：交由 js/enemies.js 尋找圖片路徑 =====
+    // 這裡只保留呼叫，不再把每種敵人的圖片規則混在主程式。
+    const enemySpritePath = window.EnemyVisuals.enemySpritePath;
+
+    // ===== 敵人：建立一名新敵人並加入清單 =====
+    function spawn(xp,boss=false,behind=false) {
+        const config=levelConfigs[level-1]||levelConfigs[0];
+        const types=config.enemies||['skeleton'];
+        let type=boss?'boss':types[Math.floor(Math.random()*types.length)];
+        let visualType=type;
+        if(boss && config.chapter===2) {
+            const hasAllChapter2Clues=['chapter2_clock','chapter2_jelwellery','chapter2_sword'].every(id=>foundClues.has(id));
+            visualType=hasAllChapter2Clues?'chapter2_boss_1':'chapter2_boss_2';
+        } else if(!boss && config.chapter2Enemies) {
+            visualType='chapter2_enemy_'+(1+Math.floor(Math.random()*7));
+        }
+        const names= {
+            skeleton:'骷髏兵',archer:'皇家旗手',shield:'盾牌兵',heavy:'重裝騎士',assassin:'暗影刺客',acolyte:'灰袍祭司',boss:visualType==='chapter2_boss_1'?'隱藏頭目':'章節頭目'
+        };
+        const e=document.createElement('div');
+        e.className='enemy enemy-'+type;
+        e.innerHTML='<div class="enemy-name">'+names[type]+'</div><div class="ehealth"><i></i></div><div class="enemy-art"><img class="enemySprite" src="'+enemySpritePath(visualType,'idle')+'" alt="'+visualType+'"></div>';
+        // 方向規則：前方敵人持續面向女騎士；後方敵人在生成時鎖定為女騎士當時面向的反方向。
+        const initialFacing = behind ? (xp < x ? 'left' : 'right') : (xp > x ? 'right' : 'left');
+        e.dataset.facing=initialFacing;
+        e.dataset.facingLocked=behind?'1':'0';
+        e.classList.toggle('enemy-facing-left', initialFacing==='left');
+        e.style.left=xp+'px';
+        e.dataset.x=xp;
+        e.dataset.type=type;
+        e.dataset.spriteType=visualType;
+        e.dataset.rank=type==='heavy'?'elite':'normal';
+        e.dataset.hp=boss?'10':type==='heavy'||type==='shield'?4:type==='boss'?10:type==='assassin'||type==='acolyte'?3:2;
+        e.dataset.maxhp=e.dataset.hp;
+        e.dataset.boss=boss||type==='boss'?'1':'0';
+        e.dataset.lastAttack='0';
+        enemies.appendChild(e);
+        enemyList.push(e);
+        spawnedThisLevel++
+    }
+    function clearEnemies() {
+        enemies.innerHTML='';
+        enemyList.length=0
+    }
+    // ===== 開始／重開：重設本局狀態並啟動遊戲迴圈 =====
+    function setup() {
+        keys= {
+        };
+        resetMovementPhysics();
+        attackCd=0;
+        heroActionUntil=0;
+        heroActionSprite='images/hero_stand.png';
+        ultimateSound.stopAll();
+        ultimateActive=false;
+        ultimateCooldownUntil=0;
+        ultimateToken++;
+        pendingChapterTransition=false;
+        level=Math.max(1,Math.min(8,Number(window.GAME_START_LEVEL)||1));
+        // 第二章角色與敵人整體往下對齊，避免腳底高於背景地面。
+        world.classList.toggle('chapter2-world', !!(levelConfigs[level-1] && levelConfigs[level-1].chapter===2));
+        levelKills=0;
+        exitOpen=false;
+        exitPrompt.hidden=true;
+        kills=0;
+        spawnedThisLevel=0;
+        clues=[];
+        foundClues.clear();
+        clueModalPhase=0; activeClue=null;
+        $('clueReveal').hidden=true; $('clueDialog').hidden=true;
+        stage.classList.remove('title-mode');
+        $('titleScreen').style.display='none';
+        $('titlePopup').hidden=true;
+        addMusicButton();
+        const musicBtn=$('musicToggle');
+        if(musicBtn)musicBtn.style.display='block';
+        titleAudio.pause();
+        titleAudio.currentTime=0;
+        bgmAudio.pause();
+        bgmAudio.currentTime=0;
+        const sprite=$('heroSprite');
+        if(sprite) {
+            sprite.src='images/hero_stand.png';
+            sprite.style.transform='';
+        }
+        clearEnemies();
+        setupLevelBackground();
+        sizeWorld();
+        x=Math.min(stage.clientWidth*.25,heroExitX()*.45);
+        faceDir=1;
+        // 初始左側敵人視為後方敵人，生成時鎖定朝左；右側敵人面向女騎士。
+        spawn(Math.max(24,x-stageW*.22),false,true);
+        spawn(Math.min(heroExitX()-30,x+stageW*.34),false,false);
+        spawn(Math.min(heroExitX()-30,x+stageW*.62));
+        hp=100;
+        mp=65;
+        combo=0;
+        lastHit=0;
+        spawnTimer=0;
+        hero.style.left=x+'px';
+        hero.classList.remove('face-left','native-left-sprite','walking','thrust','bash','hit','jump','ultimate-anim','ultimate-charge','ultimate-release');
+        hero.style.removeProperty('--ultimate-lift');
+        hero.style.removeProperty('--ultimate-scale');
+        const skillSprite=$('heroSprite');
+        if(skillSprite) {
+            skillSprite.style.removeProperty('--skill-frame-width');
+            skillSprite.style.removeProperty('--skill-frame-height')
+        }
+        paused=false;
+        running=true;
+        updateHud();
+        overlay.style.display='none';
+        $('pause').textContent='Ⅱ';
+        if(musicEnabled)startGameMusic();
+        last=performance.now();
+        requestAnimationFrame(loop)
+    }
+    // ===== 音樂與音效 =====
+    function startGameMusic() {
+        if(!musicEnabled)return;
+        titleAudio.pause();
+        const config=levelConfigs[level-1]||{};
+        const musicPath=config.chapter===2?'audio/forest.wav':'audio/fantasy_rpg_bgm.wav';
+        const resolvedPath=new URL(musicPath,document.baseURI).href;
+        if(bgmAudio.src!==resolvedPath) { bgmAudio.src=musicPath; bgmAudio.load(); }
+        try {
+            const p=bgmAudio.play();
+            if(p&&p.catch)p.catch(()=> {
+            });
+        }
+        catch(e) {
+        }
+    }
+    function addMusicButton() {
+        if(document.getElementById('musicToggle'))return;
+        const b=document.createElement('button');
+        b.id='musicToggle';
+        b.textContent='🎵 音樂：開';
+        b.style.cssText='position:absolute;right:12px;top:48px;z-index:1000;border:1px solid #ffffff66;border-radius:10px;background:#17243bdd;color:white;padding:8px 10px;font-weight:700;cursor:pointer';
+        const st=document.querySelector('.stage')||document.getElementById('app');
+        if(st) {
+            if(getComputedStyle(st).position==='static')st.style.position='relative';
+            st.appendChild(b)
+        }
+        b.style.display=st.classList.contains('title-mode')?'none':'block';
+        b.addEventListener('click',()=> {
+            musicEnabled=!musicEnabled;
+            b.textContent=musicEnabled?'🎵 音樂：開':'🔇 音樂：關';
+            if(musicEnabled) {
+                if(running&&!paused)startGameMusic();
+                else startTitleMusic()
+            }
+            else {
+                bgmAudio.pause();
+                titleAudio.pause()
+            }
+        })
+    }
+    // ===== 普通戰鬥：槍刺、盾擊、特殊技能的傷害判定 =====
+    function attack(kind) {
+        if(!running||paused||attackCd>0)return;
+        attackCd=kind==='thrust'?260:kind==='bash'?430:850;
+        if(kind==='thrust'||kind==='bash')playSfx(kind);
+        const heroSprite=$('heroSprite');
+        heroSprite.style.transform='';
+        heroSprite.style.transformOrigin='center center';
+        hero.classList.remove('native-left-sprite');
+        heroSprite.classList.toggle('thrust-sprite',kind==='thrust');
+        heroActionSprite=kind==='thrust'?'images/hero_thrust.png':(kind==='bash'||kind==='special'?'images/hero_bash.png':'images/hero_stand.png');
+        heroActionUntil=performance.now()+520;
+        setHeroSprite(heroActionSprite);
+        hero.classList.remove('thrust','bash');
+        void hero.offsetWidth;
+        hero.classList.add(kind==='thrust'?'thrust':'bash');
+        setTimeout(()=>hero.classList.remove('thrust','bash'),190);
+        if(kind==='special') {
+            if(mp<30) {
+                floatText('能量不足',x,34);
+                return
+            }
+            mp-=30;
+            floatText('聖光爆發！',x+3,37)
+        }
+        let hits=0;
+        enemyList.forEach(e=> {
+            if(e.classList.contains('dead'))return;
+            let ex=+e.dataset.x;
+            const enemyCenter=ex+(e.offsetWidth||80)*.5;
+            const heroCenter=x+(hero.offsetWidth||116)*.5;
+            const dx=enemyCenter-heroCenter;
+            const range=stageW*(kind==='thrust'?.14:kind==='bash'?.09:.24);
+            if(kind==='special'||(dx*faceDir>=0&&Math.abs(dx)<range)) {
+                let type=e.dataset.type,dmg=kind==='thrust'?1:kind==='bash'?2:3;
+                if(type==='shield'&&kind==='thrust')dmg=0.5;
+                let eh=+e.dataset.hp-dmg;
+                e.dataset.hp=eh;
+                e.querySelector('.ehealth i').style.width=Math.max(0,eh/(+e.dataset.maxhp)*100)+'%';
+                const es=e.querySelector('.enemySprite');
+                if(es) {
+                    es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
+                    clearTimeout(e._spriteTimer);
+                    e._spriteTimer=setTimeout(()=> {
+                        if(es.isConnected)es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
+                    },300)
+                }
+                e.classList.add('hitflash');
+                e.dataset.x=Math.max(0,Math.min(worldW-30,ex+faceDir*stageW*(kind==='thrust'?.05:kind==='bash'?.08:.11)));
+                e.style.left=e.dataset.x+'px';
+                setTimeout(()=>e.classList.remove('hitflash'),140);
+                floatText(kind==='thrust'?'槍刺！':kind==='bash'?'盾擊！':'聖光！',ex,32);
+                hits++;
+                combo++;
+                lastHit=performance.now();
+                mp=Math.min(100,mp+5);
+                if(eh<=0) {
+                    clearTimeout(e._spriteTimer);
+                    e.classList.remove('hitflash','enemy-hit','enemy-attacking');
+                    // Lock the enemy immediately, briefly show the hit reaction, then leave the corpse.
+                    e.classList.add('dead');
+                    if(es) {
+                        es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
+                        e._deathPoseTimer=setTimeout(()=>{
+                            if(es.isConnected) es.src=enemySpritePath(e.dataset.spriteType||type,'dead');
+                        },150);
+                    }
+                    kills++;
+                    levelKills++;
+                    if(clueByLevel[level] && !foundClues.has(clueByLevel[level].id) && Math.random()<0.50)showClue(clueByLevel[level])
+                }
+            }
+        });
+        if(hits) {
+            $('hit').textContent=combo+' HIT'+(combo>1?'!':'');
+            $('hit').classList.add('show');
+            setTimeout(()=>$('hit').classList.remove('show'),600)
+        }
+        updateHud()
+    }
+    // ===== 絕招：蓄力、播放大絕影格、造成傷害並收招 =====
+    function ultimate() {
+        if(!running||paused||ultimateActive)return;
+        const now=performance.now();
+        if(now<ultimateCooldownUntil) {
+            floatText('絕招冷卻中 '+Math.ceil((ultimateCooldownUntil-now)/1000)+'s',x,38);
+            return
+        }
+        ultimateActive=true;
+        ultimateCooldownUntil=now+12000;
+        ultimateStartedAt=now;
+        keys.left=false;
+        keys.right=false;
+        const token=++ultimateToken,heroSprite=$('heroSprite');
+        heroActionSprite=ultimateSpriteFiles[0];
+        heroActionUntil=now+1500;
+        hero.classList.add('ultimate-anim');
+        setUltimateFrame(0);
+        hero.classList.remove('walking','thrust','bash','hit','jump');
+        hero.classList.add('ultimate-charge');
+        ultimateSound.startCharge();
+        floatText('女神降臨・神聖槍爆',x,43);
+        updateHud();
+        setTimeout(()=> {
+            if(token!==ultimateToken||!running) {
+                ultimateSound.stopCharge();
+                return;
+            }
+            ultimateSound.stopCharge();
+            ultimateSound.playBlast();
+            const ring=document.createElement('div');
+            ring.className='ultimate-ring';
+            ring.setAttribute('aria-hidden','true');
+            ring.style.left=x+'px';
+            ring.style.bottom='0%';
+            world.appendChild(ring);
+            setTimeout(()=>ring.remove(),760);
+            let hits=0;
+            enemyList.forEach(e=> {
+                if(e.classList.contains('dead'))return;
+                const ex=+e.dataset.x;
+                if(Math.abs(ex-x)>stageW*.32)return;
+                const type=e.dataset.type;
+                let dmg=5;
+                // five times a normal spear thrust
+                if(type==='shield')dmg=2.5;
+                const eh=+e.dataset.hp-dmg;
+                e.dataset.hp=eh;
+                const bar=e.querySelector('.ehealth i');
+                if(bar)bar.style.width=Math.max(0,eh/(+e.dataset.maxhp)*100)+'%';
+                const es=e.querySelector('.enemySprite');
+                if(es) {
+                    es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
+                    clearTimeout(e._spriteTimer);
+                    e._spriteTimer=setTimeout(()=> {
+                        if(es.isConnected&&!e.classList.contains('dead'))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
+                    },360)
+                }
+                e.classList.add('hitflash');
+                e.dataset.x=Math.max(0,Math.min(worldW-30,ex+Math.sign(ex-x||faceDir)*stageW*.035));
+                e.style.left=e.dataset.x+'px';
+                setTimeout(()=>e.classList.remove('hitflash'),180);
+                floatText('神聖爆發！',ex,36);
+                hits++;
+                combo++;
+                lastHit=performance.now();
+                mp=Math.min(100,mp+5);
+                if(eh<=0) {
+                    clearTimeout(e._spriteTimer);
+                    e.classList.remove('hitflash','enemy-hit','enemy-attacking');
+                    // Lock the enemy immediately, briefly show the hit reaction, then leave the corpse.
+                    e.classList.add('dead');
+                    if(es) {
+                        es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
+                        e._deathPoseTimer=setTimeout(()=>{
+                            if(es.isConnected) es.src=enemySpritePath(e.dataset.spriteType||type,'dead');
+                        },150);
+                    }
+                    kills++;
+                    levelKills++;
+                    if(clueByLevel[level] && !foundClues.has(clueByLevel[level].id) && Math.random()<0.50)showClue(clueByLevel[level])
+                }
+            });
+            $('hit').textContent=hits?(combo+' HIT'+(combo>1?'!':'')):'神聖槍爆！';
+            $('hit').classList.add('show');
+            setTimeout(()=>$('hit').classList.remove('show'),700);
+            hero.classList.remove('ultimate-charge');
+            hero.classList.add('ultimate-release');
+            setTimeout(()=> {
+                hero.classList.remove('ultimate-release','ultimate-anim');
+                hero.style.removeProperty('--ultimate-lift');
+                hero.style.removeProperty('--ultimate-scale');
+                const sprite=$('heroSprite');
+                if(sprite) {
+                    sprite.style.removeProperty('--skill-frame-width');
+                    sprite.style.removeProperty('--skill-frame-height')
+                }
+                if(running) {
+                    heroActionUntil=0;
+                    heroActionSprite='images/hero_stand.png';
+                    setHeroSprite(keys.left||keys.right?('images/hero_walk_1_'+(faceDir<0?'left':'right')+'.png'):'images/hero_stand.png')
+                }
+                ultimateActive=false;
+                updateHud()
+            },360);
+            updateHud();
+        },800);
+    }
+    // ===== 關卡流程：切換下一關或顯示通關結果 =====
+    function startLevel(levelNumber, preserveRun=true) {
+        level=levelNumber;
+        levelKills=0;
+        spawnedThisLevel=0;
+        spawnTimer=0;
+        exitOpen=false;
+        exitPrompt.hidden=true;
+        if(preserveRun) { hp=Math.min(100,hp+18); mp=Math.min(100,mp+20); }
+        clearEnemies();
+        setupLevelBackground();
+        x=Math.min(stageW*.12,heroExitX()*.25);
+        resetMovementPhysics();
+        cameraX=0;
+        world.style.transform='translate3d(0,0,0)';
+        const config=levelConfigs[level-1]||{};
+        if(running && musicEnabled) startGameMusic();
+        floatText('第 '+level+' 關：'+(config.name||'冒險'),stageW*.43,54);
+        spawn(Math.max(24,x-stageW*.22),false,true);
+        spawn(Math.min(heroExitX()-30,x+stageW*.34),false,false);
+        spawn(Math.min(heroExitX()-30,x+stageW*.62),!!config.boss,false);
+        updateCamera();
+        updateHud()
+    }
+    function startSecondChapter() {
+        pendingChapterTransition=false;
+        $('modalTitle').textContent='第二章：王國的秘密';
+        $('modalDesc').textContent='新的線索指向王室深處。冒險仍未結束——繼續前往封印之門。';
+        overlay.style.display='none';
+        $('returnTitle').style.display='none';
+        running=true;
+        paused=false;
+        startLevel(5,false);
+        $('pause').textContent='Ⅱ';
+        last=performance.now();
+        requestAnimationFrame(loop)
+    }
+    function nextLevel() {
+        if(level===4) {
+            running=false;
+            pendingChapterTransition=true;
+            showEnd('第一章完成：王子的失蹤','你已完成第一章，收集到 '+clues.length+' / 6 件線索。北方要塞的秘密仍未解開，現在將直接進入第二章。','進入第二章 ▶');
+            return
+        }
+        if(level>=8) {
+            running=false;
+            pendingChapterTransition=false;
+            showEnd('冒險完成：王國的真相','八關全部完成！你收集到 '+clues.length+' / 6 件線索。王子的失蹤之謎終於揭曉。','再玩一次');
+            return
+        }
+        startLevel(level+1,true)
+    }
+    // ===== 遊戲主迴圈：每一幀更新角色、敵人與勝負狀態 =====
+    function loop(t) {
+        if(!running)return;
+        const dt=Math.min(45,t-last);
+        last=t;
+        if(!paused) {
+            updatePlayerPhysics(dt);
+            if(ultimateActive) {
+                const skillFrame=Math.min(7,Math.floor(Math.max(0,t-ultimateStartedAt)/130));
+                heroActionSprite=ultimateSpriteFiles[skillFrame];
+                setUltimateFrame(skillFrame)
+            }
+            else if(t<heroActionUntil) {
+                setHeroSprite(heroActionSprite)
+            }
+            else if(jumpT>0) {
+                setHeroSprite('images/hero_jump.png')
+            }
+            else if(keys.left||keys.right) {
+                setHeroSprite('images/hero_walk_'+((Math.floor(t/120)%4)+1)+'_'+(faceDir<0?'left':'right')+'.png');
+                // Walking art already has separate left/right images; don't mirror it twice.
+                hero.classList.toggle('native-left-sprite',faceDir<0)
+            }
+            else {
+                hero.classList.remove('native-left-sprite');
+                setHeroSprite('images/hero_stand.png')
+            }
+            hero.style.left=x+'px';
+            updateCamera();
+            attackCd=Math.max(0,attackCd-dt);
+            if(t-lastHit>1400)combo=0;
+            for(let i=enemyList.length-1;
+            i>=0;
+            i--) {
+                const e=enemyList[i];
+                if(e.classList.contains('dead')) {
+                    if(!e.dataset.removed) {
+                        e.dataset.removed='1';
+                        setTimeout(()=>e.classList.add('fade-out'),1650);
+                        setTimeout(()=> {
+                            e.remove();
+                            const idx=enemyList.indexOf(e);
+                            if(idx>=0)enemyList.splice(idx,1)
+                        },2450)
+                    }
+                    continue
+                }
+                let ex=+e.dataset.x,type=e.dataset.type;
+                // 前方敵人持續面向女騎士；後方敵人保留生成時鎖定的相反方向。
+                if(e.dataset.facingLocked!=='1') {
+                    const enemyFacesLeft = x > ex;
+                    e.dataset.facing=enemyFacesLeft?'left':'right';
+                    e.classList.toggle('enemy-facing-left',enemyFacesLeft);
+                }
+                if(Math.abs(ex-x)>stageW*.07) {
+                    ex=Math.max(24,Math.min(heroExitX()-20,ex+Math.sign(x-ex)*dt*(type==='assassin'?.22:type==='heavy'||type==='shield'?.10:type==='acolyte'?.12:.15)));
+                    e.dataset.x=ex;
+                    e.style.left=ex+'px'
+                }
+                else {
+                    const lastAtk=+(e.dataset.lastAttack||0),cool=type==='assassin'||type==='acolyte'?1150:type==='boss'?950:1700;
+                    if(t-lastAtk>cool) {
+                        e.dataset.lastAttack=String(t);
+                        const es=e.querySelector('.enemySprite');
+                        if(es) {
+                            es.src=enemySpritePath(e.dataset.spriteType||type,'attack');
+                            clearTimeout(e._spriteTimer);
+                            e._spriteTimer=setTimeout(()=> {
+                                if(es.isConnected&&!e.classList.contains('hitflash'))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
+                            },420)
+                        }
+                        let dmg=type==='boss'?8:type==='heavy'?5:type==='assassin'?4:type==='acolyte'?3:type==='archer'?3:2;
+                        if(jumpT===0) {
+                            hp=Math.max(0,hp-dmg);
+                            floatText('−'+dmg,x,28)
+                        }
+                    }
+                }
+            }
+            if(levelKills<targets[level-1]&&enemyList.filter(e=>!e.classList.contains('dead')).length<4) {
+                spawnTimer+=dt;
+                if(spawnTimer>1350&&spawnedThisLevel<targets[level-1]) {
+                    {
+                    const behind=Math.random()<0.38;
+                    const offset=stageW*(.22+Math.random()*.22);
+                    // 後方以角色當前面向判定：面向右時從左側出現，面向左時從右側出現。
+                    const spawnX=behind
+                        ? (faceDir>0 ? Math.max(24,x-offset) : Math.min(heroExitX()-30,x+offset))
+                        : (faceDir>0 ? Math.min(heroExitX()-30,x+offset+stageW*.18) : Math.max(24,x-offset-stageW*.18));
+                    spawn(spawnX,false,behind);
+                }
+                    spawnTimer=0
+                }
+            }
+            if(levelKills>=targets[level-1]&&!enemyList.some(e=>!e.classList.contains('dead'))&&!exitOpen) {
+                exitOpen=true;
+                exitX=heroExitX();
+                exitPrompt.hidden=false;
+                floatText('出口已開啟！',x,42)
+            }
+            if(exitOpen&&keys.right&&x>=exitX-1) {
+                nextLevel()
+            }
+            if(hp<=0) {
+                running=false;
+                showEnd('女神需要休息！','敵人太多了，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始')
+            }
+            updateHud()
+        }
+        if(running)requestAnimationFrame(loop)
+    }
+    // ===== 首頁與彈窗：結束畫面、設定、教學及排行榜 =====
+    function showEnd(t,d,b) {
+        $('modalTitle').textContent=t;
+        $('modalDesc').innerHTML=d;
+        $('start').textContent=b;
+        $('returnTitle').style.display='block';
+        overlay.style.display='flex'
+    }
+    function showTitle() {
+        running=false;
+        paused=false;
+        keys= {
+        };
+        resetMovementPhysics();
+        attackCd=0;
+        heroActionUntil=0;
+        heroActionSprite='images/hero_stand.png';
+        ultimateSound.stopAll();
+        ultimateActive=false;
+        ultimateStartedAt=0;
+        ultimateToken++;
+        bgmAudio.pause();
+        bgmAudio.currentTime=0;
+        titleAudio.pause();
+        titleAudio.currentTime=0;
+        clearEnemies();
+        hero.style.left='25%';
+        hero.classList.remove('face-left','native-left-sprite','walking','thrust','bash','hit','jump','ultimate-anim','ultimate-charge','ultimate-release');
+        hero.style.removeProperty('--ultimate-lift');
+        hero.style.removeProperty('--ultimate-scale');
+        const sprite=$('heroSprite');
+        if(sprite) {
+            sprite.style.removeProperty('--skill-frame-width');
+            sprite.style.removeProperty('--skill-frame-height');
+            sprite.src='images/hero_stand.png';
+            sprite.style.transform=''
+        }
+        stage.classList.add('title-mode');
+        $('titleScreen').style.display='block';
+        overlay.style.display='none';
+        $('titlePopup').hidden=true;
+        $('pause').textContent='Ⅱ';
+        const mb=$('musicToggle');
+        if(mb)mb.style.display='none';
+        if(musicEnabled)startTitleMusic()
+    }
+    function openTitlePopup(kind) {
+        const heading=$('titlePopupHeading'),body=$('titlePopupBody'),card=$('titlePopup').querySelector('.title-popup-card');
+        card.classList.remove('tutorial-card');
+        if(kind==='settings') {
+            heading.textContent='設定';
+            body.innerHTML='<p>背景音樂</p><button class="popup-option" id="musicSetting">'+(musicEnabled?'🔊 音樂：開':'🔇 音樂：關')+'</button><p class="popup-hint">你也可以在戰鬥畫面右上角切換音樂。</p>';
+            body.querySelector('#musicSetting').onclick=()=> {
+                musicEnabled=!musicEnabled;
+                titleAudio.pause();
+                bgmAudio.pause();
+                body.querySelector('#musicSetting').textContent=musicEnabled?'🔊 音樂：開':'🔇 音樂：關';
+                if(musicEnabled)startTitleMusic()
+            }
+        }
+        else if(kind==='tutorial') {
+            heading.textContent='聖騎士戰鬥教學';
+            card.classList.add('tutorial-card');
+            body.innerHTML='<div class="tutorial-controls"><div class="tutorial-control"><b>← / →</b><span>左右移動／控制面向</span></div><div class="tutorial-control"><b>↑</b><span>跳躍（可躲攻擊）</span></div><div class="tutorial-control"><b>Z</b><span>槍刺・Spear Thrust</span></div><div class="tutorial-control"><b>X</b><span>盾擊・Shield Bash</span></div><div class="tutorial-control"><b>C</b><span>特殊技能（消耗 30 能量）</span></div><div class="tutorial-control"><b>Ⅱ / ▶</b><span>暫停 / 繼續</span></div></div><p class="tutorial-note">目標：通過 8 關，收集最多 6 件王子線索。亦可使用畫面上的觸控按鈕。</p>'
+        }
+        else {
+            heading.textContent='排行榜';
+            body.innerHTML='<p>🏆 本機排行榜</p><p>完成八關後，王子失蹤的真相將逐漸揭曉。</p>'
+        }
+        $('titlePopup').hidden=false
+    }
+    // ===== 輸入控制：把鍵盤和畫面按鈕轉成遊戲動作 =====
+    function action(a) {
+        if(a==='left'||a==='right') {
+            keys[a]=true;
+            return
+        }
+        if(a==='ultimate') {
+            ultimate();
+            return
+        }
+        if(a==='jump') {
+            requestJump();
+            return
+        }
+        attack(a)
+    }
+    document.querySelectorAll('[data-act]').forEach(b=> {
+        let a=b.dataset.act;
+        b.addEventListener('pointerdown',e=> {
+            e.preventDefault();
+            action(a)
+        });
+        ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=> {
+            keys[a]=false
+        }))
+    });
+    window.addEventListener('keydown',e=> {
+        if(['ArrowLeft','ArrowRight','ArrowUp',' '].includes(e.key))e.preventDefault();
+        if(e.key==='ArrowLeft')keys.left=true;
+        if(e.key==='ArrowRight')keys.right=true;
+        if(e.key==='ArrowUp'&&!e.repeat) requestJump();
+        if(e.key.toLowerCase()==='z')attack('thrust');
+        if(e.key.toLowerCase()==='x')attack('bash');
+        if(e.key.toLowerCase()==='q')ultimate()
+    });
+    window.addEventListener('keyup',e=> {
+        if(e.key==='ArrowLeft')keys.left=false;
+        if(e.key==='ArrowRight')keys.right=false
+    });
+    $('start').addEventListener('click',()=> {
+        if(clueModalPhase)return;
+        if(pendingChapterTransition) { startSecondChapter(); return; }
+        if(running&&paused) {
+            keys= {
+            };
+            paused=false;
+            overlay.style.display='none';
+            $('pause').textContent='Ⅱ';
+            $('returnTitle').style.display='none';
+            last=performance.now();
+            return
+        }
+        setup();
+        $('returnTitle').style.display='none'
+    });
+    $('returnTitle').addEventListener('click',showTitle);
+    $('titleStart').addEventListener('click',setup);
+    $('titleSettings').addEventListener('click',()=>openTitlePopup('settings'));
+    $('titleTutorial').addEventListener('click',()=>openTitlePopup('tutorial'));
+    $('titleRanking').addEventListener('click',()=>openTitlePopup('ranking'));
+    $('closeTitlePopup').addEventListener('click',()=>$('titlePopup').hidden=true);
+    $('pause').addEventListener('click',()=> {
+        if(!running||clueModalPhase)return;
+        paused=!paused;
+        $('pause').textContent=paused?'▶':'Ⅱ';
+        if(paused) {
+            keys= {
+            };
+            hero.classList.remove('walking');
+            $('modalTitle').textContent='遊戲暫停';
+            $('modalDesc').textContent='休息一下，王子暫時不會再走失。';
+            $('start').textContent='繼續遊戲';
+            $('returnTitle').style.display='block';
+            overlay.style.display='flex'
+        }
+        else {
+            $('returnTitle').style.display='none';
+            overlay.style.display='none';
+            last=performance.now()
+        }
+    });
+    // 線索互動：第一下只點物件本體，第二階段按「繼續」才恢復遊戲。
+    $('clueRevealItem').addEventListener('click',()=>{
+        if(clueModalPhase!==1 || !activeClue)return;
+        clueModalPhase=2;
+        $('clueReveal').hidden=true;
+        $('clueDialog').hidden=false;
+        $('clueContinue').hidden=false;
+    });
+    $('clueRevealItem').addEventListener('keydown',e=>{
+        if((e.key==='Enter'||e.key===' ') && clueModalPhase===1){e.preventDefault();$('clueRevealItem').click();}
+    });
+    $('clueContinue').addEventListener('click',()=>{
+        if(clueModalPhase===2)closeClue();
+    });
+})();
