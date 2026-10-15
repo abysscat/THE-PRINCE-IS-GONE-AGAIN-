@@ -1,0 +1,120 @@
+/* CSS 外觀總入口。以下檔案必須按順序載入，因為後面的樣式會覆蓋前面的樣式。
+   想找某種外觀，請先看 styles/CSS新手說明.txt，再開對應分檔。 */
+@import url("01-theme-layout.css"); /* 全局設定、遊戲舞台、角色與敵人基本外觀 */
+@import url("02-buttons-and-enemy-sprites.css"); /* 操作按鈕素材、敵人圖片狀態 */
+@import url("03-title-and-tutorial.css"); /* 首頁、首頁點擊區、跳躍修正與教學視窗 */
+@import url("04-character-animation-and-title.css"); /* 角色動作動畫與首頁版面 */
+@import url("05-levels-and-camera.css"); /* 關卡提示、敵人美術整合與鏡頭 */
+@import url("06-alignment-and-fixes.css"); /* 角色影格尺寸、地面對齊、敵人外觀與修正 */
+@import url("07-ultimate-effects.css"); /* Q 大絕按鈕、蓄力、神聖槍爆特效 */
+@import url("09-directional-combat.css"); /* Phase 1.5: left/right facing and directional combat */
+
+
+/* Death state: keep the original enemy_idle artwork fixed in place and in full color. */
+#world .enemy.dead {
+  opacity: 1 !important;
+  transform: none !important;
+  translate: none !important;
+  rotate: none !important;
+  filter: none !important;
+  animation: none !important;
+  transition: opacity 800ms linear !important;
+  pointer-events: none;
+}
+#world .enemy.dead .enemySprite {
+  opacity: 1;
+  transform: none !important;
+  filter: none !important;
+  animation: none !important;
+  transition: opacity 800ms linear !important;
+}
+#world .enemy.dead .ehealth,
+#world .enemy.dead .enemy-name {
+  opacity: 0 !important;
+}
+#world .enemy.dead.fade-out,
+#world .enemy.dead.fade-out .enemySprite {
+  opacity: 0 !important;
+}
+
+/* ===== Clue discovery two-step modal ===== */
+.clue-reveal,.clue-dialog{position:absolute;inset:0;z-index:1800;display:flex;align-items:center;justify-content:center;background:rgba(5,8,18,.78);padding:18px;box-sizing:border-box}
+.clue-reveal[hidden],.clue-dialog[hidden]{display:none!important}
+.clue-reveal-card{width:min(440px,92%);min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #e6c66f;border-radius:18px;background:radial-gradient(ellipse at center,#26365a 0%,#101827 72%);box-shadow:0 0 28px #f4cf6380,inset 0 0 22px #e6bd4233;padding:18px;box-sizing:border-box}
+.clue-reveal-heading{font-size:clamp(20px,4vw,28px);font-weight:900;color:#ffe7a1;text-shadow:0 2px 5px #000;margin:0 0 8px}
+.clue-art{position:relative;width:min(260px,68vw);height:min(260px,52vh);display:flex;align-items:center;justify-content:center}
+.clue-glow{position:absolute;width:135%;height:135%;object-fit:contain;pointer-events:none;animation:cluePulse 1.8s ease-in-out infinite}
+.clue-item{position:relative;z-index:1;max-width:100%;max-height:100%;object-fit:contain;cursor:pointer;filter:drop-shadow(0 5px 9px #0009);touch-action:manipulation}
+.clue-item:focus-visible{outline:3px solid #ffe7a1;outline-offset:5px;border-radius:8px}
+.clue-reveal-hint{color:#fff2c9;font-weight:700;margin:10px 0 0}
+.clue-dialog-card{position:relative;width:min(650px,96%);min-height:250px;display:flex;align-items:center;justify-content:center}
+.clue-dialog-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+.clue-dialog-copy{position:relative;z-index:1;width:72%;padding:34px 12px 25px;text-align:center;color:#241a13;text-shadow:0 1px #fff8;box-sizing:border-box}
+.clue-dialog-copy h2{font-size:clamp(19px,4vw,28px);margin:0 0 12px}
+.clue-dialog-copy p{font-size:clamp(14px,2.6vw,19px);line-height:1.65;margin:0 0 18px}
+.clue-dialog-copy .primary{pointer-events:auto}
+@keyframes cluePulse{0%,100%{transform:scale(.94);opacity:.7}50%{transform:scale(1.08);opacity:1}}
+@media(max-width:520px){.clue-reveal-card{min-height:250px}.clue-dialog-copy{width:76%;padding:24px 8px 18px}.clue-dialog-card{min-height:210px}}
+
+
+/* Clue UI refinement v2: preserve source-art proportions and keep text inside the inner panel. */
+.clue-dialog { padding: clamp(8px, 2vw, 20px); }
+.clue-dialog-card {
+  width: min(94vw, 900px);
+  min-height: 0;
+  aspect-ratio: 1.77 / 1;
+  max-height: 78vh;
+  height: auto;
+  flex: 0 1 auto;
+}
+.clue-dialog-frame {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.clue-dialog-copy {
+  position: absolute;
+  left: 11%; right: 11%; top: 32%; bottom: 12%;
+  width: auto; height: auto;
+  padding: 12px 16px 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: auto; box-sizing: border-box;
+  color: #fff !important;
+  background: transparent !important;
+  border-radius: 0;
+  text-shadow: 0 2px 3px rgba(0,0,0,.95), 0 0 5px rgba(0,0,0,.8) !important;
+}
+.clue-dialog-copy h2, .clue-dialog-copy p { color: #fff !important; font-weight: 800 !important; text-shadow: 0 2px 3px rgba(0,0,0,.95), 0 0 5px rgba(0,0,0,.8) !important; }
+.clue-dialog-copy h2 { font-size: clamp(14px, 2vw, 22px); line-height: 1.2; margin: 0 0 6px; }
+.clue-dialog-copy p { font-size: clamp(11px, 1.45vw, 16px); line-height: 1.35; margin: 0 0 8px; }
+.clue-dialog-copy .primary { flex: 0 0 auto; }
+.clue-art { overflow: visible; }
+.clue-glow { transform-origin: center; animation: cluePulse 1.8s ease-in-out infinite; }
+.clue-item { transform-origin: center; animation: clueItemReveal 650ms cubic-bezier(.18,.78,.24,1.18) both; }
+@keyframes clueItemReveal {
+  0% { transform: scale(.08); opacity: .15; }
+  72% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@media (max-width: 520px) {
+  .clue-dialog-card { width: 98vw; max-height: 70vh; }
+  .clue-dialog-copy { left: 10%; right: 10%; top: 34%; bottom: 13%; padding: 5px 7px; border-radius: 6px; }
+  .clue-dialog-copy h2 { font-size: clamp(12px, 2.8vw, 16px); margin-bottom: 4px; }
+  .clue-dialog-copy p { font-size: clamp(10px, 2.3vw, 12px); line-height: 1.25; margin-bottom: 5px; }
+}
+
+
+/* Chapter 2: keep the original ground line and enlarge the two chapter bosses. */
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_boss_1"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_boss_2"] .enemy-art .enemySprite {
+  transform: scale(2.5) !important;
+  transform-origin: center bottom !important;
+}
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type^="chapter2_boss_"] .enemy-art .enemySprite {
+  transform: scale(2.5) !important;
+}
+
+/* Chapter 2 bosses only: lower the whole boss actor to align visible feet with the ground line. */
+#world.chapter2-world #enemies > .enemy[data-sprite-type^="chapter2_boss_"] {
+  bottom: 0% !important;
+}
