@@ -1,0 +1,86 @@
+/* 角色影格尺寸、地面對齊、敵人外觀與修正。本檔只負責外觀；不控制遊戲規則。 */
+
+/*GODNESS FIX: every action frame shares the same canvas and rendered height.*/
+.hero {
+  /* 尺寸由 js/game-tuning.js 集中管理；這裡只保留錨點。 */
+  transform-origin: 50% 100% !important;
+}
+.hero #heroSprite,
+.hero #heroSprite.thrust-sprite,
+.hero.jump #heroSprite {
+  position: absolute !important;
+  left: 50% !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: 100% !important;
+  object-fit: fill !important;
+  object-position: center bottom !important;
+  transform: translateX(-50%) !important;
+  transform-origin: 50% 100% !important;
+  animation: none !important;
+}
+@media (max-width:620px) {
+  .hero #heroSprite,
+  .hero #heroSprite.thrust-sprite,
+  .hero.jump #heroSprite {
+    height: 100% !important;
+    width: auto !important;
+    transform: translateX(-50%) !important;
+    animation: none !important;
+  }
+}
+/* 地面基準已移至 styles/10-game-tuning.css，由 js/game-tuning.js 的 groundBottom 控制。 */
+#world #enemies > .enemy .enemySprite {
+  object-fit: contain !important;
+  object-position: center bottom !important;
+}
+/* 重裝騎士的尺寸統一由 js/game-tuning.js 的 enemySizes.heavy 控制。 */
+.enemy-heavy .enemy-name {
+  background: linear-gradient(135deg, #6f3f16, #a86b24) !important;
+  border-color: #ffd78a !important;
+  color: #fff4d6 !important;
+  font-size: 11px;
+  top: -29px;
+}
+.enemy-heavy .ehealth {
+  width: 100%;
+  left: 0;
+}
+/* Boss 容器尺寸與地面位置統一由 js/game-tuning.js 的 bosses 控制。 */
+.enemy-boss .enemy-name {
+  top: -30px;
+  font-size: 12px;
+}
+.enemy-boss .ehealth {
+  width: 100%;
+  left: 0;
+}
+.enemy-acolyte .enemy-name {
+  background: #17243bd9;
+  border-color: #8194ad;
+  color: #fff3d0;
+}
+/* 灰袍祭司尺寸統一由 js/game-tuning.js 的 enemySizes.acolyte 控制。 */
+
+/*Prevent hero flicker during simultaneous movement and skill input.*/
+.hero #heroSprite {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Phase 1 movement physics: vertical position is controlled by JS gravity rather than the old timed CSS jump. */
+#world > .hero.jump {
+  animation: none !important;
+  transition: none !important;
+}
+#world > .hero.jump #heroSprite {
+  animation: none !important;
+}
+
+/* Boss 尺寸／底部位置已集中至 styles/10-game-tuning.css。 */
