@@ -1,0 +1,165 @@
+/*
+ * 新手集中外觀層。請優先改 js/game-tuning.js 的數值，不要在這裡另開一套尺寸。
+ * 本檔由 index.html 在 styles/game-ui.css 之後載入，所以可覆蓋舊版散落的外觀規則。
+ */
+:root {
+  --tune-hero-width: 116px;
+  --tune-hero-height: 158px;
+  --tune-hero-mobile-scale: .78;
+  --tune-ground-bottom: 14%;
+  --tune-enemy-width: clamp(112px, 11vw, 145px);
+  --tune-enemy-height: clamp(92px, 12vw, 120px);
+  --tune-heavy-width: clamp(128px, 12vw, 155px);
+  --tune-heavy-height: clamp(102px, 13vw, 130px);
+  --tune-acolyte-width: clamp(112px, 11vw, 145px);
+  --tune-acolyte-height: clamp(92px, 12vw, 120px);
+  --tune-c2-enemy-width: clamp(112px, 11vw, 145px);
+  --tune-c2-enemy-height: clamp(92px, 12vw, 120px);
+  --tune-c1-boss-width: 600px;
+  --tune-c1-boss-height: 550px;
+  --tune-c1-boss-bottom: 50px;
+  --tune-c1-boss-scale: 1;
+  --tune-c1-boss-y: 0px;
+  --tune-c2-boss1-width: 600px;
+  --tune-c2-boss1-height: 500px;
+  --tune-c2-boss1-bottom: calc(14% - 30px);
+  --tune-c2-boss1-scale: 1.5;
+  --tune-c2-boss1-y: 0px;
+  --tune-c2-boss2-width: 600px;
+  --tune-c2-boss2-height: 550px;
+  --tune-c2-boss2-bottom: calc(14% - 30px);
+  --tune-c2-boss2-scale: 1.5;
+  --tune-c2-boss2-y: 0px;
+  --tune-death-fade-ms: 800ms;
+  --tune-enemy-hit-animation-ms: 180ms;
+  --tune-clue-pulse-seconds: 1.8s;
+  --tune-clue-reveal-ms: 650ms;
+}
+
+/* 玩家尺寸與共用地面線。角色跳躍時的動態高度仍由 game.js 物理運算控制。 */
+#world > .hero {
+  width: var(--tune-hero-width) !important;
+  height: var(--tune-hero-height) !important;
+}
+#world > .hero,
+#world #enemies > .enemy {
+  bottom: var(--tune-ground-bottom) !important;
+}
+@media (max-width: 620px) {
+  #world > .hero {
+    width: var(--tune-hero-width) !important;
+    height: var(--tune-hero-height) !important;
+  }
+  .hero {
+    transform: translateX(-50%) scale(var(--tune-hero-mobile-scale)) !important;
+  }
+}
+
+/* 普通敵人、重裝敵人、祭司的外框尺寸。 */
+#world #enemies > .enemy:not(.enemy-boss) {
+  width: var(--tune-enemy-width) !important;
+  height: var(--tune-enemy-height) !important;
+}
+#world #enemies > .enemy.enemy-heavy:not(.enemy-boss) {
+  width: var(--tune-heavy-width) !important;
+  height: var(--tune-heavy-height) !important;
+}
+#world #enemies > .enemy.enemy-acolyte:not(.enemy-boss) {
+  width: var(--tune-acolyte-width) !important;
+  height: var(--tune-acolyte-height) !important;
+}
+#world #enemies > .enemy[data-sprite-type^="chapter2_enemy_"] {
+  width: var(--tune-c2-enemy-width) !important;
+  height: var(--tune-c2-enemy-height) !important;
+}
+
+/* 第一章 Boss：外框與圖片縮放分開控制。 */
+#world:not(.chapter2-world) #enemies > .enemy.enemy-boss[data-sprite-type="boss"] {
+  width: var(--tune-c1-boss-width) !important;
+  height: var(--tune-c1-boss-height) !important;
+  bottom: var(--tune-c1-boss-bottom) !important;
+}
+#world:not(.chapter2-world) #enemies > .enemy.enemy-boss[data-sprite-type="boss"] .enemy-art .enemySprite,
+#world:not(.chapter2-world) #enemies > .enemy.enemy-boss.dead[data-sprite-type="boss"] .enemy-art .enemySprite {
+  /* 分離 translate / scale，保留舊版 hit animation 對 transform 的控制。 */
+  translate: 0 var(--tune-c1-boss-y) !important;
+  scale: var(--tune-c1-boss-scale) !important;
+  transform-origin: 50% 100% !important;
+}
+
+/* 第二章 Boss 1 / Boss 2：這兩段特別保留死亡時相同的圖片縮放與偏移，避免死後突然變小。 */
+#world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_1"],
+#world #enemies > .enemy.enemy-boss.dead[data-sprite-type="chapter2_boss_1"] {
+  width: var(--tune-c2-boss1-width) !important;
+  height: var(--tune-c2-boss1-height) !important;
+  bottom: var(--tune-c2-boss1-bottom) !important;
+}
+#world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_1"] .enemy-art .enemySprite,
+#world #enemies > .enemy.enemy-boss.dead[data-sprite-type="chapter2_boss_1"] .enemy-art .enemySprite {
+  transform: translateY(var(--tune-c2-boss1-y)) scale(var(--tune-c2-boss1-scale)) !important;
+  transform-origin: 50% 100% !important;
+}
+#world.chapter2-world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_2"],
+#world.chapter2-world #enemies > .enemy.enemy-boss.dead[data-sprite-type="chapter2_boss_2"] {
+  width: var(--tune-c2-boss2-width) !important;
+  height: var(--tune-c2-boss2-height) !important;
+  bottom: var(--tune-c2-boss2-bottom) !important;
+}
+#world.chapter2-world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_2"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.enemy-boss.dead[data-sprite-type="chapter2_boss_2"] .enemy-art .enemySprite {
+  transform: translateY(var(--tune-c2-boss2-y)) scale(var(--tune-c2-boss2-scale)) !important;
+  transform-origin: 50% 100% !important;
+}
+
+/* 第二章 7 種普通敵人：每種可在 game-tuning.js 單獨改 imageScale / imageOffsetY。
+   死亡後沿用相同 transform，避免 CSS 的 transform:none 抹掉縮放與置中。 */
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_1"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type="chapter2_enemy_1"] .enemy-art .enemySprite {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-1-y, 0px)) scale(var(--tune-chapter2-enemy-1-scale, 1)) !important;
+  transform-origin: 50% 100% !important;
+}
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_2"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type="chapter2_enemy_2"] .enemy-art .enemySprite {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-2-y, 0px)) scale(var(--tune-chapter2-enemy-2-scale, 1)) !important;
+  transform-origin: 50% 100% !important;
+}
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_3"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type="chapter2_enemy_3"] .enemy-art .enemySprite {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-3-y, 0px)) scale(var(--tune-chapter2-enemy-3-scale, 1)) !important;
+  transform-origin: 50% 100% !important;
+}
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_4"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type="chapter2_enemy_4"] .enemy-art .enemySprite {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-4-y, 0px)) scale(var(--tune-chapter2-enemy-4-scale, 1)) !important;
+  transform-origin: 50% 100% !important;
+}
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_5"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type="chapter2_enemy_5"] .enemy-art .enemySprite {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-5-y, 0px)) scale(var(--tune-chapter2-enemy-5-scale, 1)) !important;
+  transform-origin: 50% 100% !important;
+}
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_6"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type="chapter2_enemy_6"] .enemy-art .enemySprite {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-6-y, 0px)) scale(var(--tune-chapter2-enemy-6-scale, 1)) !important;
+  transform-origin: 50% 100% !important;
+}
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_7"] .enemy-art .enemySprite,
+#world.chapter2-world #enemies > .enemy.dead[data-sprite-type="chapter2_enemy_7"] .enemy-art .enemySprite {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-7-y, 0px)) scale(var(--tune-chapter2-enemy-7-scale, 1)) !important;
+  transform-origin: 50% 100% !important;
+}
+
+/* 特效時間統一由 game-tuning.js 控制。 */
+#world .enemy.dead.fade-out,
+#world .enemy.dead.fade-out .enemySprite {
+  transition-duration: var(--tune-death-fade-ms) !important;
+}
+.enemy.hitflash .enemySprite {
+  animation-duration: var(--tune-enemy-hit-animation-ms) !important;
+}
+.clue-glow {
+  animation-duration: var(--tune-clue-pulse-seconds) !important;
+}
+.clue-item {
+  animation-duration: var(--tune-clue-reveal-ms) !important;
+}
