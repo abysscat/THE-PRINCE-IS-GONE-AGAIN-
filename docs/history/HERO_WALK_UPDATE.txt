@@ -1,0 +1,4 @@
+女神行走素材分為左右方向版本：
+- hero_walk_1_right.png 至 hero_walk_4_right.png：向右行走（原圖）
+- hero_walk_1_left.png 至 hero_walk_4_left.png：向左行走（由原圖水平鏡像）
+遊戲依 faceDir 選擇方向版本，左右轉向時角色圖片會反方向；行走影格仍按原本節奏循環，停止時回到 hero_stand.png。

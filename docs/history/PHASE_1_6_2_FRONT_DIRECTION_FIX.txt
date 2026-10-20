@@ -1,0 +1,8 @@
+Phase 1.6.2 - Front Enemy Direction Fix
+
+Change:
+- Front enemies now use the corrected facing direction at spawn and during updates.
+- Behind enemies retain their locked facing behavior from Phase 1.6.1.
+- No other gameplay logic intentionally changed.
+
+Please test in browser. Syntax check passed; full browser gameplay testing has not been performed.
