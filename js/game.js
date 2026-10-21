@@ -61,20 +61,36 @@
         }
     }
     startTitleMusic();
-    const shieldAudio=new Audio('audio/shield_bash.wav');
-    shieldAudio.volume=0.10;
-    const spearAudio=new Audio('audio/spear_thrust.wav');
-    spearAudio.volume=0.10;
+    // 手機瀏覽器會在同一個 Audio 上反覆 pause()+currentTime=0 時截斷上一聲。
+    // 每種攻擊音效使用獨立播放通道；通道仍在播放時不重啟它，避免連續攻擊互相切斷。
+    function createSfxPool(src, volume, voiceCount) {
+        return Array.from({length:voiceCount},()=> {
+            const audio=new Audio(src);
+            audio.preload='auto';
+            audio.volume=volume;
+            const voice={audio,busy:false};
+            audio.addEventListener('ended',()=>{voice.busy=false;});
+            audio.addEventListener('error',()=>{voice.busy=false;});
+            return voice;
+        });
+    }
+    // 槍刺約 1.25 秒、盾擊約 1.03 秒；通道數足夠覆蓋各自的連擊間隔。
+    const shieldSfxPool=createSfxPool('audio/shield_bash.wav',0.10,3);
+    const spearSfxPool=createSfxPool('audio/spear_thrust.wav',0.10,5);
     function playSfx(kind) {
-        const a=kind==='bash'?shieldAudio:spearAudio;
+        const pool=kind==='bash'?shieldSfxPool:spearSfxPool;
+        // 優先使用未播放的通道；全部繁忙時略過這一下音效，不截斷正在播放的聲音。
+        const voice=pool.find(v=>!v.busy||v.audio.ended);
+        if(!voice)return;
+        const a=voice.audio;
         try {
-            a.pause();
+            voice.busy=true;
             a.currentTime=0;
             const p=a.play();
-            if(p&&p.catch)p.catch(()=> {
-            });
+            if(p&&p.catch)p.catch(()=>{voice.busy=false;});
         }
         catch(e) {
+            voice.busy=false;
         }
     }
     // ===== 畫面提示：顯示傷害、線索等浮動文字 =====
