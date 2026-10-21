@@ -1,0 +1,8 @@
+Skill animation integration fix
+
+- Integrated the eight frames from skin_aligned.zip into the exact asset folder loaded by the game.
+- Normalized all frames to 512x460 transparent PNG canvases, with visible artwork scaled to a consistent 330px height and aligned to a common bottom baseline.
+- Removed per-frame CSS scaling values that caused abrupt size changes.
+- Updated ultimate animation rendering to use a consistent 158px display height and fixed horizontal/bottom anchoring.
+
+Please test in browser at desktop and mobile sizes. This is a code/assets integration fix; gameplay behavior should be verified in the target browser.

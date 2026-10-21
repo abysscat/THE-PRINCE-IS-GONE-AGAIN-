@@ -61,37 +61,110 @@
         }
     }
     startTitleMusic();
-    // 手機瀏覽器會在同一個 Audio 上反覆 pause()+currentTime=0 時截斷上一聲。
-    // 每種攻擊音效使用獨立播放通道；通道仍在播放時不重啟它，避免連續攻擊互相切斷。
-    function createSfxPool(src, volume, voiceCount) {
-        return Array.from({length:voiceCount},()=> {
-            const audio=new Audio(src);
-            audio.preload='auto';
-            audio.volume=volume;
-            const voice={audio,busy:false};
-            audio.addEventListener('ended',()=>{voice.busy=false;});
-            audio.addEventListener('error',()=>{voice.busy=false;});
-            return voice;
+    // 攻擊音效播放引擎：優先使用 Web Audio 的 AudioBufferSourceNode。
+    // 每次攻擊建立獨立 source，不重設／中斷任何正在播放的 HTMLAudio，避免手機連擊時截聲。
+    const SFX_VOLUME=0.10;
+    let attackAudioContext=null;
+    const attackAudioBuffers={};
+    const attackAudioBufferPromises={};
+    const sfxData=window.GAME_SFX_BASE64||{};
+    function decodeAudioCompat(ctx, arrayBuffer) {
+        return new Promise((resolve,reject)=>{
+            let settled=false;
+            const ok=buffer=>{if(!settled){settled=true;resolve(buffer)}};
+            const fail=error=>{if(!settled){settled=true;reject(error)}};
+            try {
+                const result=ctx.decodeAudioData(arrayBuffer.slice(0),ok,fail);
+                if(result&&typeof result.then==='function')result.then(ok,fail);
+            } catch(error) {fail(error)}
         });
     }
-    // 槍刺約 1.25 秒、盾擊約 1.03 秒；通道數足夠覆蓋各自的連擊間隔。
-    const shieldSfxPool=createSfxPool('audio/shield_bash.wav',0.10,3);
-    const spearSfxPool=createSfxPool('audio/spear_thrust.wav',0.10,5);
-    function playSfx(kind) {
-        const pool=kind==='bash'?shieldSfxPool:spearSfxPool;
-        // 優先使用未播放的通道；全部繁忙時略過這一下音效，不截斷正在播放的聲音。
-        const voice=pool.find(v=>!v.busy||v.audio.ended);
-        if(!voice)return;
-        const a=voice.audio;
+    function initAttackAudio() {
+        const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+        if(!AudioContextClass||!sfxData.thrust||!sfxData.bash)return;
+        try {
+            attackAudioContext=new AudioContextClass();
+            for(const kind of ['thrust','bash']) {
+                try {
+                    const binary=atob(sfxData[kind]);
+                    const bytes=new Uint8Array(binary.length);
+                    for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+                    attackAudioBufferPromises[kind]=decodeAudioCompat(attackAudioContext,bytes.buffer)
+                        .then(buffer=>(attackAudioBuffers[kind]=buffer))
+                        .catch(()=>null);
+                } catch(error) {
+                    attackAudioBufferPromises[kind]=Promise.resolve(null);
+                }
+            }
+        } catch(error) {
+            attackAudioContext=null;
+        }
+    }
+    initAttackAudio();
+    function unlockAttackAudio() {
+        if(attackAudioContext&&attackAudioContext.state==='suspended') {
+            try {const p=attackAudioContext.resume();if(p&&p.catch)p.catch(()=>{});} catch(error) {}
+        }
+    }
+    // 捕捉開始按鈕／觸控按鈕的第一個手勢，讓 iOS Safari 有機會解鎖 AudioContext。
+    document.addEventListener('pointerdown',unlockAttackAudio,{capture:true,passive:true});
+    window.addEventListener('keydown',unlockAttackAudio,{capture:true});
+
+    // 不支援 Web Audio 或音效尚未解碼時，使用可動態擴充的 HTMLAudio 後備通道。
+    // 通道全忙時新增通道，不會為了重播而 pause 正在播放的聲音，也不會丟掉這次攻擊。
+    const fallbackSfxPools={
+        thrust:{src:'audio/spear_thrust.wav',volume:SFX_VOLUME,voices:[]},
+        bash:{src:'audio/shield_bash.wav',volume:SFX_VOLUME,voices:[]}
+    };
+    function createFallbackVoice(pool) {
+        const audio=new Audio(pool.src);
+        audio.preload='auto';
+        audio.volume=pool.volume;
+        const voice={audio,busy:false};
+        audio.addEventListener('ended',()=>{voice.busy=false;});
+        audio.addEventListener('error',()=>{voice.busy=false;});
+        pool.voices.push(voice);
+        return voice;
+    }
+    Object.values(fallbackSfxPools).forEach(pool=>{
+        for(let i=0;i<4;i++)createFallbackVoice(pool);
+    });
+    function playFallbackSfx(kind) {
+        const pool=fallbackSfxPools[kind];
+        let voice=pool.voices.find(v=>!v.busy||v.audio.ended||v.audio.paused&&v.audio.currentTime>0);
+        if(!voice)voice=createFallbackVoice(pool);
+        const audio=voice.audio;
         try {
             voice.busy=true;
-            a.currentTime=0;
-            const p=a.play();
-            if(p&&p.catch)p.catch(()=>{voice.busy=false;});
+            audio.currentTime=0;
+            const result=audio.play();
+            if(result&&result.catch)result.catch(()=>{voice.busy=false;});
+        } catch(error) {voice.busy=false;}
+    }
+    function playSfx(kind) {
+        const key=kind==='bash'?'bash':'thrust';
+        const ctx=attackAudioContext;
+        const buffer=attackAudioBuffers[key];
+        if(ctx&&buffer) {
+            try {
+                if(ctx.state==='suspended') {
+                    const resumed=ctx.resume();
+                    if(resumed&&resumed.catch)resumed.catch(()=>{});
+                }
+                const source=ctx.createBufferSource();
+                const gain=ctx.createGain();
+                source.buffer=buffer;
+                gain.gain.value=SFX_VOLUME;
+                source.connect(gain);
+                gain.connect(ctx.destination);
+                source.onended=()=>{try{source.disconnect();gain.disconnect();}catch(error){}};
+                source.start(0);
+                return;
+            } catch(error) {
+                // Web Audio 發生例外時落回 HTMLAudio 通道。
+            }
         }
-        catch(e) {
-            voice.busy=false;
-        }
+        playFallbackSfx(key);
     }
     // ===== 畫面提示：顯示傷害、線索等浮動文字 =====
     function floatText(txt,worldX,bottom) {

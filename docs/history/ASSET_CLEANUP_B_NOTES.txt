@@ -1,0 +1,6 @@
+Asset Cleanup B
+- Consolidated hero assets into images/hero/.
+- Removed images/godness/ and images/images/ after SHA-256 byte equality verification against canonical assets.
+- Updated hero paths in HTML and JavaScript, including dynamically generated left/right walking paths.
+- Preserved all other assets and animation frame sequences.
+- Original ZIP remains untouched.

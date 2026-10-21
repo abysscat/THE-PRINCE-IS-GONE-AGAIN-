@@ -1,0 +1,7 @@
+Chapter 2 行走動畫與普通 Boss 2 位置修正（2026-10-21）
+
+1. 修正 js/enemies.js 的 Chapter 2 圖片路徑：每隻敵人均從 images/chapter2/enemies/<角色名>/<角色名>_<動作>.png 載入。
+2. Chapter 2 一般敵人 1–7 與普通 Boss 2 支援 walk1–walk4；隱藏 Boss 1 保留 walk1–walk8。
+3. 保留狀態語意：normal=待機、hit=受擊、attack=攻擊、idle=死亡；game.js 的既有動畫與戰鬥流程不重寫。
+4. 普通 Boss 2 的 containerBottom 調整為 calc(14% - 30px)，imageOffsetY 調整為 0px。這讓它使用與隱藏 Boss 1 相近的地面基準，並移除額外向下 80px 的圖片偏移；大小維持 1.5 倍。
+5. index.html 對修改的 JS/CSS 加入版本查詢字串，避免部署後瀏覽器繼續使用舊快取。

@@ -1,0 +1,14 @@
+《王子又不見了！》手機縮放與敵人發光修正
+日期：2026-10-21
+
+修改內容
+1. 強化 viewport 限制，加入 minimum-scale=1 與 viewport-fit=cover。
+2. 加入 styles/11-mobile-touch-fix.css：限制遊戲區縮放手勢，保留一般單指操作及彈窗垂直捲動；限制手機自動文字放大。
+3. 加入 js/mobile-compat.js：阻止多點觸控縮放及 Safari 手勢縮放事件。
+4. 移除敵人受擊時整個容器的 brightness(2) 與金色 drop-shadow 發光效果；改為短暫、低調的透明度閃動。
+5. 將受擊閃動計時器改為每隻敵人獨立管理，連續命中時重設計時，死亡時立即清理，避免舊計時器干擾新效果。
+6. 保留原開始畫面、遊戲規則、角色、敵人、關卡、線索與 Boss 設定。
+
+驗證
+- js/game.js 與 js/mobile-compat.js 通過 Node.js 語法檢查。
+- 此執行環境未能完成 Chromium headless 畫面測試；仍建議用實際手機 Safari/Chrome 檢查首頁、觸控操作、彈窗與長時間戰鬥。
