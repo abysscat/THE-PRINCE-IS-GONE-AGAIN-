@@ -398,6 +398,23 @@
             }
         })
     }
+    // Hit flash timer is per enemy: repeated hits restart the short effect instead of leaving stale glow states.
+    function flashEnemy(e, duration) {
+        clearTimeout(e._hitFlashTimer);
+        e.classList.remove('hitflash');
+        void e.offsetWidth;
+        e.classList.add('hitflash');
+        e._hitFlashTimer=setTimeout(()=> {
+            e.classList.remove('hitflash');
+            e._hitFlashTimer=0;
+        }, Math.max(0, duration || 180));
+    }
+    function clearEnemyFlash(e) {
+        clearTimeout(e._hitFlashTimer);
+        e._hitFlashTimer=0;
+        e.classList.remove('hitflash');
+    }
+
     // ===== 普通戰鬥：槍刺、盾擊、特殊技能的傷害判定 =====
     function attack(kind) {
         if(!running||paused||attackCd>0)return;
@@ -448,10 +465,9 @@
                         if(es.isConnected&&!e.classList.contains('dead'))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
                     },tuneEffects.enemyHitPoseMs??300)
                 }
-                e.classList.add('hitflash');
+                flashEnemy(e,tuneEffects.enemyHitFlashMs??180);
                 e.dataset.x=Math.max(0,Math.min(worldW-30,ex+faceDir*stageW*(kind==='thrust'?.05:kind==='bash'?.08:.11)));
                 e.style.left=e.dataset.x+'px';
-                setTimeout(()=>e.classList.remove('hitflash'),tuneEffects.enemyHitFlashMs??140);
                 floatText(kind==='thrust'?'槍刺！':kind==='bash'?'盾擊！':'聖光！',ex,32);
                 hits++;
                 combo++;
@@ -459,7 +475,8 @@
                 mp=Math.min(100,mp+5);
                 if(eh<=0) {
                     clearTimeout(e._spriteTimer);
-                    e.classList.remove('hitflash','enemy-hit','enemy-attacking');
+                    clearEnemyFlash(e);
+                    e.classList.remove('enemy-hit','enemy-attacking');
                     // Lock the enemy immediately, briefly show the hit reaction, then leave the corpse.
                     e.classList.add('dead');
                     if(es) {
@@ -541,10 +558,9 @@
                         if(es.isConnected&&!e.classList.contains('dead'))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
                     },tuneEffects.ultimateEnemyHitPoseMs??360)
                 }
-                e.classList.add('hitflash');
+                flashEnemy(e,tuneEffects.ultimateHitFlashMs??180);
                 e.dataset.x=Math.max(0,Math.min(worldW-30,ex+Math.sign(ex-x||faceDir)*stageW*.035));
                 e.style.left=e.dataset.x+'px';
-                setTimeout(()=>e.classList.remove('hitflash'),tuneEffects.ultimateHitFlashMs??180);
                 floatText('神聖爆發！',ex,36);
                 hits++;
                 combo++;
@@ -552,7 +568,8 @@
                 mp=Math.min(100,mp+5);
                 if(eh<=0) {
                     clearTimeout(e._spriteTimer);
-                    e.classList.remove('hitflash','enemy-hit','enemy-attacking');
+                    clearEnemyFlash(e);
+                    e.classList.remove('enemy-hit','enemy-attacking');
                     // Lock the enemy immediately, briefly show the hit reaction, then leave the corpse.
                     e.classList.add('dead');
                     if(es) {

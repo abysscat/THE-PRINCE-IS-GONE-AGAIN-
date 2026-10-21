@@ -1,0 +1,50 @@
+/* Mobile compatibility patch: prevent accidental browser zoom while keeping vertical page scroll. */
+html,
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior: none;
+  touch-action: pan-y;
+}
+
+/* The active game area and controls are operated by touch, not browser gestures. */
+.stage:not(.title-mode) {
+  touch-action: none !important;
+}
+.stage.title-mode {
+  touch-action: pan-y !important;
+}
+.stage .title-hotspot,
+.stage .gamebtn,
+.stage .pause {
+  -webkit-tap-highlight-color: transparent;
+}
+.stage .title-hotspot {
+  touch-action: manipulation !important;
+}
+.stage .gamebtn,
+.stage .pause {
+  touch-action: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Remove the old full-container golden glow. Keep hit feedback subtle and temporary. */
+#world #enemies > .enemy.hitflash {
+  filter: none !important;
+}
+#world #enemies > .enemy.hitflash .enemySprite {
+  filter: none !important;
+  animation: enemyHitNoGlow 180ms ease-out both !important;
+  transition: none !important;
+}
+@keyframes enemyHitNoGlow {
+  0%, 100% { opacity: 1; }
+  35% { opacity: .82; }
+  70% { opacity: 1; }
+}
+
+@media (max-width: 620px) {
+  body { padding: 6px; }
+  .stage { border-radius: 10px; }
+}
