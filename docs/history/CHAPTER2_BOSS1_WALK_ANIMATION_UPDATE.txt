@@ -1,7 +1,0 @@
-第二章隱藏 Boss 八格行走動畫更新
-
-- 只為 images/chapter2/enemies/chapter2_boss_1 接入 walk1 至 walk8。
-- Boss 移動接近玩家時，以 130ms 節奏循環播放 8 格。
-- Boss 進入攻擊範圍後回到既有待機／攻擊流程。
-- 受擊與攻擊期間不由行走循環覆蓋影格。
-- 第一章原有 walk1 至 walk4 行為不變；其他第二章敵人仍沿用 normal 行走替代圖。

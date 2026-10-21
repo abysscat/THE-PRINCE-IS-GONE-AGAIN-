@@ -1,7 +1,0 @@
-開始畫面編輯指南
-1. 圖片位於 images/title_layers/，可以直接替換同名 PNG。
-2. 排版位置在 styles/game-ui.css 最底部 EDITABLE TITLE SCREEN 區塊。
-3. index.html 的 titleScreen 內每個 img 都是獨立圖層。
-4. 四個按鈕保留原本 ID 和 JavaScript 事件。
-5. 其他戰鬥功能和素材未修改。
-6. 使用瀏覽器開啟 index.html 即可試玩。
