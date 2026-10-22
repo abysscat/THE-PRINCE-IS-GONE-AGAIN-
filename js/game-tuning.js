@@ -95,6 +95,8 @@
     // 敵人生命值。boss 是 Boss 的最大生命值；default 是沒列出的普通敵人。
     enemyHP: {
       boss: 10,
+      // 第一章 Boss 使用 100 HP，讓 80/60/40/20% 的絕招門檻能配合現有技能傷害逐段觸發。
+      chapter1Boss: 100,
       heavy: 4,
       shield: 4,
       assassin: 3,

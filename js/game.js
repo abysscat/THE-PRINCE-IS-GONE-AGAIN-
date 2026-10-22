@@ -14,8 +14,13 @@
 (()=> {
     const $=id=>document.getElementById(id),stage=$('stage'),hero=$('hero'),enemies=$('enemies'),overlay=$('overlay');
     let running=false,paused=false,x=0,cameraX=0,worldW=0,stageW=0,stageH=0,bgW=0,hp=100,mp=65,kills=0,levelKills=0,level=1,combo=0,lastHit=0,attackCd=0,jumpT=0,last=0,spawnTimer=0,keys= {
-    },moveV=0,jumpY=0,jumpV=0,onGround=true,coyoteMs=0,jumpBufferMs=0,faceDir=1,spawnedThisLevel=0,clues=[],clueIndex=0,exitOpen=false,exitX=0,heroActionUntil=0,heroActionSprite='images/hero/hero_stand.png',ultimateActive=false,ultimateCooldownUntil=0,ultimateToken=0,ultimateStartedAt=0;
+    },moveV=0,jumpY=0,jumpV=0,onGround=true,coyoteMs=0,jumpBufferMs=0,faceDir=1,spawnedThisLevel=0,bossSpawnedThisLevel=false,clues=[],clueIndex=0,exitOpen=false,exitX=0,heroActionUntil=0,heroActionSprite='images/hero/hero_stand.png',ultimateActive=false,ultimateCooldownUntil=0,ultimateToken=0,ultimateStartedAt=0,bashLockUntil=0;
     const world=$('world'),levelBackground=$('levelBackground'),exitPrompt=$('exitPrompt');
+    const bossHealthPanel=$('bossHealthPanel'),bossHealthFill=$('bossHealthFill'),bossHealthPercent=$('bossHealthPercent');
+    let bossShakeTimer=0;
+    // 撞飛物理：鎖定輸入，利用原有跳躍重力完成拋物線。
+    let knockbackUntilLanding=false,knockbackDirection=0,knockbackHitUntil=0;
+    const bossRush={active:false,boss:null,phase:'',phaseStartedAt:0,runStartedAt:0,originX:0,targetX:0,leftX:0,rightX:0,cameraAnchor:null,currentThreshold:0,triggered:new Set(),queue:[],originalFacing:'right',originalFacingLocked:'0',speed:2.5,hitDashes:new Set(),dashDirection:1,nextTimer:0,cooldownUntil:0};
     const gameSettings=window.GAME_SETTINGS;
     // 可調整數值集中於 js/game-tuning.js；此處只讀取設定，不把數值散落在主程式。
     const gameTuning=window.GAME_TUNING||{};
@@ -231,28 +236,315 @@
         const hw=hero.getBoundingClientRect().width||116;
         return Math.max(0,bgW-hw*.52)
     }
+    let bossCameraReturnUntil=0;
     function updateCamera() {
         if(!stageW) return;
         const maxCamera=Math.max(0,worldW-stageW);
-        cameraX=Math.max(0,Math.min(maxCamera,x-stageW*.45));
+        if(bossRush.active && bossRush.cameraAnchor!==null) {
+            cameraX=Math.max(0,Math.min(maxCamera,bossRush.cameraAnchor));
+        } else {
+            const targetCamera=Math.max(0,Math.min(maxCamera,x-stageW*.45));
+            const now=performance.now();
+            if(now<bossCameraReturnUntil) {
+                // Boss 絕招結束後，鏡頭由固定戰場位置平滑追上主角，避免瞬間跳位。
+                const remaining=Math.max(1,bossCameraReturnUntil-now);
+                const blend=Math.min(0.16,Math.max(0.035,1/remaining*16));
+                cameraX+= (targetCamera-cameraX)*blend;
+                if(Math.abs(targetCamera-cameraX)<0.8) {
+                    cameraX=targetCamera;
+                    bossCameraReturnUntil=0;
+                }
+            } else {
+                cameraX=targetCamera;
+            }
+        }
         world.style.transform='translate3d('+(-cameraX)+'px,0,0)';
         hero.style.left=x+'px';
         exitPrompt.hidden=!exitOpen;
+    }
+    // ===== 第一章 Boss：長血條與 80/60/40/20% 衝刺絕招 =====
+    const chapter1BossRushChargeSprite='images/enemies/custom/boss/chapter1_boss_1_attack_skin2.png';
+    const chapter1BossRushDashSprite='images/enemies/custom/boss/chapter1_boss_1_attack_skin%201.png';
+    const chapter1BossRushChargePreload=new Image();
+    chapter1BossRushChargePreload.src=chapter1BossRushChargeSprite;
+    // 集氣使用 skin2；衝刺時切回 skin 1。若專用集氣圖未放入專案，才以 skin 1 作安全後備。
+    function setBossRushSprite(sprite, phase='windup') {
+        if(!sprite)return;
+        if(phase==='dashOut'||phase==='dashAcross') {
+            sprite.src=chapter1BossRushDashSprite;
+        } else {
+            sprite.src=(chapter1BossRushChargePreload.complete && chapter1BossRushChargePreload.naturalWidth)
+                ? chapter1BossRushChargeSprite : chapter1BossRushDashSprite;
+        }
+    }
+    // 第一章 Boss 的原始立繪本身朝左；enemy-facing-left 會水平翻轉立繪，因此不能用「移動方向」直接決定回場時的朝向。
+    function faceBossTowardHero(e) {
+        if(!e)return;
+        const bossCenter=(Number.isFinite(+e.dataset.x)?+e.dataset.x:0)+(e.offsetWidth||100)*.5;
+        const heroCenter=x+(hero.offsetWidth||55)*.5;
+        const heroIsRight=heroCenter>bossCenter;
+        e.classList.toggle('enemy-facing-left',heroIsRight);
+        e.dataset.facing=heroIsRight?'right':'left';
+    }
+    function bossReturnX(e) {
+        const width=Math.max(100,e?.offsetWidth||100);
+        const min=cameraX+stageW*.61-width*.5;
+        const max=cameraX+stageW*.78-width*.5;
+        const origin=Number.isFinite(+bossRush.originX)?+bossRush.originX:(Number.isFinite(+(e?.dataset.x))?+(e.dataset.x):cameraX+stageW*.7);
+        return Math.max(0,Math.min(Math.max(0,worldW-width),Math.max(min,Math.min(origin,max))));
+    }
+    // 絕招結束後直接在可視戰場內步行返回；不再有隱藏、透明或畫面外重新進場的流程。
+    function beginBossWalkBack(e,now) {
+        if(!e||!e.isConnected||e.classList.contains('dead'))return;
+        bossRush.phase='walkback';
+        bossRush.phaseStartedAt=now;
+        const sprite=e.querySelector('.enemySprite');
+        if(sprite)sprite.src=enemySpritePath(e.dataset.spriteType||'boss','walk1');
+        // 目標設在畫面內，Boss 從目前位置走回戰鬥區；不把位置瞬間移到畫面外。
+        bossRush.targetX=bossReturnX(e);
+        faceBossTowardHero(e);
+    }
+    function updateBossHealthBar(e) {
+        if(level!==4 || !e || e.dataset.boss!=='1' || e.dataset.spriteType!=='boss')return;
+        const max= Math.max(1,+e.dataset.maxhp||100);
+        const current=Math.max(0,Math.min(max,+e.dataset.hp||0));
+        const percent=Math.round(current/max*100);
+        if(bossHealthPanel)bossHealthPanel.hidden=e.classList.contains('dead');
+        if(bossHealthFill)bossHealthFill.style.width=percent+'%';
+        if(bossHealthPercent)bossHealthPercent.textContent=percent+'%';
+    }
+    function shakeBossCamera() {
+        stage.classList.remove('boss-camera-shake');
+        void stage.offsetWidth;
+        stage.classList.add('boss-camera-shake');
+        clearTimeout(bossShakeTimer);
+        bossShakeTimer=setTimeout(()=>stage.classList.remove('boss-camera-shake'),280);
+    }
+    function startBossRush(e,threshold) {
+        if(!e || e.classList.contains('dead') || !running || level!==4)return;
+        const width=Math.max(100,e.offsetWidth||600);
+        const mapMax=Math.max(0,worldW-width);
+        const inset=Math.max(24,stageW*.05);
+        // 讓 Boss 的中心在可視區左右兩端之間移動；窄螢幕則以容器位置保留移動幅度。
+        const laneLeft=stageW>width+80?cameraX+stageW*.12-width*.5:cameraX+inset;
+        const laneRight=stageW>width+80?cameraX+stageW*.88-width*.5:cameraX+stageW*.82;
+        const leftX=Math.max(0,Math.min(mapMax,laneLeft));
+        const rightX=Math.max(0,Math.min(mapMax,laneRight));
+        // 必須保留 Boss 真正的出場位置；即使初始位置超出背景末端，也要返回同一位置。
+        const originX=Number.isFinite(+e.dataset.x)?+e.dataset.x:0;
+        // 優先衝向距離較遠的畫面一側，確保不會在貼近邊界時原地空轉。
+        const targetX=Math.abs(originX-leftX)>=Math.abs(rightX-originX)?leftX:rightX;
+        bossRush.active=true;
+        bossRush.boss=e;
+        bossRush.phase='windup';
+        bossRush.phaseStartedAt=performance.now();
+        bossRush.runStartedAt=bossRush.phaseStartedAt;
+        clearTimeout(bossRush.nextTimer);
+        bossRush.nextTimer=0;
+        bossRush.originX=originX;
+        bossRush.targetX=targetX;
+        bossRush.leftX=leftX;
+        bossRush.rightX=rightX;
+        bossRush.cameraAnchor=cameraX;
+        bossRush.currentThreshold=threshold;
+        bossRush.hitDashes.clear();
+        bossRush.originalFacing=e.dataset.facing||'right';
+        bossRush.originalFacingLocked=e.dataset.facingLocked||'0';
+        e.dataset.facingLocked='1';
+        clearTimeout(e._spriteTimer);
+        clearEnemyFlash(e);
+        e.classList.remove('enemy-hit','enemy-attacking');
+        // 保留可見狀態：每個血量階段不再使用隱藏／透明機制。
+        e.style.removeProperty('opacity');
+        e.style.removeProperty('visibility');
+        e.classList.add('boss-rushing');
+        const sprite=e.querySelector('.enemySprite');
+        setBossRushSprite(sprite,'windup');
+        e.dataset.actionUntil=String(performance.now()+2500);
+        floatText('Boss 絕技！',originX,47);
+    }
+    function startNextBossRush(e) {
+        if(bossRush.active || !bossRush.queue.length || !e || e.classList.contains('dead'))return;
+        const wait=Math.max(0,bossRush.cooldownUntil-performance.now());
+        if(wait>0) {
+            // 若下一個血量門檻剛好在恢復間隔中觸發，也必須安排後續啟動，不能留在 queue 裡不動。
+            if(!bossRush.nextTimer)bossRush.nextTimer=setTimeout(()=>{
+                bossRush.nextTimer=0;bossRush.cooldownUntil=0;
+                if(running&&level===4&&e.isConnected&&!e.classList.contains('dead'))startNextBossRush(e);
+            },wait);
+            return;
+        }
+        clearTimeout(bossRush.nextTimer);bossRush.nextTimer=0;
+        startBossRush(e,bossRush.queue.shift());
+    }
+    function checkBossRushThreshold(e) {
+        if(level!==4 || !e || e.dataset.boss!=='1' || e.dataset.spriteType!=='boss' || e.classList.contains('dead'))return;
+        const max=Math.max(1,+e.dataset.maxhp||100);
+        const ratio=Math.max(0,+e.dataset.hp||0)/max;
+        [0.8,0.6,0.4,0.2].forEach(threshold=>{
+            if(ratio<=threshold && !bossRush.triggered.has(threshold)) {
+                bossRush.triggered.add(threshold);
+                bossRush.queue.push(threshold);
+            }
+        });
+        startNextBossRush(e);
+    }
+    function finishBossRush(cancelled=false,now=performance.now()) {
+        const e=bossRush.boss;
+        if(e && e.isConnected) {
+            e.classList.remove('boss-rushing');
+            e.style.removeProperty('opacity');
+            e.style.removeProperty('visibility');
+            if(!e.classList.contains('dead')) {
+                // 絕招結束後面向女神，而不是沿用上一段衝刺方向造成背對主角。
+                e.dataset.facingLocked=bossRush.originalFacingLocked;
+                faceBossTowardHero(e);
+                const sprite=e.querySelector('.enemySprite');
+                if(sprite)sprite.src=enemySpritePath(e.dataset.spriteType||'boss','idle');
+                e.dataset.actionUntil=String(now+350);
+                e.dataset.lastAttack=String(now);
+            }
+        }
+        // 結束時保留當前鏡頭位置，交由 updateCamera 在短時間內平滑追上主角。
+        bossCameraReturnUntil=now+520;
+        bossRush.active=false;
+        bossRush.phase='';
+        bossRush.runStartedAt=0;
+        bossRush.cameraAnchor=null;
+        bossRush.currentThreshold=0;
+        if(cancelled)bossRush.queue=[];
+        if(e && e.classList.contains('dead'))bossRush.queue=[];
+        bossRush.cooldownUntil=(!cancelled&&e&&!e.classList.contains('dead')&&bossRush.queue.length)?now+650:0;
+        clearTimeout(bossRush.nextTimer);
+        bossRush.nextTimer=0;
+        updateCamera();
+        if(!cancelled && e && !e.classList.contains('dead'))startNextBossRush(e);
+    }
+    function bossDashCollision(e,now,previousX,nextX,dir) {
+        const width=e.offsetWidth||100;
+        const bossCenterBefore=previousX+width*.5, bossCenterAfter=nextX+width*.5;
+        const heroCenter=x+(hero.offsetWidth||55)*.5;
+        const hitRadius=Math.min(width*.31,stageW*.085)+(hero.offsetWidth||55)*.28;
+        if(Math.min(bossCenterBefore,bossCenterAfter)-hitRadius>heroCenter || Math.max(bossCenterBefore,bossCenterAfter)+hitRadius<heroCenter)return;
+        if(bossRush.hitDashes.has(bossRush.phase))return;
+        bossRush.hitDashes.add(bossRush.phase);
+        // 原有盾擊 0.5 秒內具無敵判定，成功格擋不會被撞飛。
+        if(now<bashLockUntil || now<knockbackHitUntil){floatText('防禦！',x,48);return;}
+        hp=Math.max(0,hp-8);
+        floatText('撞飛！ −8',x,54);
+        knockbackHitUntil=now+1100;
+        knockbackUntilLanding=true;
+        knockbackDirection=dir;
+        keys.left=false;keys.right=false;moveV=0;jumpBufferMs=0;
+        onGround=false;coyoteMs=0;jumpY=Math.max(jumpY,12);
+        jumpV=.78;jumpT=1;
+        faceDir=dir<0?1:-1;
+        hero.classList.toggle('face-left',faceDir<0);
+        hero.classList.add('jump','boss-knocked');
+        heroActionUntil=now+1150;
+        heroActionSprite='images/hero/hero_jump.png';
+        setHeroSprite(heroActionSprite);
+        shakeBossCamera();
+    }
+    function updateBossRush(dt,now) {
+        if(!bossRush.active)return;
+        const e=bossRush.boss;
+        if(!e || !e.isConnected || e.classList.contains('dead')) {finishBossRush(true,now);return;}
+        // 全流程保護：任何絕招階段異常卡住，都把 Boss 帶回場內安全位置並結束該次絕招。
+        if(bossRush.runStartedAt && now-bossRush.runStartedAt>18000) {
+            const safeX=bossReturnX(e);
+            e.dataset.x=String(safeX);e.style.left=safeX+'px';
+            e.style.removeProperty('opacity');e.style.removeProperty('visibility');
+            finishBossRush(false,now);
+            return;
+        }
+        if(bossRush.phase==='windup' || bossRush.phase==='windup2') {
+            if(now-bossRush.phaseStartedAt<2500)return;
+            bossRush.phase=bossRush.phase==='windup'?'dashOut':'dashAcross';
+            bossRush.phaseStartedAt=now;
+            bossRush.targetX=bossRush.phase==='dashOut'?bossRush.targetX:(bossRush.targetX===bossRush.leftX?bossRush.rightX:bossRush.leftX);
+            // 集氣結束、Boss 開始衝刺的同一刻，切換成 skin 1。
+            if(bossRush.phase==='dashOut'||bossRush.phase==='dashAcross') {
+                setBossRushSprite(e.querySelector('.enemySprite'),bossRush.phase);
+            }
+        }
+        if(bossRush.phase==='walkback') {
+            // boss-rushing 會停用 CSS 動畫；因此用 4 張 WALK 圖手動逐格循環，確保回場時真的在行走。
+            e.style.removeProperty('opacity');
+            e.style.removeProperty('visibility');
+            const sprite=e.querySelector('.enemySprite');
+            if(sprite) {
+                const frame=1+(Math.floor((now-bossRush.phaseStartedAt)/130)%4);
+                const walkSrc=enemySpritePath(e.dataset.spriteType||'boss','walk'+frame);
+                if(!sprite.getAttribute('src')?.endsWith('/'+walkSrc.split('/').pop()))sprite.src=walkSrc;
+            }
+            // 防止步行返回流程卡住；4.5 秒仍未到位就落在場內目標位置，避免戰鬥停滯。
+            if(now-bossRush.phaseStartedAt>4500) {
+                e.dataset.x=String(bossRush.targetX);
+                e.style.left=bossRush.targetX+'px';
+                finishBossRush(false,now);
+                return;
+            }
+        }
+        const current=+e.dataset.x||0,diff=bossRush.targetX-current;
+        const step=(bossRush.phase==='walkback' ? .30 : bossRush.speed)*dt;
+        const movingDir=Math.sign(diff)||1;
+        const next=Math.abs(diff)<=step?bossRush.targetX:current+movingDir*step;
+        if(bossRush.phase==='dashOut'||bossRush.phase==='dashAcross')bossDashCollision(e,now,current,next,movingDir);
+        e.dataset.x=String(next);e.style.left=next+'px';
+        if(bossRush.phase==='walkback') {
+            // WALK 朝向以女神實際所在位置判斷，不再以「正在往左走」直接翻轉圖像。
+            faceBossTowardHero(e);
+        } else {
+            // Boss 這套原始立繪天生朝左；只有向右衝刺時才水平翻轉。
+            e.dataset.facing=movingDir<0?'left':'right';
+            e.classList.toggle('enemy-facing-left',movingDir>0);
+        }
+        if(Math.abs(diff)>step)return;
+        if(bossRush.phase==='dashOut') {
+            shakeBossCamera();bossRush.phase='windup2';bossRush.phaseStartedAt=now;
+            // 第二次衝刺前重新集氣，切回 skin2。
+            setBossRushSprite(e.querySelector('.enemySprite'),'windup2');
+            e.dataset.actionUntil=String(now+2500);
+        } else if(bossRush.phase==='dashAcross') {
+            // 不再隱藏 Boss：第二次衝刺完成後，直接在畫面內走回戰鬥位置。
+            shakeBossCamera();
+            beginBossWalkBack(e,now);
+        } else if(bossRush.phase==='walkback')finishBossRush(false,now);
+    }
+    function resetBossRush() {
+        if(bossRush.boss && bossRush.boss.isConnected && !bossRush.boss.classList.contains('dead')) {
+            bossRush.boss.classList.remove('boss-rushing');
+            bossRush.boss.style.removeProperty('opacity');
+            bossRush.boss.style.removeProperty('visibility');
+            const sprite=bossRush.boss.querySelector('.enemySprite');
+            if(sprite)sprite.src=enemySpritePath(bossRush.boss.dataset.spriteType||'boss','idle');
+        }
+        clearTimeout(bossRush.nextTimer);bossRush.nextTimer=0;bossRush.cooldownUntil=0;
+        bossRush.active=false;bossRush.boss=null;bossRush.phase='';bossRush.runStartedAt=0;bossRush.cameraAnchor=null;
+        bossRush.currentThreshold=0;bossRush.triggered.clear();bossRush.queue=[];
+        clearTimeout(bossShakeTimer);stage.classList.remove('boss-camera-shake');
+        if(bossHealthPanel)bossHealthPanel.hidden=true;
+        if(bossHealthFill)bossHealthFill.style.width='100%';
+        if(bossHealthPercent)bossHealthPercent.textContent='100%';
     }
     // ===== Phase 1：惡魔城式角色物理 =====
     // 加速/減速、空中控制、重力、土狼時間與跳躍預輸入；不改動原有戰鬥與關卡規則。
     const PHYSICS=gameTuning.player?.physics||{maxRun:.255,groundAccel:.00155,groundBrake:.00215,airAccel:.00082,gravity:.00205,jumpSpeed:.72,maxFall:.92,coyote:105,jumpBuffer:120};
     function resetMovementPhysics(){
+        knockbackUntilLanding=false;knockbackDirection=0;knockbackHitUntil=0;hero.classList.remove('boss-knocked');
         moveV=0;jumpY=0;jumpV=0;onGround=true;coyoteMs=0;jumpBufferMs=0;jumpT=0;
         hero.style.setProperty('bottom',gameTuning.player?.groundBottom||'14%','important');
         hero.classList.remove('jump');
     }
     function requestJump(){
-        if(ultimateActive)return;
+        if(ultimateActive||knockbackUntilLanding||performance.now()<bashLockUntil)return;
         jumpBufferMs=PHYSICS.jumpBuffer;
     }
     function updatePlayerPhysics(dt){
-        const dir=(keys.right?1:0)-(keys.left?1:0);
+        const bashLocked=performance.now()<bashLockUntil || knockbackUntilLanding;
+        if(bashLocked){ keys.left=false; keys.right=false; moveV=0; }
+        const dir=bashLocked?0:((keys.right?1:0)-(keys.left?1:0));
         const accel=onGround?PHYSICS.groundAccel:PHYSICS.airAccel;
         if(dir){
             moveV+=dir*accel*dt;
@@ -264,6 +556,7 @@
             moveV=Math.abs(moveV)<=brake?0:moveV-Math.sign(moveV)*brake;
         }
         if(ultimateActive) moveV*=Math.max(0,1-dt*.012);
+        if(knockbackUntilLanding)moveV=knockbackDirection*.42;
         x=Math.max(0,Math.min(heroExitX(),x+moveV*dt));
 
         if(onGround)coyoteMs=PHYSICS.coyote; else coyoteMs=Math.max(0,coyoteMs-dt);
@@ -277,7 +570,7 @@
             jumpV=Math.max(-PHYSICS.maxFall,jumpV);
             jumpY+=jumpV*dt;
             jumpT+=dt;
-            if(jumpY<=0){jumpY=0;jumpV=0;onGround=true;jumpT=0;hero.classList.remove('jump');}
+            if(jumpY<=0){jumpY=0;jumpV=0;onGround=true;jumpT=0;hero.classList.remove('jump','boss-knocked');knockbackUntilLanding=false;knockbackDirection=0;moveV=0;}
         }
         hero.style.setProperty('bottom','calc('+(gameTuning.player?.groundBottom||'14%')+' + '+jumpY.toFixed(1)+'px)','important');
         hero.classList.toggle('walking',!ultimateActive&&onGround&&Math.abs(moveV)>.035);
@@ -356,8 +649,9 @@
         e.dataset.type=type;
         e.dataset.spriteType=visualType;
         e.dataset.rank=type==='heavy'?'elite':'normal';
-        const enemyHP=gameTuning.enemyHP||{boss:10,heavy:4,shield:4,assassin:3,acolyte:3,default:2};
-        e.dataset.hp=String(boss?(enemyHP.boss??10):(enemyHP[type]??enemyHP.default??2));
+        const enemyHP=gameTuning.enemyHP||{boss:10,chapter1Boss:50,heavy:4,shield:4,assassin:3,acolyte:3,default:2};
+        const bossMaxHP=(boss&&level===4)?(enemyHP.chapter1Boss??100):(enemyHP.boss??10);
+        e.dataset.hp=String(boss?bossMaxHP:(enemyHP[type]??enemyHP.default??2));
         e.dataset.maxhp=e.dataset.hp;
         e.dataset.boss=boss||type==='boss'?'1':'0';
         e.dataset.lastAttack='0';
@@ -366,6 +660,7 @@
         spawnedThisLevel++
     }
     function clearEnemies() {
+        resetBossRush();
         enemies.innerHTML='';
         enemyList.length=0
     }
@@ -375,6 +670,7 @@
         };
         resetMovementPhysics();
         attackCd=0;
+        bashLockUntil=0;
         heroActionUntil=0;
         heroActionSprite='images/hero/hero_stand.png';
         ultimateSound.stopAll();
@@ -390,6 +686,7 @@
         exitPrompt.hidden=true;
         kills=0;
         spawnedThisLevel=0;
+        bossSpawnedThisLevel=false;
         clues=[];
         foundClues.clear();
         if(level===8 && Number(window.GAME_TEST_CLUE_COUNT)=== 5) {
@@ -421,8 +718,8 @@
         // 初始左側敵人視為後方敵人，生成時鎖定朝左；右側敵人面向女騎士。
         spawn(Math.max(24,x-stageW*.22),false,true);
         spawn(Math.min(heroExitX()-30,x+stageW*.34),false,false);
-        const initialConfig=levelConfigs[level-1]||{};
-        spawn(Math.min(heroExitX()-30,x+stageW*.62),!!initialConfig.boss,false);
+        // Boss 關卡先只生成普通敵人；清場後才由主迴圈生成 Boss。
+
         hp=100;
         mp=65;
         combo=0;
@@ -506,7 +803,14 @@
 
     // ===== 普通戰鬥：槍刺、盾擊、特殊技能的傷害判定 =====
     function attack(kind) {
-        if(!running||paused||attackCd>0)return;
+        if(!running||paused||attackCd>0||knockbackUntilLanding)return;
+        const attackStartedAt=performance.now();
+        if(kind==='bash'){
+            bashLockUntil=attackStartedAt+500;
+            keys.left=false; keys.right=false; moveV=0;
+            jumpBufferMs=0;
+            hero.classList.remove('walking','jump');
+        }
         const attackCooldowns=tuneCombat.attackCooldownMs||{thrust:260,bash:430,special:850};
         attackCd=attackCooldowns[kind]??850;
         if(kind==='thrust'||kind==='bash')playSfx(kind);
@@ -545,24 +849,34 @@
                 let eh=+e.dataset.hp-dmg;
                 e.dataset.hp=eh;
                 e.querySelector('.ehealth i').style.width=Math.max(0,eh/(+e.dataset.maxhp)*100)+'%';
+                updateBossHealthBar(e);
+                if(eh>0)checkBossRushThreshold(e);
                 const es=e.querySelector('.enemySprite');
-                if(es) {
+                const bossIsRushing=bossRush.active&&e===bossRush.boss;
+                if(es&&!bossIsRushing) {
                     es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
                     e.dataset.actionUntil=String(performance.now()+310);
                     clearTimeout(e._spriteTimer);
                     e._spriteTimer=setTimeout(()=> {
-                        if(es.isConnected&&!e.classList.contains('dead'))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
+                        if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
                     },tuneEffects.enemyHitPoseMs??300)
                 }
-                flashEnemy(e,tuneEffects.enemyHitFlashMs??180);
-                e.dataset.x=Math.max(0,Math.min(worldW-30,ex+faceDir*stageW*(kind==='thrust'?.05:kind==='bash'?.08:.11)));
-                e.style.left=e.dataset.x+'px';
+                if(!bossIsRushing) {
+                    flashEnemy(e,tuneEffects.enemyHitFlashMs??180);
+                    const knockbackX=ex+faceDir*stageW*(kind==='thrust'?.05:kind==='bash'?.08:.11);
+                    if(e.dataset.boss==='1') {
+                        const bossHalf=(e.offsetWidth||80)*.5;
+                        e.dataset.x=Math.max(24-bossHalf,Math.min(heroExitX()-20-bossHalf,knockbackX));
+                    } else e.dataset.x=Math.max(0,Math.min(worldW-30,knockbackX));
+                    e.style.left=e.dataset.x+'px';
+                }
                 floatText(kind==='thrust'?'槍刺！':kind==='bash'?'盾擊！':'聖光！',ex,32);
                 hits++;
                 combo++;
                 lastHit=performance.now();
                 mp=Math.min(100,mp+5);
                 if(eh<=0) {
+                    if(e.dataset.boss==='1'&&level===4)resetBossRush();
                     clearTimeout(e._spriteTimer);
                     clearEnemyFlash(e);
                     e.classList.remove('enemy-hit','enemy-attacking');
@@ -636,26 +950,36 @@
                 if(type==='shield')dmg=ultimateDamage.shield??2.5;
                 const eh=+e.dataset.hp-dmg;
                 e.dataset.hp=eh;
+                updateBossHealthBar(e);
+                if(eh>0)checkBossRushThreshold(e);
                 const bar=e.querySelector('.ehealth i');
                 if(bar)bar.style.width=Math.max(0,eh/(+e.dataset.maxhp)*100)+'%';
                 const es=e.querySelector('.enemySprite');
-                if(es) {
+                const bossIsRushing=bossRush.active&&e===bossRush.boss;
+                if(es&&!bossIsRushing) {
                     es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
                     e.dataset.actionUntil=String(performance.now()+370);
                     clearTimeout(e._spriteTimer);
                     e._spriteTimer=setTimeout(()=> {
-                        if(es.isConnected&&!e.classList.contains('dead'))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
+                        if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
                     },tuneEffects.ultimateEnemyHitPoseMs??360)
                 }
-                flashEnemy(e,tuneEffects.ultimateHitFlashMs??180);
-                e.dataset.x=Math.max(0,Math.min(worldW-30,ex+Math.sign(ex-x||faceDir)*stageW*.035));
-                e.style.left=e.dataset.x+'px';
+                if(!bossIsRushing) {
+                    flashEnemy(e,tuneEffects.ultimateHitFlashMs??180);
+                    const knockbackX=ex+Math.sign(ex-x||faceDir)*stageW*.035;
+                    if(e.dataset.boss==='1') {
+                        const bossHalf=(e.offsetWidth||80)*.5;
+                        e.dataset.x=Math.max(24-bossHalf,Math.min(heroExitX()-20-bossHalf,knockbackX));
+                    } else e.dataset.x=Math.max(0,Math.min(worldW-30,knockbackX));
+                    e.style.left=e.dataset.x+'px';
+                }
                 floatText('神聖爆發！',ex,36);
                 hits++;
                 combo++;
                 lastHit=performance.now();
                 mp=Math.min(100,mp+5);
                 if(eh<=0) {
+                    if(e.dataset.boss==='1'&&level===4)resetBossRush();
                     clearTimeout(e._spriteTimer);
                     clearEnemyFlash(e);
                     e.classList.remove('enemy-hit','enemy-attacking');
@@ -705,6 +1029,7 @@
         world.classList.toggle('chapter2-world', !!(levelConfigs[level-1] && levelConfigs[level-1].chapter===2));
         levelKills=0;
         spawnedThisLevel=0;
+        bossSpawnedThisLevel=false;
         spawnTimer=0;
         exitOpen=false;
         exitPrompt.hidden=true;
@@ -720,7 +1045,7 @@
         floatText('第 '+level+' 關：'+(config.name||'冒險'),stageW*.43,54);
         spawn(Math.max(24,x-stageW*.22),false,true);
         spawn(Math.min(heroExitX()-30,x+stageW*.34),false,false);
-        spawn(Math.min(heroExitX()-30,x+stageW*.62),!!config.boss,false);
+        // Boss 關卡先只生成普通敵人，待普通敵人全部擊敗後才召喚 Boss。
         updateCamera();
         updateHud()
     }
@@ -759,7 +1084,8 @@
         last=t;
         if(!paused) {
             updatePlayerPhysics(dt);
-            if(ultimateActive) {
+            if(knockbackUntilLanding){setHeroSprite('images/hero/hero_jump.png');}
+            else if(ultimateActive) {
                 const skillFrame=Math.min(7,Math.floor(Math.max(0,t-ultimateStartedAt)/130));
                 heroActionSprite=ultimateSpriteFiles[skillFrame];
                 setUltimateFrame(skillFrame)
@@ -781,6 +1107,7 @@
             }
             hero.style.left=x+'px';
             updateCamera();
+            updateBossRush(dt,t);
             attackCd=Math.max(0,attackCd-dt);
             if(t-lastHit>1400)combo=0;
             for(let i=enemyList.length-1;
@@ -800,16 +1127,19 @@
                     continue
                 }
                 let ex=+e.dataset.x,type=e.dataset.type;
+                if(bossRush.active && e===bossRush.boss)continue;
                 // 前方敵人持續面向女騎士；後方敵人保留生成時鎖定的相反方向。
+                const enemyVisualCenter=ex+(e.dataset.boss==='1'?(e.offsetWidth||80)*.5:0);
                 if(e.dataset.facingLocked!=='1') {
-                    const enemyFacesLeft = x > ex;
+                    const enemyFacesLeft = x > enemyVisualCenter;
                     e.dataset.facing=enemyFacesLeft?'left':'right';
                     e.classList.toggle('enemy-facing-left',enemyFacesLeft);
                 }
-                if(Math.abs(ex-x)>stageW*.07) {
+                if(Math.abs(enemyVisualCenter-x)>stageW*.07) {
                     const approachSpeed=tuneEnemyAI.approachSpeed||{assassin:0.22,heavy:0.10,shield:0.10,acolyte:0.12,default:0.15};
                     const speed=approachSpeed[type]??approachSpeed.default??0.15;
-                    ex=Math.max(24,Math.min(heroExitX()-20,ex+Math.sign(x-ex)*dt*speed));
+                    const centerOffset=e.dataset.boss==='1'?(e.offsetWidth||80)*.5:0;
+                    ex=Math.max(24-centerOffset,Math.min(heroExitX()-20-centerOffset,ex+Math.sign(x-enemyVisualCenter)*dt*speed));
                     e.dataset.x=ex;
                     e.style.left=ex+'px';
                     // 第一章敵人循環播放 4 格；第二章隱藏 Boss chapter2_boss_1 循環播放 8 格。
@@ -847,15 +1177,23 @@
                         const incomingDamage=tuneEnemyAI.incomingDamage||{boss:8,heavy:5,assassin:4,acolyte:3,archer:3,default:2};
                         let dmg=incomingDamage[type]??incomingDamage.default??2;
                         if(jumpT===0) {
-                            hp=Math.max(0,hp-Math.ceil(dmg/5));
-                            floatText('−'+dmg,x,28)
+                            if(performance.now()<bashLockUntil){
+                                floatText('0',x,28);
+                            }else{
+                                hp=Math.max(0,hp-Math.ceil(dmg/5));
+                                floatText('−'+dmg,x,28)
+                            }
                         }
                     }
                 }
             }
-            if(levelKills<targets[level-1]&&enemyList.filter(e=>!e.classList.contains('dead')).length<4) {
+            const currentLevelConfig=levelConfigs[level-1]||{};
+            // Boss 關的目標總數包含最後登場的 Boss，因此普通敵人數量要預留 1 名給 Boss。
+            const regularEnemyTarget=Math.max(0,targets[level-1]-(currentLevelConfig.boss?1:0));
+            const livingEnemyCount=enemyList.filter(e=>!e.classList.contains('dead')).length;
+            if(levelKills<regularEnemyTarget&&livingEnemyCount<4) {
                 spawnTimer+=dt;
-                if(spawnTimer>(tuneEnemyAI.spawnIntervalMs??1350)&&spawnedThisLevel<targets[level-1]) {
+                if(spawnTimer>(tuneEnemyAI.spawnIntervalMs??1350)&&spawnedThisLevel<regularEnemyTarget) {
                     {
                     const behind=Math.random()<0.38;
                     const offset=stageW*(.22+Math.random()*.22);
@@ -868,6 +1206,22 @@
                     spawnTimer=0
                 }
             }
+            // Boss 關：所有普通敵人都已生成、被擊敗，且場上沒有存活敵人時，才登場 Boss。
+            if(currentLevelConfig.boss&&!bossSpawnedThisLevel&&
+               spawnedThisLevel>=regularEnemyTarget&&levelKills>=regularEnemyTarget&&
+               !enemyList.some(e=>!e.classList.contains('dead'))) {
+                const bossX=Math.min(heroExitX()-30,x+stageW*.62);
+                spawn(bossX,true,false);
+                const spawnedBoss=enemyList[enemyList.length-1];
+                if(level===4 && spawnedBoss) {
+                    bossRush.boss=spawnedBoss;
+                    updateBossHealthBar(spawnedBoss);
+                    if(bossHealthPanel)bossHealthPanel.hidden=false;
+                }
+                bossSpawnedThisLevel=true;
+                spawnTimer=0;
+                floatText('Boss 出現！',bossX,48);
+            }
             if(levelKills>=targets[level-1]&&!enemyList.some(e=>!e.classList.contains('dead'))&&!exitOpen) {
                 exitOpen=true;
                 exitX=heroExitX();
@@ -879,6 +1233,7 @@
             }
             if(hp<=0) {
                 running=false;
+                resetBossRush();
                 showEnd('女神需要休息！','敵人太多了，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始')
             }
             updateHud()
@@ -896,10 +1251,12 @@
     function showTitle() {
         running=false;
         paused=false;
+        resetBossRush();
         keys= {
         };
         resetMovementPhysics();
         attackCd=0;
+        bashLockUntil=0;
         heroActionUntil=0;
         heroActionSprite='images/hero/hero_stand.png';
         ultimateSound.stopAll();

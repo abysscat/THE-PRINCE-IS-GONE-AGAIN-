@@ -1,0 +1,91 @@
+/* 第一章 Boss 專用 UI 與來回衝刺鏡頭震動。 */
+.boss-health-panel {
+  position: absolute;
+  z-index: 39;
+  left: 50%;
+  /* 放到使用者標示的下方中央地面區，不再遮住 Boss、角色及可攻擊範圍。 */
+  bottom: clamp(7px, 1.2%, 12px);
+  width: min(52%, 660px);
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  padding: 6px 9px 7px;
+  border: 1px solid rgba(255, 205, 133, .9);
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(34, 12, 25, .94), rgba(13, 17, 31, .94));
+  box-shadow: 0 4px 14px rgba(0,0,0,.46), inset 0 0 10px rgba(233, 55, 75, .16);
+  pointer-events: none;
+}
+.boss-health-panel[hidden] { display: none !important; }
+.boss-health-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 1px 3px;
+  color: #fff2df;
+  font-size: clamp(10px, 1.05vw, 13px);
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-shadow: 0 1px 3px #000;
+}
+.boss-health-heading strong {
+  color: #ffe3b1;
+}
+.boss-health-track {
+  height: clamp(9px, 1.1vw, 14px);
+  overflow: hidden;
+  border: 1px solid #ffb2a0;
+  border-radius: 5px;
+  background: #36151e;
+  box-shadow: inset 0 1px 4px #000a;
+}
+.boss-health-track i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ff737b 0%, #e52d4b 52%, #a91035 100%);
+  box-shadow: inset 0 1px 2px #ffffff66, 0 0 9px #f22c5580;
+  transition: width .18s ease-out;
+}
+#world #enemies > .enemy.enemy-boss[data-sprite-type="boss"] .ehealth {
+  display: none !important;
+}
+#world #enemies > .enemy.enemy-boss.boss-rushing {
+  transition: none !important;
+  filter: drop-shadow(0 0 9px rgba(255, 48, 75, .75));
+  z-index: 14;
+}
+#world #enemies > .enemy.enemy-boss.boss-rushing .enemy-art .enemySprite {
+  animation: none !important;
+}
+.stage.boss-camera-shake #world {
+  animation: bossCameraShake 280ms linear;
+}
+@keyframes bossCameraShake {
+  0%, 100% { translate: 0 0; }
+  12% { translate: -8px 1px; }
+  24% { translate: 7px -2px; }
+  36% { translate: -6px 2px; }
+  48% { translate: 6px 0; }
+  60% { translate: -4px -1px; }
+  72% { translate: 3px 1px; }
+  84% { translate: -2px 0; }
+}
+@media (max-width: 620px) {
+  .boss-health-panel {
+    width: min(78%, 440px);
+    padding: 5px 7px 6px;
+    border-radius: 8px;
+    bottom: max(7px, env(safe-area-inset-bottom));
+  }
+  .boss-health-heading { margin-bottom: 3px; font-size: clamp(10px, 2.5vw, 12px); }
+  .boss-health-track { height: clamp(8px, 2.2vw, 11px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage.boss-camera-shake #world { animation-duration: 1ms; }
+}
+
+/* Boss Rush 全程保持可見；第二次衝刺後在場內步行返回，不使用隱藏狀態。 */
+#hero.boss-knocked { pointer-events:none; }
+#hero.boss-knocked #heroSprite { animation:none !important; }
