@@ -277,6 +277,22 @@
                 ? chapter1BossRushChargeSprite : chapter1BossRushDashSprite;
         }
     }
+    // 集氣期間把整張角色圖由原色逐漸染成強烈紅色，並同步增強紅色外發光。
+    // progress 範圍為 0..1；只處理 Boss 精靈本身，不改變尺寸、位置或碰撞判定。
+    function setBossChargeRedGlow(e,progress) {
+        const sprite=e?.querySelector('.enemySprite');
+        if(!sprite)return;
+        const p=Math.max(0,Math.min(1,Number(progress)||0));
+        const glow1=(2+18*p).toFixed(1);
+        const glow2=(1+28*p).toFixed(1);
+        const alpha1=(0.03+0.78*p).toFixed(2);
+        const alpha2=(0.01+0.48*p).toFixed(2);
+        sprite.style.filter=`grayscale(${(0.55*p).toFixed(3)}) sepia(${p.toFixed(3)}) saturate(${(1+7*p).toFixed(2)}) hue-rotate(${(-42*p).toFixed(1)}deg) brightness(${(1+0.13*p).toFixed(3)}) drop-shadow(0 0 ${glow1}px rgba(255, 0, 28, ${alpha1})) drop-shadow(0 0 ${glow2}px rgba(255, 0, 20, ${alpha2}))`;
+    }
+    function clearBossChargeRedGlow(e) {
+        const sprite=e?.querySelector('.enemySprite');
+        if(sprite)sprite.style.removeProperty('filter');
+    }
     // 第一章 Boss 的原始立繪本身朝左；enemy-facing-left 會水平翻轉立繪，因此不能用「移動方向」直接決定回場時的朝向。
     function faceBossTowardHero(e) {
         if(!e)return;
@@ -360,6 +376,7 @@
         e.classList.add('boss-rushing');
         const sprite=e.querySelector('.enemySprite');
         setBossRushSprite(sprite,'windup');
+        setBossChargeRedGlow(e,0);
         e.dataset.actionUntil=String(performance.now()+2500);
         floatText('Boss 絕技！',originX,47);
     }
@@ -393,6 +410,7 @@
         const e=bossRush.boss;
         if(e && e.isConnected) {
             e.classList.remove('boss-rushing');
+            clearBossChargeRedGlow(e);
             e.style.removeProperty('opacity');
             e.style.removeProperty('visibility');
             if(!e.classList.contains('dead')) {
@@ -459,11 +477,18 @@
             return;
         }
         if(bossRush.phase==='windup' || bossRush.phase==='windup2') {
-            if(now-bossRush.phaseStartedAt<2500)return;
+            // 第二次集氣期間持續依玩家實際位置調整朝向，不沿用第一次衝刺的最後方向。
+            if(bossRush.phase==='windup2')faceBossTowardHero(e);
+            const chargeElapsed=Math.max(0,now-bossRush.phaseStartedAt);
+            // 2.5 秒集氣過程逐幀由 0% 漸變到 100%；最後一小段提前到達滿紅，確保滿紅效果可見。
+            const chargeProgress=Math.min(1,chargeElapsed/2400);
+            setBossChargeRedGlow(e,chargeProgress);
+            if(chargeElapsed<2500)return;
             bossRush.phase=bossRush.phase==='windup'?'dashOut':'dashAcross';
             bossRush.phaseStartedAt=now;
             bossRush.targetX=bossRush.phase==='dashOut'?bossRush.targetX:(bossRush.targetX===bossRush.leftX?bossRush.rightX:bossRush.leftX);
-            // 集氣結束、Boss 開始衝刺的同一刻，切換成 skin 1。
+            // 集氣滿紅後切換衝刺圖，立即移除紅色染色與光暈，避免影響衝刺造型。
+            clearBossChargeRedGlow(e);
             if(bossRush.phase==='dashOut'||bossRush.phase==='dashAcross') {
                 setBossRushSprite(e.querySelector('.enemySprite'),bossRush.phase);
             }
@@ -503,8 +528,11 @@
         if(Math.abs(diff)>step)return;
         if(bossRush.phase==='dashOut') {
             shakeBossCamera();bossRush.phase='windup2';bossRush.phaseStartedAt=now;
-            // 第二次衝刺前重新集氣，切回 skin2。
+            // 進入第二次集氣時立刻面向玩家，避免沿用剛才衝刺方向而背對玩家。
+            faceBossTowardHero(e);
+            // 第二次衝刺前重新集氣，切回 skin2，紅色發光從 0% 再次漸增。
             setBossRushSprite(e.querySelector('.enemySprite'),'windup2');
+            setBossChargeRedGlow(e,0);
             e.dataset.actionUntil=String(now+2500);
         } else if(bossRush.phase==='dashAcross') {
             // 不再隱藏 Boss：第二次衝刺完成後，直接在畫面內走回戰鬥位置。
@@ -518,6 +546,7 @@
             bossRush.boss.style.removeProperty('opacity');
             bossRush.boss.style.removeProperty('visibility');
             const sprite=bossRush.boss.querySelector('.enemySprite');
+            clearBossChargeRedGlow(bossRush.boss);
             if(sprite)sprite.src=enemySpritePath(bossRush.boss.dataset.spriteType||'boss','idle');
         }
         clearTimeout(bossRush.nextTimer);bossRush.nextTimer=0;bossRush.cooldownUntil=0;
