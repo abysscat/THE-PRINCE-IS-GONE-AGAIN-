@@ -159,7 +159,8 @@
       deathFadeMs: 800,
       enemyHitAnimationMs: 180,
       cluePulseSeconds: 1.8,
-      clueRevealMs: 650
+      clueRevealMs: 650,
+      boss1FinalSfxDelayMs: 1000 // 第一章 Boss 紅光出現後延遲多久播放 crash2.mp3（毫秒）：1000=1秒
     }
   };
 

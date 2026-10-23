@@ -1,0 +1,194 @@
+/* 第一章 Boss 1 最終技能：血紅巨劍・世界末日。
+   所有特效均位於既有 #world 內，不改舞台比例、鏡頭縮放或角色錨點。 */
+#world .boss1-final-storm {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  overflow: hidden;
+  z-index: 18;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(38,0,14,.58), rgba(91,0,18,.18) 55%, rgba(24,0,8,.10));
+  animation: boss1FinalSkyPulse .9s ease-in-out infinite alternate;
+}
+#world .boss1-final-storm::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10%;
+  background:
+    radial-gradient(ellipse at var(--boss1-energy-x,50%) 15%, rgba(255,12,48,.66) 0%, rgba(190,0,35,.28) 17%, transparent 43%),
+    repeating-conic-gradient(from 0deg at var(--boss1-energy-x,50%) 14%, transparent 0deg 11deg, rgba(255,20,54,.13) 12deg 13deg, transparent 14deg 24deg);
+  mix-blend-mode: screen;
+  animation: boss1FinalEnergyGather 2.4s ease-in-out infinite alternate;
+}
+#world .boss1-final-storm::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(var(--boss1-energy-x,50%) - 2px);
+  width: 4px;
+  height: 100%;
+  opacity: .72;
+  background: linear-gradient(180deg, transparent 0%, #ff183e 18%, #ff455c 44%, rgba(255,0,25,.12) 100%);
+  box-shadow: 0 0 13px 5px rgba(255,0,45,.66), 0 0 36px 14px rgba(255,0,45,.28);
+  animation: boss1FinalBeamPulse .38s ease-in-out infinite alternate;
+}
+#world .boss1-final-vortex {
+  position: absolute;
+  left: var(--boss1-energy-x,50%);
+  top: 3%;
+  width: clamp(170px, 35vw, 520px);
+  aspect-ratio: 1;
+  border: 5px solid rgba(255,38,73,.62);
+  border-radius: 50%;
+  transform: translateX(-50%) scale(.3);
+  background: radial-gradient(circle, rgba(255,18,53,.5), rgba(160,0,30,.16) 38%, transparent 68%);
+  box-shadow: 0 0 20px rgba(255,0,45,.6), inset 0 0 35px rgba(255,0,45,.54);
+  animation: boss1FinalVortex 2.1s ease-in-out infinite;
+}
+#world .boss1-final-vortex::before,
+#world .boss1-final-vortex::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 3px dashed rgba(255,135,154,.8);
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(255,20,58,.62);
+}
+#world .boss1-final-vortex::after {
+  inset: 30%;
+  border-style: solid;
+  border-color: rgba(255,20,55,.9);
+}
+#world .boss1-final-warning {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  width: max-content;
+  max-width: 90%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  padding: 9px 17px 10px;
+  border: 1px solid rgba(255,102,128,.9);
+  border-radius: 11px;
+  background: linear-gradient(180deg, rgba(44,0,15,.9), rgba(18,0,8,.82));
+  color: #fff0f2;
+  text-align: center;
+  text-shadow: 0 0 8px #ff153d, 0 2px 3px #000;
+  box-shadow: 0 0 24px rgba(255,0,44,.42), inset 0 0 12px rgba(255,20,55,.18);
+  animation: boss1FinalWarningPulse .52s ease-in-out infinite alternate;
+}
+#world .boss1-final-warning strong {
+  color: #fff2f3;
+  font-size: clamp(16px, 2.3vw, 27px);
+  font-weight: 1000;
+  letter-spacing: .12em;
+}
+#world .boss1-final-countdown {
+  color: #ffb8c4;
+  font-size: clamp(11px, 1.25vw, 15px);
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+#world .boss1-final-storm.boss1-final-launch::before {
+  animation-duration: .32s;
+  opacity: 1;
+}
+#world .boss1-final-storm.boss1-final-impact-flash {
+  animation: boss1FinalImpactFlash .38s ease-out 1;
+}
+#world .boss1-final-sword {
+  position: absolute;
+  z-index: 22;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  filter: sepia(.68) saturate(2.5) hue-rotate(305deg) brightness(1.08) drop-shadow(0 0 16px rgba(255,0,42,.98)) drop-shadow(0 0 42px rgba(255,0,25,.68));
+  transition: top 850ms cubic-bezier(.18,.8,.27,1);
+  will-change: top;
+}
+#world .boss1-final-sword.planted {
+  transition: none;
+  filter: sepia(.68) saturate(2.5) hue-rotate(305deg) brightness(1.08) drop-shadow(0 0 20px rgba(255,0,42,.98)) drop-shadow(0 0 50px rgba(255,0,25,.8));
+}
+#world .boss1-final-impact {
+  position: absolute;
+  z-index: 24;
+  display: block;
+  max-width: none;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  filter: hue-rotate(315deg) saturate(1.7) brightness(1.05) drop-shadow(0 0 23px rgba(255,0,45,.76));
+  animation: boss1FinalImpact .98s cubic-bezier(.1,.7,.2,1) both;
+}
+#world .boss1-final-shockwave {
+  position: absolute;
+  z-index: 23;
+  bottom: 10%;
+  height: clamp(18px, 5vw, 54px);
+  border: 6px solid rgba(255,23,62,.94);
+  border-radius: 50%;
+  box-sizing: border-box;
+  pointer-events: none;
+  box-shadow: 0 0 15px 7px rgba(255,0,40,.68), inset 0 0 18px rgba(255,20,45,.55);
+  transform: scaleX(.08) scaleY(.28);
+  animation: boss1FinalShockwave .95s ease-out both;
+}
+#world > .hero.boss1-final-killed {
+  filter: grayscale(1) brightness(.38) drop-shadow(0 0 18px rgba(255,0,32,.85));
+  opacity: .58;
+  transition: filter .25s ease-out, opacity .5s ease-out;
+}
+@keyframes boss1FinalSkyPulse {
+  from { filter: brightness(.85) saturate(1.1); }
+  to { filter: brightness(1.18) saturate(1.5); }
+}
+@keyframes boss1FinalEnergyGather {
+  from { transform: scale(.92) rotate(-8deg); opacity: .52; }
+  to { transform: scale(1.08) rotate(8deg); opacity: 1; }
+}
+@keyframes boss1FinalBeamPulse {
+  from { opacity: .4; }
+  to { opacity: 1; }
+}
+@keyframes boss1FinalVortex {
+  0% { transform: translateX(-50%) scale(.24) rotate(0deg); opacity: .55; }
+  55% { transform: translateX(-50%) scale(.7) rotate(115deg); opacity: 1; }
+  100% { transform: translateX(-50%) scale(.42) rotate(230deg); opacity: .72; }
+}
+@keyframes boss1FinalWarningPulse {
+  from { box-shadow: 0 0 14px rgba(255,0,44,.32), inset 0 0 7px rgba(255,20,55,.12); }
+  to { box-shadow: 0 0 32px rgba(255,0,44,.78), inset 0 0 18px rgba(255,20,55,.32); }
+}
+@keyframes boss1FinalImpactFlash {
+  0% { background-color: rgba(255,255,255,.0); }
+  15% { background-color: rgba(255,205,216,.55); }
+  100% { background-color: rgba(255,0,30,.04); }
+}
+@keyframes boss1FinalImpact {
+  0% { opacity: 0; transform: scale(.56,.42); }
+  22% { opacity: 1; transform: scale(1.02,.96); }
+  100% { opacity: .94; transform: scale(1.06,1.02); }
+}
+@keyframes boss1FinalShockwave {
+  0% { opacity: .95; transform: scaleX(.08) scaleY(.28); }
+  100% { opacity: 0; transform: scaleX(5.6) scaleY(1.15); }
+}
+@media (max-width: 620px) {
+  #world .boss1-final-warning { top: 7%; padding: 7px 10px 8px; }
+  #world .boss1-final-warning strong { letter-spacing: .05em; }
+  #world .boss1-final-vortex { width: min(62vw, 310px); }
+  #world .boss1-final-impact { filter: hue-rotate(315deg) saturate(1.65) brightness(1.04) drop-shadow(0 0 14px rgba(255,0,45,.8)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #world .boss1-final-storm,
+  #world .boss1-final-storm::before,
+  #world .boss1-final-storm::after,
+  #world .boss1-final-vortex,
+  #world .boss1-final-warning { animation-duration: 1.5s; }
+}

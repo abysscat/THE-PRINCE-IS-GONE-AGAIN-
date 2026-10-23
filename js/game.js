@@ -21,6 +21,10 @@
     // 撞飛物理：鎖定輸入，利用原有跳躍重力完成拋物線。
     let knockbackUntilLanding=false,knockbackDirection=0,knockbackHitUntil=0;
     const bossRush={active:false,boss:null,phase:'',phaseStartedAt:0,runStartedAt:0,originX:0,targetX:0,leftX:0,rightX:0,cameraAnchor:null,currentThreshold:0,triggered:new Set(),queue:[],originalFacing:'right',originalFacingLocked:'0',speed:2.5,hitDashes:new Set(),dashDirection:1,nextTimer:0,cooldownUntil:0};
+    // 第一章 Boss 的唯一一次世界末日必殺技；所有位置使用原有 world 座標，完全不改舞台尺寸。
+    const chapter1FinalSkill={triggered:false,active:false,phase:'',phaseStartedAt:0,boss:null,cameraAnchor:null,targetX:0,storm:null,sword:null,impact:null,shockwave:null,killedHero:false,originalFacingLocked:'0',swordHeight:0,swordWidth:0,chargeSfx:null,chargeSfxPlayed:false};
+    const CHAPTER1_FINAL_CHARGE_MS=5000,CHAPTER1_FINAL_DROP_MS=850,CHAPTER1_FINAL_HIT_DELAY_MS=1000;
+    // 音效延遲時間請到 js/game-tuning.js 的 effects.boss1FinalSfxDelayMs 修改。
     const gameSettings=window.GAME_SETTINGS;
     // 可調整數值集中於 js/game-tuning.js；此處只讀取設定，不把數值散落在主程式。
     const gameTuning=window.GAME_TUNING||{};
@@ -240,7 +244,10 @@
     function updateCamera() {
         if(!stageW) return;
         const maxCamera=Math.max(0,worldW-stageW);
-        if(bossRush.active && bossRush.cameraAnchor!==null) {
+        if(chapter1FinalSkill.active && chapter1FinalSkill.cameraAnchor!==null) {
+            // 最終技能期間固定原本鏡頭錨點，特效只在 world 內播放，不推動角色或鏡頭。
+            cameraX=Math.max(0,Math.min(maxCamera,chapter1FinalSkill.cameraAnchor));
+        } else if(bossRush.active && bossRush.cameraAnchor!==null) {
             cameraX=Math.max(0,Math.min(maxCamera,bossRush.cameraAnchor));
         } else {
             const targetCamera=Math.max(0,Math.min(maxCamera,x-stageW*.45));
@@ -292,6 +299,205 @@
     function clearBossChargeRedGlow(e) {
         const sprite=e?.querySelector('.enemySprite');
         if(sprite)sprite.style.removeProperty('filter');
+    }
+    function isChapter1FinalBoss(e) {
+        return level===4 && !!e && e.dataset.boss==='1' && e.dataset.spriteType==='boss';
+    }
+    function removeChapter1FinalEffects() {
+        world.querySelectorAll('.boss1-final-storm,.boss1-final-sword,.boss1-final-impact,.boss1-final-shockwave').forEach(el=>el.remove());
+    }
+    function resetChapter1FinalSkill() {
+        // 玩家在蓄力期間擊敗 Boss 時，立即停止尚未播完的血紅巨劍音效。
+        if(chapter1FinalSkill.chargeSfx) {
+            try {
+                chapter1FinalSkill.chargeSfx.pause();
+                chapter1FinalSkill.chargeSfx.currentTime=0;
+            } catch (_) {}
+        }
+        const oldBoss=chapter1FinalSkill.boss;
+        if(oldBoss && oldBoss.isConnected) {
+            oldBoss.classList.remove('boss1-final-charging');
+            clearBossChargeRedGlow(oldBoss);
+            oldBoss.classList.remove('boss1-final-frozen');
+            if(!oldBoss.classList.contains('dead'))oldBoss.dataset.facingLocked=chapter1FinalSkill.originalFacingLocked||'0';
+        }
+        hero.classList.remove('boss1-final-killed');
+        removeChapter1FinalEffects();
+        Object.assign(chapter1FinalSkill,{triggered:false,active:false,phase:'',phaseStartedAt:0,boss:null,cameraAnchor:null,targetX:0,storm:null,sword:null,impact:null,shockwave:null,killedHero:false,originalFacingLocked:'0',swordHeight:0,swordWidth:0,chargeSfx:null,chargeSfxPlayed:false});
+    }
+    function stopBossRushForFinalSkill(e) {
+        clearTimeout(bossRush.nextTimer);bossRush.nextTimer=0;bossRush.cooldownUntil=0;
+        const oldBoss=bossRush.boss;
+        if(oldBoss && oldBoss.isConnected) {
+            oldBoss.classList.remove('boss-rushing');
+            oldBoss.style.removeProperty('opacity');oldBoss.style.removeProperty('visibility');
+            clearBossChargeRedGlow(oldBoss);
+        }
+        bossRush.active=false;bossRush.boss=null;bossRush.phase='';bossRush.runStartedAt=0;bossRush.cameraAnchor=null;
+        bossRush.currentThreshold=0;bossRush.queue=[];
+        clearTimeout(bossShakeTimer);stage.classList.remove('boss-camera-shake');
+        if(e && e.isConnected) {
+            e.classList.remove('boss-rushing');
+            e.style.removeProperty('opacity');e.style.removeProperty('visibility');
+            clearBossChargeRedGlow(e);
+            clearTimeout(e._spriteTimer);
+        }
+    }
+    function createChapter1FinalStorm() {
+        const storm=document.createElement('div');
+        storm.className='boss1-final-storm';
+        storm.setAttribute('aria-hidden','true');
+        storm.innerHTML='<div class="boss1-final-vortex"></div><div class="boss1-final-energy-beam"></div><div class="boss1-final-warning"><strong>世界末日・血紅巨劍</strong><span class="boss1-final-countdown">紅色能量正在匯聚 · 5 秒</span></div>';
+        storm.style.left=cameraX+'px';
+        storm.style.width=stageW+'px';
+        storm.style.setProperty('--boss1-energy-x',Math.max(0,Math.min(stageW,chapter1FinalSkill.targetX-cameraX))+'px');
+        world.appendChild(storm);
+        chapter1FinalSkill.storm=storm;
+    }
+    function startChapter1FinalSkill(e) {
+        if(!isChapter1FinalBoss(e) || chapter1FinalSkill.triggered || e.classList.contains('dead') || !running)return false;
+        chapter1FinalSkill.triggered=true;
+        chapter1FinalSkill.active=true;
+        chapter1FinalSkill.phase='charge';
+        chapter1FinalSkill.phaseStartedAt=performance.now();
+        chapter1FinalSkill.boss=e;
+        chapter1FinalSkill.cameraAnchor=cameraX;
+        chapter1FinalSkill.targetX=x;
+        chapter1FinalSkill.killedHero=false;
+        chapter1FinalSkill.originalFacingLocked=e.dataset.facingLocked||'0';
+        stopBossRushForFinalSkill(e);
+        e.dataset.facingLocked='1';
+        e.classList.add('boss1-final-charging','boss1-final-frozen');
+        e.dataset.lastAttack=String(chapter1FinalSkill.phaseStartedAt);
+        e.dataset.actionUntil=String(chapter1FinalSkill.phaseStartedAt+CHAPTER1_FINAL_CHARGE_MS+CHAPTER1_FINAL_DROP_MS+CHAPTER1_FINAL_HIT_DELAY_MS);
+        setBossChargeRedGlow(e,0);
+        // 將玩家停在觸發當刻的位置；保留其當前垂直位置，不瞬移、不重設尺寸。
+        keys.left=false;keys.right=false;moveV=0;jumpBufferMs=0;
+        createChapter1FinalStorm();
+        floatText('世界末日・血紅巨劍！',x,62);
+        return true;
+    }
+    function applyEnemyDamage(e,damage) {
+        let next=(+e.dataset.hp||0)-damage;
+        if(!isChapter1FinalBoss(e))return next;
+        const maxHP=Math.max(1,+e.dataset.maxhp||100);
+
+        // 5 秒蓄勢是玩家最後的反擊窗口：蓄勢期間仍可正常削減 Boss HP。
+        // 若這段時間把 Boss 打至 0，立即取消必殺技，讓原有死亡流程接手。
+        if(chapter1FinalSkill.active) {
+            if(chapter1FinalSkill.phase==='charge') {
+                if(next<=0) {
+                    resetChapter1FinalSkill();
+                    return next;
+                }
+                return next;
+            }
+            // 5 秒蓄勢已完成、巨劍開始落下後，保留 1 HP 直到必殺技流程結束，
+            // 避免落劍動畫途中 Boss 提前死亡而留下未完成的畫面特效。
+            return Math.max(1,next);
+        }
+
+        // 只有 Boss 存活且第一次降至 10% 或以下，才開始 5 秒蓄勢。
+        // 若單次攻擊直接將 Boss 從 10% 以上打至 0，則照常擊敗，不啟動必殺技。
+        if(!chapter1FinalSkill.triggered && next>0 && next<=maxHP*0.10) {
+            startChapter1FinalSkill(e);
+            if(chapter1FinalSkill.active)return next;
+        }
+        return next;
+    }
+    function spawnChapter1FinalSword(now) {
+        chapter1FinalSkill.targetX=x;
+        const sword=document.createElement('img');
+        sword.className='boss1-final-sword';
+        sword.src='images/effects/boss1_final_sword.png';
+        sword.alt='';sword.setAttribute('aria-hidden','true');
+        const swordHeight=Math.max(stageH*1.32,420);
+        const swordWidth=swordHeight*(344/1083);
+        chapter1FinalSkill.swordHeight=swordHeight;
+        chapter1FinalSkill.swordWidth=swordWidth;
+        sword.style.width=swordWidth+'px';
+        sword.style.height=swordHeight+'px';
+        sword.style.left=(chapter1FinalSkill.targetX-swordWidth/2)+'px';
+        sword.style.top=(-swordHeight)+'px';
+        world.appendChild(sword);
+        chapter1FinalSkill.sword=sword;
+        if(chapter1FinalSkill.storm) {
+            chapter1FinalSkill.storm.classList.add('boss1-final-launch');
+            const countdown=chapter1FinalSkill.storm.querySelector('.boss1-final-countdown');
+            if(countdown)countdown.textContent='蓄勢完成！巨劍落下';
+        }
+        void sword.offsetHeight;
+        requestAnimationFrame(()=>{
+            if(!chapter1FinalSkill.active || chapter1FinalSkill.sword!==sword)return;
+            const groundY=stageH*0.86;
+            sword.style.top=(groundY-swordHeight)+'px';
+            sword.classList.add('falling');
+        });
+        chapter1FinalSkill.phase='fall';
+        chapter1FinalSkill.phaseStartedAt=now;
+    }
+    function spawnChapter1FinalImpact(now) {
+        const impact=document.createElement('img');
+        impact.className='boss1-final-impact';
+        impact.src='images/effects/boss1_final_impact.png';
+        impact.alt='';impact.setAttribute('aria-hidden','true');
+        const width=Math.max(stageW*1.36,stageH*2.35);
+        impact.style.width=width+'px';
+        impact.style.height=(width*(802/1484))+'px';
+        impact.style.left=(chapter1FinalSkill.targetX-width/2)+'px';
+        impact.style.bottom=Math.max(0,stageH*0.03)+'px';
+        world.appendChild(impact);
+        chapter1FinalSkill.impact=impact;
+        const shockwave=document.createElement('div');
+        shockwave.className='boss1-final-shockwave';
+        shockwave.style.left=(chapter1FinalSkill.targetX-Math.max(stageW*.12,90)/2)+'px';
+        shockwave.style.width=Math.max(stageW*.12,90)+'px';
+        world.appendChild(shockwave);
+        chapter1FinalSkill.shockwave=shockwave;
+        if(chapter1FinalSkill.storm)chapter1FinalSkill.storm.classList.add('boss1-final-impact-flash');
+        if(chapter1FinalSkill.sword)chapter1FinalSkill.sword.classList.add('planted');
+        if(chapter1FinalSkill.storm) {
+            const countdown=chapter1FinalSkill.storm.querySelector('.boss1-final-countdown');
+            if(countdown)countdown.textContent='巨劍命中！';
+        }
+        floatText('巨劍墜落！',chapter1FinalSkill.targetX,70);
+        chapter1FinalSkill.phase='impact';
+        chapter1FinalSkill.phaseStartedAt=now;
+    }
+    function updateChapter1FinalSkill(now) {
+        if(!chapter1FinalSkill.active)return;
+        const e=chapter1FinalSkill.boss;
+        if(!e || !e.isConnected)return;
+        if(chapter1FinalSkill.phase==='charge') {
+            const elapsed=Math.max(0,now-chapter1FinalSkill.phaseStartedAt);
+            setBossChargeRedGlow(e,Math.min(1,elapsed/CHAPTER1_FINAL_CHARGE_MS));
+            // 紅光首次出現後 1 秒才播放 crash2.mp3；若 Boss 已被玩家擊敗，reset 會取消此流程。
+            if(elapsed>=(tuneEffects.boss1FinalSfxDelayMs ?? 1000) && !chapter1FinalSkill.chargeSfxPlayed && !e.classList.contains('dead')) {
+                chapter1FinalSkill.chargeSfxPlayed=true;
+                try {
+                    const chargeSfx=new Audio('audio/crash2.mp3');
+                    chargeSfx.volume=0.7;
+                    chargeSfx.currentTime=0;
+                    chapter1FinalSkill.chargeSfx=chargeSfx;
+                    const playResult=chargeSfx.play();
+                    if(playResult && typeof playResult.catch==='function')playResult.catch(()=>{});
+                } catch (_) {}
+            }
+            const countdown=chapter1FinalSkill.storm?.querySelector('.boss1-final-countdown');
+            if(countdown)countdown.textContent='紅色能量正在匯聚 · '+Math.max(0,Math.ceil((CHAPTER1_FINAL_CHARGE_MS-elapsed)/1000))+' 秒';
+            if(elapsed>=CHAPTER1_FINAL_CHARGE_MS)spawnChapter1FinalSword(now);
+        } else if(chapter1FinalSkill.phase==='fall') {
+            if(now-chapter1FinalSkill.phaseStartedAt>=CHAPTER1_FINAL_DROP_MS)spawnChapter1FinalImpact(now);
+        } else if(chapter1FinalSkill.phase==='impact') {
+            if(now-chapter1FinalSkill.phaseStartedAt>=CHAPTER1_FINAL_HIT_DELAY_MS) {
+                // 接觸後完整延遲 1 秒才直接判定死亡，不在巨劍剛落地時提前扣血。
+                chapter1FinalSkill.killedHero=true;
+                chapter1FinalSkill.phase='done';
+                hp=0;
+                hero.classList.add('boss1-final-killed');
+                updateHud();
+            }
+        }
     }
     // 第一章 Boss 的原始立繪本身朝左；enemy-facing-left 會水平翻轉立繪，因此不能用「移動方向」直接決定回場時的朝向。
     function faceBossTowardHero(e) {
@@ -395,6 +601,7 @@
         startBossRush(e,bossRush.queue.shift());
     }
     function checkBossRushThreshold(e) {
+        if(chapter1FinalSkill.triggered || chapter1FinalSkill.active)return;
         if(level!==4 || !e || e.dataset.boss!=='1' || e.dataset.spriteType!=='boss' || e.classList.contains('dead'))return;
         const max=Math.max(1,+e.dataset.maxhp||100);
         const ratio=Math.max(0,+e.dataset.hp||0)/max;
@@ -571,6 +778,11 @@
         jumpBufferMs=PHYSICS.jumpBuffer;
     }
     function updatePlayerPhysics(dt){
+        if(chapter1FinalSkill.active) {
+            keys.left=false;keys.right=false;moveV=0;jumpBufferMs=0;
+            hero.classList.remove('walking');
+            return;
+        }
         const bashLocked=performance.now()<bashLockUntil || knockbackUntilLanding;
         if(bashLocked){ keys.left=false; keys.right=false; moveV=0; }
         const dir=bashLocked?0:((keys.right?1:0)-(keys.left?1:0));
@@ -689,6 +901,7 @@
         spawnedThisLevel++
     }
     function clearEnemies() {
+        resetChapter1FinalSkill();
         resetBossRush();
         enemies.innerHTML='';
         enemyList.length=0
@@ -875,7 +1088,7 @@
                 const damage=tuneCombat.damage||{thrust:1,bash:2,special:3,shieldThrust:0.5};
                 let type=e.dataset.type,dmg=damage[kind]??3;
                 if(type==='shield'&&kind==='thrust')dmg=damage.shieldThrust??0.5;
-                let eh=+e.dataset.hp-dmg;
+                let eh=applyEnemyDamage(e,dmg);
                 e.dataset.hp=eh;
                 e.querySelector('.ehealth i').style.width=Math.max(0,eh/(+e.dataset.maxhp)*100)+'%';
                 updateBossHealthBar(e);
@@ -890,7 +1103,7 @@
                         if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
                     },tuneEffects.enemyHitPoseMs??300)
                 }
-                if(!bossIsRushing) {
+                if(!bossIsRushing && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
                     flashEnemy(e,tuneEffects.enemyHitFlashMs??180);
                     const knockbackX=ex+faceDir*stageW*(kind==='thrust'?.05:kind==='bash'?.08:.11);
                     if(e.dataset.boss==='1') {
@@ -977,7 +1190,7 @@
                 let dmg=ultimateDamage.default??5;
                 // 特殊技對盾牌兵使用獨立傷害值。
                 if(type==='shield')dmg=ultimateDamage.shield??2.5;
-                const eh=+e.dataset.hp-dmg;
+                const eh=applyEnemyDamage(e,dmg);
                 e.dataset.hp=eh;
                 updateBossHealthBar(e);
                 if(eh>0)checkBossRushThreshold(e);
@@ -993,7 +1206,7 @@
                         if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
                     },tuneEffects.ultimateEnemyHitPoseMs??360)
                 }
-                if(!bossIsRushing) {
+                if(!bossIsRushing && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
                     flashEnemy(e,tuneEffects.ultimateHitFlashMs??180);
                     const knockbackX=ex+Math.sign(ex-x||faceDir)*stageW*.035;
                     if(e.dataset.boss==='1') {
@@ -1112,6 +1325,7 @@
         const dt=Math.min(45,t-last);
         last=t;
         if(!paused) {
+            updateChapter1FinalSkill(t);
             updatePlayerPhysics(dt);
             if(knockbackUntilLanding){setHeroSprite('images/hero/hero_jump.png');}
             else if(ultimateActive) {
@@ -1156,6 +1370,7 @@
                     continue
                 }
                 let ex=+e.dataset.x,type=e.dataset.type;
+                if(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)continue;
                 if(bossRush.active && e===bossRush.boss)continue;
                 // 前方敵人持續面向女騎士；後方敵人保留生成時鎖定的相反方向。
                 const enemyVisualCenter=ex+(e.dataset.boss==='1'?(e.offsetWidth||80)*.5:0);
@@ -1263,7 +1478,11 @@
             if(hp<=0) {
                 running=false;
                 resetBossRush();
-                showEnd('女神需要休息！','敵人太多了，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始')
+                if(chapter1FinalSkill.killedHero) {
+                    showEnd('血紅巨劍・末日降臨','Boss 1 的終極技能命中女神。巨劍落地後 1 秒，死亡判定已生效。','重新開始');
+                } else {
+                    showEnd('女神需要休息！','敵人太多了，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始');
+                }
             }
             updateHud()
         }
