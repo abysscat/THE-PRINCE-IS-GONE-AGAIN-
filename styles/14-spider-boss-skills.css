@@ -1,0 +1,186 @@
+/* Chapter 2 / level 8: spider boss-only skill telegraphs and effects. */
+#world .spider-skill-effect {
+  position: absolute;
+  z-index: 7;
+  display: block;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  user-select: none;
+}
+#world img.spider-skill-effect { object-fit: contain; }
+#world .spider-ground-area { z-index: 6; object-fit: fill; filter: drop-shadow(0 0 10px rgba(150, 255, 35, .48)); animation: spiderPoisonPulse .9s ease-in-out infinite alternate; }
+#world .spider-projectile { z-index: 13; }
+#world .spider-poison-spray-projectile { z-index: 13; object-fit: contain; transform-origin: 50% 50%; filter: drop-shadow(0 0 7px rgba(172,255,33,.95)) drop-shadow(0 0 13px rgba(112,203,25,.65)); }
+#world .spider-web-projectile { filter: drop-shadow(0 0 7px rgba(194,255,33,.9)); }
+#world .spider-poison-projectile {
+  border-radius: 58% 42% 62% 38%;
+  background: radial-gradient(ellipse at 35% 28%, #eaff72 0 8%, #adf321 20%, #65a91c 56%, #345316 78%, rgba(30,54,12,.15) 100%);
+  box-shadow: 0 0 13px rgba(176,255,27,.95), inset -3px -4px 7px rgba(20,44,7,.65);
+  transform: rotate(-22deg);
+}
+#world .spider-hit-flash { z-index: 9; opacity: .86; animation: spiderHitFlash .34s ease-out forwards; }
+#world .spider-dash-trail { z-index: 12; opacity: .62; filter: hue-rotate(12deg) saturate(1.2) drop-shadow(0 0 12px rgba(166,255,24,.95)); animation: spiderDashTrail .44s ease-out forwards; }
+#world .spider-impact { z-index: 14; opacity: .96; filter: drop-shadow(0 0 15px rgba(182,255,22,.95)); animation: spiderImpact .65s ease-out forwards; }
+#world .spider-ultimate-burst { z-index: 15; opacity: .98; filter: drop-shadow(0 0 28px rgba(159,255,18,.98)); animation: spiderUltimateBurst 1.05s ease-out forwards; }
+#world .spider-ultimate-shockwave { z-index: 16; border: 5px solid rgba(198,255,43,.9); border-radius: 50%; box-shadow: 0 0 20px rgba(175,255,40,.9), inset 0 0 16px rgba(175,255,40,.4); animation: spiderShockwave .85s ease-out forwards; }
+#world .spider-ultimate-warning {
+  z-index: 18; display: flex; align-items: center; justify-content: center;
+  box-sizing: border-box; padding: 7px 12px; border: 2px solid rgba(207,255,59,.98); border-radius: 12px;
+  background: repeating-linear-gradient(135deg, rgba(47,75,13,.88) 0 13px, rgba(118,153,18,.82) 13px 26px);
+  color: #fffbc9; font: 900 clamp(15px, 2.2vw, 26px)/1.2 system-ui, sans-serif; letter-spacing: .04em; text-align: center;
+  text-shadow: 0 2px 3px #24320a, 0 0 13px #aaff20; box-shadow: 0 0 18px rgba(172,255,30,.8);
+  animation: spiderWarningPulse .65s ease-in-out infinite alternate;
+}
+#world #enemies > .enemy.spider-boss-charging .enemy-art .enemySprite {
+  filter: drop-shadow(0 0 7px rgba(152,255,17,.72)) drop-shadow(0 0 16px rgba(175,255,32,.85)) !important;
+  animation: spiderChargeGlow .42s ease-in-out infinite alternate;
+}
+#world #enemies > .enemy.spider-boss-ultimate-charging .enemy-art .enemySprite {
+  filter: drop-shadow(0 0 12px rgba(168,255,20,.95)) drop-shadow(0 0 27px rgba(196,255,26,.98)) !important;
+  animation: spiderChargeGlow .28s ease-in-out infinite alternate;
+}
+#world #enemies > .enemy.spider-boss-dashing { z-index: 14; }
+.hero.spider-slow { filter: drop-shadow(0 0 8px rgba(164,255,27,.9)); }
+@keyframes spiderPoisonPulse { from { opacity: .72; } to { opacity: 1; } }
+@keyframes spiderHitFlash { 0% { transform: scale(.45); opacity: .95; } 100% { transform: scale(1.15); opacity: .12; } }
+@keyframes spiderDashTrail { 0% { opacity: .85; transform: scaleX(.25); } 100% { opacity: .08; transform: scaleX(1); } }
+@keyframes spiderImpact { 0% { transform: scale(.35); opacity: 1; } 100% { transform: scale(1.2); opacity: .1; } }
+@keyframes spiderUltimateBurst { 0% { transform: scale(.36); opacity: .2; } 45% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1.13); opacity: .48; } }
+@keyframes spiderShockwave { 0% { transform: scaleX(.1); opacity: 1; } 100% { transform: scaleX(1.08); opacity: 0; } }
+@keyframes spiderWarningPulse { from { opacity: .75; filter: brightness(.95); } to { opacity: 1; filter: brightness(1.25); } }
+@keyframes spiderChargeGlow { from { transform: scale(1); } to { transform: scale(1.035); } }
+@media (prefers-reduced-motion: reduce) {
+  #world .spider-skill-effect, #world #enemies > .enemy.spider-boss-charging .enemy-art .enemySprite,
+  #world #enemies > .enemy.spider-boss-ultimate-charging .enemy-art .enemySprite { animation-duration: 1.6s; }
+}
+
+
+/* v4：依使用者最新規格的蜘蛛 Boss 與 8 隻小蜘蛛階段。 */
+#world.chapter2-world #enemies > .enemy.spider-minion {
+  width: 150px !important;
+  height: 137.5px !important;
+  bottom: var(--tune-ground-bottom) !important;
+  z-index: 8;
+}
+#world.chapter2-world #enemies > .enemy.spider-minion .enemy-art .enemySprite {
+  transform: scale(1.5) !important;
+  transform-origin: 50% 100% !important;
+}
+#world #enemies > .enemy.spider-minion .enemy-name { top: -27px !important; font-size: 11px; }
+#world #enemies > .enemy.spider-minion .ehealth { top: -7px !important; width: 55px !important; height: 5px !important; }
+#world #enemies > .enemy.spider-boss-lifting { z-index: 16; animation: spiderBossRise .88s ease-in forwards !important; }
+#world #enemies > .enemy.spider-boss-lifting .enemy-art .enemySprite { animation: none !important; }
+#world #enemies > .enemy.spider-boss-brood-hidden { visibility: hidden !important; pointer-events: none !important; }
+#world #enemies > .enemy.spider-boss-returning { z-index: 16; }
+#world #enemies > .enemy.spider-boss-returning .enemy-art .enemySprite { animation: none !important; }
+#world .spider-poison-projectile { z-index: 13; border-radius: 58% 42% 62% 38%; background: radial-gradient(ellipse at 32% 25%, #f1ff9a 0 9%, #b4ea31 24%, #6f9a23 56%, #3b4e19 80%, rgba(28,42,12,.2) 100%); box-shadow: 0 0 13px rgba(176,255,27,.9), inset -3px -4px 7px rgba(20,44,7,.6); transform: rotate(-22deg); }
+#world .spider-ultimate-warning-area { z-index: 5; filter: drop-shadow(0 0 14px rgba(161,255,26,.92)); animation: spiderWarningAreaPulse .6s ease-in-out infinite alternate; }
+@keyframes spiderBossRise { 0% { transform: translateY(0); opacity: 1; } 80% { opacity: .95; } 100% { transform: translateY(-115vh); opacity: .08; } }
+@keyframes spiderWarningAreaPulse { from { opacity: .35; } to { opacity: .72; } }
+
+/* v5-v6：全畫面永久毒域與小蜘蛛三連噴射；v7 改為每波 4 隻，共 3 波。 */
+#world.chapter2-world #enemies > .enemy.spider-minion {
+  width: 75px !important;
+  height: 68.75px !important;
+}
+#world.chapter2-world #enemies > .enemy.spider-minion .enemy-art .enemySprite {
+  /* 蛛小弟美術顯示放大到目前 3 倍；保留原本容器／碰撞盒與移動攻擊邏輯。 */
+  transform: scale(3) !important;
+  transform-origin: 50% 100% !important;
+}
+#world .spider-ultimate-fullscreen {
+  position: fixed !important;
+  inset: 0 auto auto 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: fill !important;
+  z-index: 9997 !important;
+  opacity: .96 !important;
+  filter: hue-rotate(4deg) saturate(1.45) drop-shadow(0 0 22px rgba(100,255,20,.8));
+}
+#world .spider-toxic-screen-overlay {
+  position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important;
+  z-index: 9998 !important; background: rgba(91,255,28,.36) !important; mix-blend-mode: screen;
+  pointer-events: none !important;
+}
+#world .spider-control-lock {
+  position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important;
+  z-index: 10000 !important; background: transparent !important; pointer-events: auto !important;
+  touch-action: none !important;
+}
+.hero.spider-toxic-glow { filter: hue-rotate(35deg) saturate(1.8) drop-shadow(0 0 15px rgba(95,255,22,.95)) !important; }
+body.spider-apocalypse button, body.spider-apocalypse [role="button"], body.spider-apocalypse .touch-controls,
+body.spider-apocalypse #mobileControls, body.spider-apocalypse .skill-button, body.spider-apocalypse .game-control {
+  pointer-events: none !important; filter: grayscale(.7) hue-rotate(45deg) !important;
+}
+
+/* v8：全畫面毒域在舞台層顯示，保留 743×355 素材比例並保持 HUD 可讀。 */
+#world .spider-ground-area { object-fit: contain !important; }
+.stage > .spider-ultimate-fullscreen {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  z-index: 16 !important;
+  opacity: .46 !important;
+  mix-blend-mode: screen;
+  filter: hue-rotate(5deg) saturate(1.55) contrast(1.08) drop-shadow(0 0 22px rgba(100,255,20,.8)) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+.stage > .spider-toxic-screen-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 17 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse at 52% 72%, rgba(194,255,70,.15) 0%, rgba(76,185,21,.17) 43%, rgba(28,76,10,.32) 100%),
+    linear-gradient(180deg, rgba(111,255,34,.23), rgba(23,112,15,.3)) !important;
+  mix-blend-mode: screen;
+  animation: spiderToxicFog 1.8s ease-in-out infinite alternate;
+}
+.stage > .spider-ultimate-fullscreen,
+.stage > .spider-toxic-screen-overlay { border-radius: inherit; }
+#world #enemies > .enemy.spider-boss-awakening { z-index: 17 !important; }
+#world #enemies > .enemy.spider-boss-awakening .enemy-art .enemySprite { animation: none !important; }
+@keyframes spiderToxicFog {
+  from { opacity: .68; filter: saturate(1.05) hue-rotate(-3deg); }
+  to { opacity: 1; filter: saturate(1.42) hue-rotate(5deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage > .spider-toxic-screen-overlay { animation-duration: 3s; }
+}
+
+
+/* V9：Boss HP 到 10% 時，last1–last4 全畫面循環並由透明淡入；玩家 HP 到 5% 鎖定 hit2。 */
+.stage > .spider-last-phase-animation {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  z-index: 17 !important;
+  opacity: 0;
+  mix-blend-mode: screen;
+  filter: saturate(1.2) contrast(1.04) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  animation: spiderLastPhaseFadeIn 1.2s ease-out forwards !important;
+}
+@keyframes spiderLastPhaseFadeIn { from { opacity: 0; } to { opacity: 1; } }
+#world #enemies > .enemy.spider-boss-final-hit2 { z-index: 18 !important; }
+#world #enemies > .enemy.spider-boss-final-hit2 .enemy-art .enemySprite { animation: none !important; }
+/* hit2 PNG 畫布含有大範圍毒液特效，蜘蛛本體佔畫布比例較小；額外放大畫布，讓本體回到 normal 的視覺尺寸。 */
+#world.chapter2-world #enemies > .enemy.enemy-boss.spider-boss-final-hit2[data-sprite-type="chapter2_boss_2"] .enemy-art .enemySprite {
+  transform: translateY(var(--tune-c2-boss2-y)) scale(var(--tune-c2-boss2-scale)) scale(1.5) !important;
+  transform-origin: 50% 100% !important;
+}

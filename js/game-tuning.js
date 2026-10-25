@@ -82,12 +82,11 @@
         imageOffsetY: '0px'
       },
       chapter2Boss2: {
-        containerWidth: '600px',
-        containerHeight: '550px',
-        // 與隱藏 Boss 1 使用相近的地面基準，避免整個 Boss 下沉。
+        // 蜘蛛 Boss 本體尺寸為舊版 50%；保留原圖縮放倍率與地面基準，不拉伸素材。
+        containerWidth: '300px',
+        containerHeight: '275px',
         containerBottom: 'calc(14% - 30px)',
         imageScale: 1.5,
-        // 不再額外把圖片向下推 80px；調整的是整體站位，不改大小。
         imageOffsetY: '0px'
       }
     },

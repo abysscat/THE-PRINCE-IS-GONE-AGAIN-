@@ -7,7 +7,7 @@
 
     function enemySpritePath(type, state) {
         // 第二章：normal=待機、hit=受擊、attack=攻擊、idle=死亡。
-        // 所有 Chapter 2 敵人都放在自己的子資料夾內；一般敵人和 Boss 2 有 walk1–walk4，
+        // 所有 Chapter 2 敵人都放在自己的子資料夾內；蜘蛛 Boss 2 另有 runway1–runway4 離場影格，普通行走為 walk1–walk4，
         // 隱藏 Boss 1 有 walk1–walk8。game.js 會傳入具體影格名稱。
         if (/^chapter2_(enemy_[1-7]|boss_[12])$/.test(type)) {
             // 若其他呼叫端只傳入 "walk"，依這個角色可用的格數自動選擇當前影格。
