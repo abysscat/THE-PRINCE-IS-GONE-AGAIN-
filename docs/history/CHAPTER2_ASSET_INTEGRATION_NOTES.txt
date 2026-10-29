@@ -1,7 +1,7 @@
 第二章美術素材整合說明
 
 - 第二章第 5–8 關已改用 images/chapter2/bg/chapter2_stage_1_BG.png 至 chapter2_stage_4_BG.png。
-- 第二章背景音樂為 audio/forest.wav；第一章仍使用 audio/fantasy_rpg_bgm.wav。
+- 第二章背景音樂為 audio/forest.ogg；第一章仍使用 audio/fantasy_rpg_bgm.ogg。
 - 第二章正式線索為 clock、jelwellery、sword，每組使用 Layer 1/2/3。
 - 第二章一般敵人使用 chapter2_enemy_1 至 chapter2_enemy_7 的素材，沿用原有戰鬥數值與攻擊機制。
 - 第 8 關 Boss 互斥：若三組第二章線索全收集，出現 chapter2_boss_1 隱藏 Boss；否則出現 chapter2_boss_2 普通 Boss，不會同時出現。

@@ -5,11 +5,11 @@
  * stopAll(): 停止音效（重開遊戲或返回首頁時使用）
  */
 (()=> {
-  const chargeAudio = new Audio('audio/holy_flame_charge.wav');
+  const chargeAudio = new Audio('audio/holy_flame_charge.ogg');
   chargeAudio.loop = true;
   chargeAudio.volume = 0.22;
 
-  const blastAudio = new Audio('audio/holy_flame_blast.wav');
+  const blastAudio = new Audio('audio/holy_flame_blast.ogg');
   blastAudio.volume = 0.40;
 
   function safePlay(audio) {

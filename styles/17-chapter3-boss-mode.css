@@ -1,0 +1,71 @@
+/* 第三章正式可遊玩的雷暴 Boss 關：水平鏡頭只顯示背景的一段，主角與敵人沿用正式遊戲座標。 */
+body.chapter3-boss-mode .stage { aspect-ratio: 2048 / 712; }
+body.chapter3-boss-mode #levelBackground { visibility: hidden !important; opacity: 0 !important; }
+body.chapter3-boss-mode #world { z-index: 1; background: transparent !important; overflow: visible; will-change: transform; }
+body.chapter3-boss-mode #elevatorBgViewport {
+  display: block !important; position: absolute; left: 0; top: 0; height: 100%; overflow: hidden;
+  z-index: 0; pointer-events: none; background-color: #061a37;
+  background-repeat: repeat-x; background-position: left center; background-size: auto 100%;
+}
+body.chapter3-boss-mode #elevatorBG,
+body.chapter3-boss-mode #elevatorBGNext { display: none !important; }
+body.chapter3-boss-mode #elevatorForeground {
+  display: block !important; position: absolute; left: 0; top: 0; z-index: 2;
+  height: 100%; width: 100%; max-width: none; object-fit: fill; object-position: left top;
+  pointer-events: none; user-select: none; -webkit-user-drag: none;
+}
+body.chapter3-boss-mode #elevatorExitBackdrop { display: none !important; }
+body.chapter3-boss-mode #seaBackgroundDarken { z-index: 5; }
+body.chapter3-boss-mode #world > .hero { z-index: 10; }
+body.chapter3-boss-mode #world #enemies { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+body.chapter3-boss-mode #world #enemies > .enemy { pointer-events: none; }
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] {
+  width: clamp(190px, 24vw, 292px) !important; height: clamp(180px, 29vw, 330px) !important;
+  bottom: calc(var(--tune-ground-bottom, 14%) + var(--chapter3-boss-lift, 0px)) !important;
+  z-index: 12; filter: drop-shadow(0 7px 12px #03142ccc);
+}
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-art,
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-art-frame { overflow: visible; }
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemySprite {
+  object-fit: contain; filter: none !important; animation: none !important; transform-origin: 50% 100%;
+}
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-name {
+  top: -24px !important; background: #082d50; border-color: #66c9ff; color: #e8f9ff;
+}
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .ehealth { display: none !important; }
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle {
+  width: clamp(95px, 12vw, 145px) !important; height: clamp(110px, 16vw, 178px) !important;
+  bottom: var(--tune-ground-bottom, 14%) !important; z-index: 9; filter: drop-shadow(0 5px 7px #00182ccc);
+}
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .enemySprite { animation: none !important; object-fit: contain; }
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .enemy-name {
+  top: -22px; background: #092949; border-color: #54c8ff; color: #f3fcff;
+}
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .ehealth { top: -2px; }
+body.chapter3-boss-mode .chapter3-boss-charging .enemy-art { filter: drop-shadow(0 0 14px #48caff) drop-shadow(0 0 28px #247bff); }
+body.chapter3-boss-mode .chapter3-boss-final-charge .enemy-art { animation: chapter3BossBlueAura .42s ease-in-out infinite alternate; }
+@keyframes chapter3BossBlueAura {
+  from { filter: drop-shadow(0 0 12px #42bfff) drop-shadow(0 0 24px #216aff); }
+  to { filter: drop-shadow(0 0 26px #a4f3ff) drop-shadow(0 0 48px #147bff); }
+}
+.chapter3-boss-lightning {
+  position: absolute; z-index: 14; display: block; object-fit: contain; pointer-events: none;
+  filter: drop-shadow(0 0 10px #39baff) drop-shadow(0 0 20px #1c7cff);
+  user-select: none; -webkit-user-drag: none;
+}
+.chapter3-boss-countdown {
+  position: absolute; z-index: 38; left: 50%; top: 17%; transform: translateX(-50%);
+  min-width: min(78%, 420px); padding: 11px 17px; text-align: center; border-radius: 12px;
+  border: 1px solid #66d5ff; background: linear-gradient(135deg, #031931eF, #0c3a79ee);
+  color: #e8fbff; font-size: clamp(16px, 2.8vw, 26px); font-weight: 1000; letter-spacing: .06em;
+  text-shadow: 0 0 10px #249dff; box-shadow: 0 0 26px #197bff77; pointer-events: none;
+}
+.chapter3-boss-blackout {
+  position: absolute; inset: 0; z-index: 39; background: #000; opacity: 1; pointer-events: none;
+}
+@media (max-width: 620px) {
+  body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] {
+    width: clamp(160px, 33vw, 220px) !important; height: clamp(160px, 37vw, 250px) !important;
+  }
+  .chapter3-boss-countdown { top: 14%; padding: 9px 12px; }
+}

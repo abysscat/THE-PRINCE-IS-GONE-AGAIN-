@@ -3,5 +3,5 @@
 1. 女主角八張 godness 素材已統一為 512x460 透明 PNG；可見內容按相同基線及一致角色視覺尺寸整理，跳躍圖另保留直立長槍所需空間，避免人物本體縮得過小。
 2. 同步更新 images/hero_*.png 及 images/godness/hero_*.png，保留原有遊戲程式使用的路徑。
 3. CSS 將所有女主角影格固定為同一渲染高度，取消攻擊及跳躍時對圖片本身的縮放動畫；移動、攻擊的角色容器動畫及遊戲邏輯保留。
-4. 骷髏兵改用 images/enemies/custom/5/ 的素材；待機使用 enemy_nornal.png（原素材檔名如此拼寫），受擊與攻擊使用對應 enemy_hit.png、enemy_attack.png。
+4. 骷髏兵改用 images/chapter1/enemies/5/ 的素材；待機使用 enemy_nornal.png（原素材檔名如此拼寫），受擊與攻擊使用對應 enemy_hit.png、enemy_attack.png。
 5. 其他敵人、關卡、控制、音樂及音效程式未作主動變更。

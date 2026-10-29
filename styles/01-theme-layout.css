@@ -479,7 +479,7 @@ body {
 .enemy {
   position: absolute;
   z-index: 8;
-  bottom: 20%;
+  bottom: 14%;
   width: 64px;
   height: 92px;
   transition: left .08s linear;

@@ -39,10 +39,10 @@
     const setHeroSprite=playerVisuals.setHeroSprite;
     const setUltimateFrame=playerVisuals.setUltimateFrame;
     const clueItems=gameSettings.clueItems;
-    const titleAudio=new Audio('audio/title_bgm.wav');
+    const titleAudio=new Audio('audio/title_bgm.ogg');
     titleAudio.loop=true;
     titleAudio.volume=0.25;
-    const bgmAudio=new Audio('audio/fantasy_rpg_bgm.wav');
+    const bgmAudio=new Audio('audio/fantasy_rpg_bgm.ogg');
     bgmAudio.loop=true;
     bgmAudio.volume=0.28;
     let musicEnabled=true;
@@ -57,9 +57,9 @@
         }
     }
     startTitleMusic();
-    const shieldAudio=new Audio('audio/shield_bash.wav');
+    const shieldAudio=new Audio('audio/shield_bash.ogg');
     shieldAudio.volume=0.10;
-    const spearAudio=new Audio('audio/spear_thrust.wav');
+    const spearAudio=new Audio('audio/spear_thrust.ogg');
     spearAudio.volume=0.10;
     function playSfx(kind) {
         const a=kind==='bash'?shieldAudio:spearAudio;
@@ -86,9 +86,9 @@
     // ===== 線索掉落：每關指定一件；成功時暫停並進入兩階段點擊流程 =====
     let clueModalPhase=0, activeClue=null;
     const clueByLevel={
-        1:{id:'king',name:'王室徽章',dialog:'你發現了一枚王室徽章，上面的紋章似乎屬於失蹤的王子。',frame:'images/clues/king_layer1.png',item:'images/clues/king_layer2.png',glow:'images/clues/king_layer3.png'},
-        2:{id:'letter',name:'染血密信',dialog:'這封染血的密信似乎隱藏著秘密，信中的內容指向一場不為人知的陰謀。',frame:'images/clues/letter_layer1.png',item:'images/clues/letter_layer2.png',glow:'images/clues/letter_layer3.png'},
-        3:{id:'piece',name:'披風碎片',dialog:'這片紫色披風似乎曾經屬於王子。附近或許還藏著最後的線索。',frame:'images/clues/piece_layer1.png',item:'images/clues/piece_layer2.png',glow:'images/clues/piece_layer3.png'},
+        1:{id:'king',name:'王室徽章',dialog:'你發現了一枚王室徽章，上面的紋章似乎屬於失蹤的王子。',frame:'images/chapter1/clues/king_layer1.png',item:'images/chapter1/clues/king_layer2.png',glow:'images/chapter1/clues/king_layer3.png'},
+        2:{id:'letter',name:'染血密信',dialog:'這封染血的密信似乎隱藏著秘密，信中的內容指向一場不為人知的陰謀。',frame:'images/chapter1/clues/letter_layer1.png',item:'images/chapter1/clues/letter_layer2.png',glow:'images/chapter1/clues/letter_layer3.png'},
+        3:{id:'piece',name:'披風碎片',dialog:'這片紫色披風似乎曾經屬於王子。附近或許還藏著最後的線索。',frame:'images/chapter1/clues/piece_layer1.png',item:'images/chapter1/clues/piece_layer2.png',glow:'images/chapter1/clues/piece_layer3.png'},
         5:{id:'chapter2_clock',name:'古老時鐘',dialog:'時鐘的指針停在王子失蹤的那一刻。',frame:'images/chapter2/clues/clock_layer1.png',item:'images/chapter2/clues/clock_layer2.png',glow:'images/chapter2/clues/clock_layer3.png'},
         6:{id:'chapter2_jelwellery',name:'王室珠寶',dialog:'珠寶上的紋章揭示了王室深處的秘密。',frame:'images/chapter2/clues/jelwellery_layer1.png',item:'images/chapter2/clues/jelwellery_layer2.png',glow:'images/chapter2/clues/jelwellery_layer3.png'},
         7:{id:'chapter2_sword',name:'王者之劍',dialog:'這把劍似乎能開啟通往王國真相的道路。',frame:'images/chapter2/clues/sword_layer1.png',item:'images/chapter2/clues/sword_layer2.png',glow:'images/chapter2/clues/sword_layer3.png'}
@@ -364,7 +364,7 @@
         if(!musicEnabled)return;
         titleAudio.pause();
         const config=levelConfigs[level-1]||{};
-        const musicPath=config.chapter===2?'audio/forest.wav':'audio/fantasy_rpg_bgm.wav';
+        const musicPath=config.chapter===2?'audio/forest.ogg':'audio/fantasy_rpg_bgm.ogg';
         const resolvedPath=new URL(musicPath,document.baseURI).href;
         if(bgmAudio.src!==resolvedPath) { bgmAudio.src=musicPath; bgmAudio.load(); }
         try {

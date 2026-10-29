@@ -72,7 +72,7 @@
 .enemy {
   width: clamp(150px, 15vw, 190px);
   height: clamp(120px, 18vw, 150px);
-  bottom: 18%;
+  bottom: 14%;
   filter: drop-shadow(0 5px 4px #17243b66);
 }
 .enemy .enemySprite {

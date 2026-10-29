@@ -4,8 +4,8 @@
 
 新增檔案：
 - js/ultimate-sound.js：獨立管理大絕音效播放與停止。
-- audio/holy_flame_charge.wav：按下 Q 後的循環金焰蓄力聲。
-- audio/holy_flame_blast.wav：蓄力約 0.8 秒後播放一次的爆發聲。
+- audio/holy_flame_charge.ogg：按下 Q 後的循環金焰蓄力聲。
+- audio/holy_flame_blast.ogg：蓄力約 0.8 秒後播放一次的爆發聲。
 
 程式如何運作：
 1. 按 Q，game.js 原有 ultimate() 確認可施放後，開始蓄力音效。

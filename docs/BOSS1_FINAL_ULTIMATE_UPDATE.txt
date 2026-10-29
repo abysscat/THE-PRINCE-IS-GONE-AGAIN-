@@ -20,8 +20,8 @@ Boss 1 最終技能更新說明
 相關檔案
 - js/game.js：觸發、傷害保護、時序及死亡判定。
 - styles/13-boss1-final-ultimate.css：紅色蓄勢、落劍、爆裂與衝擊波效果。
-- images/effects/boss1_final_sword.png：巨劍素材（由使用者提供的 sword.png 複製）。
-- images/effects/boss1_final_impact.png：爆裂素材（由使用者提供的 rock.png 複製）。
+- images/chapter1/boss/boss1_final_sword.png：巨劍素材（由使用者提供的 sword.png 複製）。
+- images/chapter1/boss/boss1_final_impact.png：爆裂素材（由使用者提供的 rock.png 複製）。
 
 驗證紀錄
 - Node.js 語法檢查通過。

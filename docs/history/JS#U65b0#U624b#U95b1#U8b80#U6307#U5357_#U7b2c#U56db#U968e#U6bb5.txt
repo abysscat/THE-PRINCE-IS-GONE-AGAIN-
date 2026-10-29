@@ -38,7 +38,7 @@ index.html 依次載入：
 enemySpritePath(type, state)
   type = 敵人種類，例如 "skeleton"（骷髏兵）或 "boss"（頭目）。
   state = 動作，例如 "idle"（待機）或其他動作名稱。
-  回傳值是一個圖片路徑字串，例如 images/enemies/custom/5/enemy_nornal.png。
+  回傳值是一個圖片路徑字串，例如 images/chapter1/enemies/5/enemy_nornal.png。
 
 這個函式只負責「找圖片路徑」，不會建立敵人，也不會令敵人攻擊。
 建立敵人和戰鬥仍由 game.js 處理。

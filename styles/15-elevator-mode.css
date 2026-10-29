@@ -1,0 +1,243 @@
+/* 主遊戲第 1–8 關不顯示升降機專用節點；到第 9 關才由 JS 移除 hidden。 */
+#elevatorBgViewport[hidden], #elevatorForeground[hidden], #elevatorExitBackdrop[hidden] { display: none !important; }
+
+/* 第三章升降機：Layer 1/Layer 2 使用一般關卡的背景比例；海港結尾全景也按相同 world 寬度隨鏡頭水平移動。 */
+/* 不覆寫共同地面基準：主角與敵人沿用第 1–8 關的 groundBottom。 */
+body.elevator-mode { }
+body.elevator-mode .stage { aspect-ratio: 2048 / 712; }
+
+/* Layer 2：後景。寬度跟 world 一樣，保留原圖比例，以兩張垂直接續圖片無限捲動。 */
+body.elevator-mode .elevator-bg-viewport {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #061a37;
+}
+body.elevator-mode #elevatorBG,
+body.elevator-mode #elevatorBGNext {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  object-fit: fill;
+  object-position: top left;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Layer 1：跟 chapter1_BG1 相同，按 world 高度放大、保持原比例及水平鏡頭移動。 */
+body.elevator-mode #levelBackground { visibility: hidden !important; opacity: 0 !important; }
+body.elevator-mode #world {
+  z-index: 1;
+  background: transparent !important;
+  overflow: visible;
+  will-change: transform;
+}
+body.elevator-mode #world > .hero,
+body.elevator-mode #world #enemies > .enemy { bottom: var(--tune-ground-bottom) !important; }
+body.elevator-mode #elevatorForeground {
+  position: absolute;
+  z-index: 2; /* Layer 1 在角色後面、Layer 2 前面。 */
+  display: block;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: fill;
+  object-position: left top;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+body.elevator-mode #elevatorForeground[hidden] { display: none !important; }
+
+body.elevator-mode .elevator-exit-backdrop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  width: 100%; /* JS will set this to the same horizontal world width as Layer 1. */
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  background: #112a48;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+  pointer-events: none;
+}
+body.elevator-mode .elevator-exit-backdrop[hidden] { display: none !important; }
+body.elevator-mode #elevatorExitImg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: fill;
+  object-position: left bottom;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+body.elevator-mode #clueBook,
+body.elevator-mode #clueToast { display: none !important; }
+body.elevator-mode .world .hero { z-index: 10; }
+body.elevator-mode #world #enemies { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+body.elevator-mode #world #enemies > .enemy { z-index: 8; }
+body.elevator-mode #exitPrompt { top: 38%; }
+
+/* 波次提示使用獨立節點，避免提示函式缺失時中斷關卡初始化。 */
+body.elevator-mode .elevator-announcement {
+  position: absolute; z-index: 45; left: 50%; top: 19%; transform: translateX(-50%);
+  max-width: 90%; padding: 10px 18px; border: 1px solid #8fdcff; border-radius: 14px;
+  background: linear-gradient(145deg,#10284eef,#0b1839ef); color: #f4fbff;
+  font-size: clamp(15px,2vw,24px); font-weight: 900; line-height: 1.35; text-align: center;
+  box-shadow: 0 6px 24px #0008, inset 0 0 14px #45baff22;
+  opacity: 0; pointer-events: none; transition: opacity .18s ease;
+}
+body.elevator-mode .elevator-announcement.is-visible { opacity: 1; }
+body.elevator-mode .elevator-announcement[hidden] { display: none !important; }
+
+/* 鏡頭實際偏移由 JS 與水平 cameraX 合併，避免 CSS animation 覆蓋正常鏡頭位置。 */
+body.elevator-mode .stage.elevator-camera-shake {
+  box-shadow: inset 0 0 0 2px rgba(110,210,255,.28), inset 0 0 22px rgba(54,167,255,.10);
+}
+body.elevator-mode .stage.elevator-stop-impact {
+  box-shadow: inset 0 0 0 4px rgba(255,226,151,.78), inset 0 0 38px rgba(255,192,82,.38);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.elevator-mode .stage.elevator-camera-shake, body.elevator-mode .stage.elevator-stop-impact { box-shadow: none; }
+}
+
+
+/* 第三章鬼魂尺寸：只放大角色圖像 30%，敵人碰撞盒、地面基準及血條位置保持原狀。 */
+body.elevator-mode #world #enemies > .enemy[data-sprite-type="chapter3_enemy_1"] .enemy-art {
+  transform: scale(1.3);
+  transform-origin: 50% 100%;
+}
+body.elevator-mode #world #enemies > .enemy[data-sprite-type="chapter3_enemy_1"].enemy-facing-left .enemy-art {
+  transform: scale(1.3) scaleX(-1);
+  transform-origin: 50% 100%;
+}
+
+/* 第三章鬼魂技能：直接顯示 chapter3_2_skin1_enemy_1_attack 原圖，不套綠色色相；慢速高拋物線由 JS 控制。 */
+/* 第三章港口與船艙沿用全遊戲共用站立基準（14%），不在場景 CSS 另行覆寫。 */
+#world.chapter3-world > .hero,
+#world.chapter3-world #enemies > .enemy {
+  bottom: var(--tune-ground-bottom) !important;
+}
+
+body.elevator-mode #world .ghost-toxic-orb {
+  position: absolute;
+  z-index: 12;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* 只加藍青色外光，不改變指定素材本身的藍色。 */
+  filter: drop-shadow(0 0 8px rgba(74,211,255,.85)) drop-shadow(0 0 16px rgba(25,115,255,.45));
+  animation: ghostOrbPulse .42s ease-in-out infinite alternate;
+  transform-origin: 50% 50%;
+}
+@keyframes ghostOrbPulse { from { transform: scale(.97) rotate(-2deg); } to { transform: scale(1.03) rotate(2deg); } }
+
+
+/* 第三章新敵人：圖像比例依使用者指定分開設定。
+   對指定敵人的行走影格採用個別鞋底錨點，確保角色更換影格時可見腳底維持在共同地面線；不改碰撞盒。 */
+/* 尺寸倍率：逃犯、黑袍神醫、正字逃犯、普通水手 1.5 倍。 */
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_3"] .enemy-art,
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_6"] .enemy-art {
+  transform: translateY(-3px) scale(1.5);
+  transform-origin: 50% 100%;
+}
+#world.chapter3-world #enemies > .enemy.enemy-facing-left[data-sprite-type="chapter3_enemy_3"] .enemy-art,
+#world.chapter3-world #enemies > .enemy.enemy-facing-left[data-sprite-type="chapter3_enemy_6"] .enemy-art {
+  transform: translateY(-3px) scale(1.5) scaleX(-1);
+  transform-origin: 50% 100%;
+}
+/* 逃犯／正字逃犯改用逐幀鞋底錨點：不再把整個美術圖層固定上移 3px。 */
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_2"] .enemy-art,
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_4"] .enemy-art {
+  transform: scale(1.5);
+  transform-origin: 50% 100%;
+}
+#world.chapter3-world #enemies > .enemy.enemy-facing-left[data-sprite-type="chapter3_enemy_2"] .enemy-art,
+#world.chapter3-world #enemies > .enemy.enemy-facing-left[data-sprite-type="chapter3_enemy_4"] .enemy-art {
+  transform: scale(1.5) scaleX(-1);
+  transform-origin: 50% 100%;
+}
+/* 內層畫框隨每個 PNG 的鞋底錨點下移；不改外層敵人座標及碰撞範圍。 */
+#world.chapter3-world #enemies > .enemy .enemy-art-frame {
+  position: absolute;
+  inset: 0;
+  transform: translateY(0);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+/* 不裁切地面以下的美術：避免切斷逃犯的鐵鏈／流星錘。鞋底逐幀錨點只移動畫面，不更改 hitbox。 */
+/* 被批評廚房副手：2.5 倍。 */
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_7"] .enemy-art {
+  transform: scale(2.5);
+  transform-origin: 50% 100%;
+}
+#world.chapter3-world #enemies > .enemy.enemy-facing-left[data-sprite-type="chapter3_enemy_7"] .enemy-art {
+  transform: scale(2.5) scaleX(-1);
+  transform-origin: 50% 100%;
+}
+/* 被批評廚房主廚：3 倍。 */
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_8"] .enemy-art {
+  transform: scale(3);
+  transform-origin: 50% 100%;
+}
+#world.chapter3-world #enemies > .enemy.enemy-facing-left[data-sprite-type="chapter3_enemy_8"] .enemy-art {
+  transform: scale(3) scaleX(-1);
+  transform-origin: 50% 100%;
+}
+/* 大隻佬 EX：按最新要求調整為 3 倍。 */
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_5"] .enemy-art {
+  transform: scale(3);
+  transform-origin: 50% 100%;
+}
+#world.chapter3-world #enemies > .enemy.enemy-facing-left[data-sprite-type="chapter3_enemy_5"] .enemy-art {
+  transform: scale(3) scaleX(-1);
+  transform-origin: 50% 100%;
+}
+
+/* 大隻佬 EX／廚房副手的 sprite 不使用共用 enemyIdle 上下浮動動畫。
+   該動畫直接移動圖片本身，經角色 3x／2.5x 放大後會造成明顯上下漂移。
+   只停用一般待機／行走時的浮動；攻擊、受擊與死亡狀態仍沿用原有動畫。 */
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_5"]:not(.enemy-attacking):not(.enemy-hit):not(.hitflash):not(.dead) .enemy-art .enemySprite,
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_7"]:not(.enemy-attacking):not(.enemy-hit):not(.hitflash):not(.dead) .enemy-art .enemySprite {
+  animation: none !important;
+}
+
+/* 名稱與血條不跟著角色圖像縮放：依各角色的實際顯示比例放回頭頂附近。 */
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_2"] .enemy-name,
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_4"] .enemy-name { top: -22px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_2"] .ehealth,
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_4"] .ehealth { top: -2px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_3"] .enemy-name,
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_6"] .enemy-name { top: 2px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_3"] .ehealth,
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_6"] .ehealth { top: 20px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_7"] .enemy-name { top: -65px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_7"] .ehealth { top: -44px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_8"] .enemy-name { top: -72px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_8"] .ehealth { top: -49px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_5"] .enemy-name { top: -120px !important; }
+#world.chapter3-world #enemies > .enemy[data-sprite-type="chapter3_enemy_5"] .ehealth { top: -103px !important; }

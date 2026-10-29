@@ -1,0 +1,65 @@
+/* Chapter 3 sea motion, looping rain, lightning flash and sudden background darkening. JS only activates these for selected sea backgrounds. */
+#seaBackgroundDarken {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  background: #020610;
+  opacity: 0;
+  will-change: opacity;
+}
+#seaRainOverlay,
+#seaLightningFlash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  display: none;
+}
+#seaRainOverlay {
+  z-index: 16;
+  mix-blend-mode: screen;
+}
+#seaRainOverlay .sea-rain-layer {
+  position: absolute;
+  inset: -1px;
+  background-repeat: repeat;
+  pointer-events: none;
+  will-change: background-position;
+}
+#seaRainOverlay .rain-far {
+  background-image: url('../images/chapter3/effects/rain_far.png');
+  background-size: 640px 640px;
+  animation: chapter3RainFar 7.2s linear infinite;
+  opacity: .42;
+}
+#seaRainOverlay .rain-mid {
+  background-image: url('../images/chapter3/effects/rain_mid.png');
+  background-size: 512px 512px;
+  animation: chapter3RainMid 3.7s linear infinite;
+  opacity: .58;
+}
+#seaRainOverlay .rain-near {
+  background-image: url('../images/chapter3/effects/rain_near.png');
+  background-size: 384px 384px;
+  animation: chapter3RainNear 2.15s linear infinite;
+  opacity: .70;
+}
+@keyframes chapter3RainFar { to { background-position: 640px 640px; } }
+@keyframes chapter3RainMid { to { background-position: 512px 512px; } }
+@keyframes chapter3RainNear { to { background-position: 384px 384px; } }
+.stage.sea-rain-active #seaRainOverlay { display: block; }
+#seaLightningFlash {
+  z-index: 17;
+  background: linear-gradient(180deg, rgba(248,252,255,.97), rgba(177,216,255,.86));
+  opacity: 0;
+}
+.stage.sea-weather-enabled #seaLightningFlash { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  #seaRainOverlay .sea-rain-layer { animation-duration: 12s; }
+}
