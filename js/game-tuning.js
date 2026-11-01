@@ -141,6 +141,8 @@
     effects: {
       floatTextMs: 950,
       heroAttackPoseMs: 520,
+      // 普通槍刺在 190ms 後恢復移動與待機／行走動畫；不改變再次攻擊冷卻。
+      heroThrustRecoveryMs: 190,
       heroAttackClassMs: 190,
       enemyHitPoseMs: 300,
       ultimateEnemyHitPoseMs: 360,

@@ -1,0 +1,9 @@
+/* 第三章雷暴觸手集氣提示：只加強視覺辨識，不改動原有碰撞尺寸或位置。 */
+.chapter3-boss-tentacle.chapter3-tentacle-charging .enemy-art-frame {
+    filter: brightness(1.35) saturate(1.45) drop-shadow(0 0 10px rgba(80, 220, 255, .95));
+    animation: chapter3TentacleChargePulse .22s ease-in-out infinite alternate;
+}
+@keyframes chapter3TentacleChargePulse {
+    from { filter: brightness(1.12) saturate(1.2) drop-shadow(0 0 5px rgba(80, 220, 255, .55)); }
+    to { filter: brightness(1.5) saturate(1.6) drop-shadow(0 0 14px rgba(80, 220, 255, 1)); }
+}
