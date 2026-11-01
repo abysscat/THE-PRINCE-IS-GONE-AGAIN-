@@ -8,8 +8,8 @@
     function enemySpritePath(type, state) {
         // 第三章最終 Boss：素材為獨立 PNG 姿勢，不是 sprite sheet。
         if (type === "chapter3_boss_1") {
-            if (state === "idle") state = "normal";
-            if (state === "dead") state = "hit";
+            if (state === "dead") state = "idle"; // idle.png 是倒地圖；hit.png 只用於受擊反應。
+            else if (state === "idle") state = "normal";
             if (state === "walk") state = "walk" + (1 + (Math.floor(performance.now() / 130) % 8));
             return "images/chapter3/enemies/chapter3_boss/chapter3_boss_1_" + state + ".png";
         }

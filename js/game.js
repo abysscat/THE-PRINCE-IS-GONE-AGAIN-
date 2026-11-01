@@ -32,7 +32,9 @@
     let chapter3BossMode=false;
     const CHAPTER3_BOSS_DIR='images/chapter3/enemies/chapter3_boss/';
     const CHAPTER3_BOSS_BG_FRAMES=[1,2,3,4].map(n=>'images/chapter3/bg3/chapter3_stage_7_layer2_bg'+n+'.png');
-    const chapter3BossState={boss:null,phase:'',phaseStartedAt:0,triggered:new Set(),queue:[],lastAttackAt:0,jumpCount:0,jumpIndex:0,jumpMode:'',wave:0,nextWaveAt:0,lightningPlan:[],lightningEffects:[],lastBgFrameAt:0,bgFrame:0,countdown:null,killedHeroByUltimate:false,finalTriggered:false};
+    // 第三章雷暴終極技實際素材影格：檔案編號為 1、2、3、5，並沒有 attack4。
+    const CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES=[1,2,3,5];
+    const chapter3BossState={boss:null,phase:'',phaseStartedAt:0,triggered:new Set(),queue:[],lastAttackAt:0,jumpCount:0,jumpIndex:0,jumpMode:'',wave:0,nextWaveAt:0,lightningPlan:[],lightningEffects:[],lastBgFrameAt:0,bgFrame:0,bgDarkness:0,bgFadeFrom:0,bgFadeTo:0,bgFadeStartedAt:0,bgFadeDuration:0,mixed20Active:false,mixed20NextTentacleAt:0,mixed20NextLightningAt:0,tentacleSpawnQueue:[],tentacleSpawnNextAt:0,countdown:null,killedHeroByUltimate:false,finalTriggered:false,pendingFinal:false,ultimateFx:null};
     const elevatorState={phase:'lift',wave:1,betweenMs:0,transitionMs:0,exitStartedAt:0,exitDurationMs:1250,startedAt:0,scrollY:0,scrollProgress:0,scrollMax:0,scrollHeight:0,scrollSpeed:0,shakeNextAt:0,shakeStartedAt:0,shakeUntil:0,shakeX:0,shakeY:0,brakeStartedAt:0,brakeDurationMs:0,brakeStartOffset:0,brakeDistance:0,brakeStartSpeed:0,brakeTargetOffset:0,stopShakeStartedAt:0,stopShakeUntil:0};
     // 第三章鬼魂發射使用者指定的原始藍青色圓球素材；慢速高拋物線、命中只扣血，不建立毒池。
     const ghostProjectiles=[];
@@ -1150,9 +1152,10 @@
         if(isChapter3Boss(e)){
             const maxHP=Math.max(1,Number(e.dataset.maxhp)||100);
             const state=chapter3BossState;
-            // Boss 跳離畫面召喚觸手時，隱藏狀態不能被玩家隔空打中。
+            // Boss 離場、觸手清場、背景轉場及右側重新入場期間均不可隔空削血。
             if(e.style.visibility==='hidden')return currentHP;
-            if(state.phase==='finalAttack'||state.killedHeroByUltimate)return currentHP;
+            if(['finalTentacles','finalThunder','finalImpact','finalDead'].includes(state.phase)||state.killedHeroByUltimate)return currentHP;
+            if(state.mixed20Active&&state.phase!=='mixed20Combat'&&state.phase!=='mixed20ExitFade')return currentHP;
             // 五秒倒數已到就鎖定 Boss，不讓下一個畫面更新前的攻擊越過絕招判定。
             if(state.phase==='finalCharge'&&performance.now()-state.phaseStartedAt>=5000)return currentHP;
             if(next>0){
@@ -1163,7 +1166,18 @@
                         state.triggered.add(key);state.queue.push(threshold);
                     }
                 });
-                if(newRatio<=0.10&&!state.finalTriggered){
+                // 20% 混合階段到達 12% 即開始收尾；保留真實傷害後的 HP，不設血量鎖。
+                if(state.mixed20Active&&state.phase!=='mixed20ExitFade'&&oldRatio>0.12&&newRatio<=0.12){
+                    state.triggered.add('12');
+                    chapter3BossStartMixed20Exit(e,performance.now());
+                    if(newRatio<=0.10)state.pendingFinal=true;
+                    return next;
+                }
+                if(state.phase==='mixed20ExitFade'&&newRatio<=0.10)state.pendingFinal=true;
+                // 若單次高傷害同時跨過 20% 及更低門檻，先鎖在 20%，
+                // 讓排隊中的 80/60/40/20 階段依序完成，不可直接跳過混合模式。
+                if(!state.mixed20Active&&state.queue.includes(0.2))return Math.max(1,maxHP*0.20);
+                if(newRatio<=0.10&&!state.finalTriggered&&state.phase!=='mixed20ExitFade'){
                     state.triggered.add('10');
                     chapter3BossStartFinal(e,performance.now());
                 }
@@ -1591,10 +1605,14 @@
         hero.classList.remove('jump');
     }
     function requestJump(){
-        if(document.body.classList.contains('spider-apocalypse')||ultimateActive||knockbackUntilLanding||performance.now()<bashLockUntil)return;
+        if(chapter3BossPlayerLocked()||document.body.classList.contains('spider-apocalypse')||ultimateActive||knockbackUntilLanding||performance.now()<bashLockUntil)return;
         jumpBufferMs=PHYSICS.jumpBuffer;
     }
     function updatePlayerPhysics(dt){
+        if(chapter3BossPlayerLocked()){
+            keys.left=false;keys.right=false;moveV=0;jumpBufferMs=0;jumpV=0;jumpY=0;jumpT=0;onGround=true;
+            hero.classList.remove('walking','jump');hero.style.setProperty('bottom',activeGroundBottom(),'important');return;
+        }
         if(document.body.classList.contains('spider-apocalypse')) {
             keys.left=false;keys.right=false;moveV=0;jumpBufferMs=0;jumpV=0;jumpY=0;jumpT=0;onGround=true;hero.classList.remove('walking','jump');
             hero.style.setProperty('bottom',activeGroundBottom(),'important');return;
@@ -1604,7 +1622,7 @@
             hero.classList.remove('walking');
             return;
         }
-        const bashLocked=performance.now()<bashLockUntil || knockbackUntilLanding;
+        const bashLocked=performance.now()<bashLockUntil || performance.now()<knockbackHitUntil || knockbackUntilLanding;
         if(bashLocked){ keys.left=false; keys.right=false; moveV=0; }
         const dir=bashLocked?0:((keys.right?1:0)-(keys.left?1:0));
         const spiderSlowed=performance.now()<spiderBossSkill.slowUntil;
@@ -1651,7 +1669,7 @@
         levelBackground.onload=()=> { sizeWorld(); };
         if(chapter3BossMode){
             const bgView=$('elevatorBgViewport'),layer1=$('elevatorForeground'),exit=$('elevatorExitBackdrop');
-            if(bgView){bgView.hidden=false;bgView.style.backgroundImage='url("'+CHAPTER3_BOSS_BG_FRAMES[0]+'")';bgView.style.backgroundPositionX='0px';bgView.style.backgroundSize='auto 100%';bgView.style.backgroundRepeat='repeat-x';}
+            if(bgView){bgView.hidden=false;bgView.style.backgroundImage='url("'+CHAPTER3_BOSS_BG_FRAMES[0]+'")';bgView.style.backgroundPositionX='0px';bgView.style.backgroundSize='auto 100%';bgView.style.backgroundRepeat='repeat-x';bgView.style.filter='brightness(1)';}
             if(layer1){layer1.hidden=false;layer1.onload=()=>{if(chapter3BossMode)sizeWorld();};layer1.src='images/chapter3/bg3/chapter3_stage_7_layer1_bg.png';if(layer1.complete&&layer1.naturalWidth)sizeWorld();}
             if(exit)exit.hidden=true;
             chapter3BossState.bgFrame=0;chapter3BossState.lastBgFrameAt=performance.now();
@@ -1811,10 +1829,19 @@
     }
     function chapter3BossSpawnAtLevelStart(){
         spawnedThisLevel=0;bossSpawnedThisLevel=true;
-        const bx=Math.max(0,Math.min(heroExitX()-100,x+stageW*.54));
-        spawn(bx,true,false);
+        const provisionalX=Math.max(24,Math.min(heroExitX()-120,x+stageW*.40));
+        spawn(provisionalX,true,false);
         const boss=enemyList[enemyList.length-1];
-        if(boss){chapter3BossStartEncounter(boss,performance.now());updateBossHealthBar(boss);if(bossHealthPanel)bossHealthPanel.hidden=false;}
+        if(boss){
+            // Boss 放大後仍要完整出現在目前鏡頭右側，而不是生成在畫面外。
+            const bossWidth=boss.offsetWidth||460;
+            const heroCenter=x+(hero.offsetWidth||70)*.5;
+            const visibleCenterLimit=cameraX+stageW-bossWidth*.5-18;
+            const desiredCenter=Math.min(visibleCenterLimit,heroCenter+stageW*.46);
+            const bx=Math.max(24,Math.min(Math.max(24,heroExitX()-bossWidth-24),desiredCenter-bossWidth*.5));
+            boss.dataset.x=String(bx);boss.style.left=bx+'px';
+            chapter3BossStartEncounter(boss,performance.now());updateBossHealthBar(boss);if(bossHealthPanel)bossHealthPanel.hidden=false;
+        }
     }
 
     // ===== 第三章真正 Boss 戰：沿用正式玩家／攻擊系統，技能由逐幀更新控制 =====
@@ -1822,6 +1849,57 @@
         if(!boss||!boss.isConnected)return;
         const img=boss.querySelector('.enemySprite');
         if(img){const src=enemySpritePath('chapter3_boss_1',pose);if(!img.getAttribute('src')?.endsWith('/'+src.split('/').pop()))img.src=src;}
+        boss.dataset.chapter3Pose=pose;
+    }
+    function chapter3BossFaceHero(boss){
+        if(!boss||!boss.isConnected)return;
+        const bossCenter=(Number(boss.dataset.x)||0)+(boss.offsetWidth||460)*.5;
+        const heroCenter=x+(hero.offsetWidth||70)*.5;
+        // 與第二關蜘蛛 Boss 完全一致：第三章 Boss 原圖預設朝左。
+        // 面向左方時保留原圖；面向右方時才水平反轉 enemy-art。
+        const faceLeft=heroCenter<bossCenter;
+        boss.dataset.facing=faceLeft?'left':'right';
+        boss.dataset.facingLocked='0';
+        boss.classList.toggle('enemy-facing-left',!faceLeft);
+    }
+    // 與第二章蜘蛛 Boss 相同：每個更新影格都重新讀取玩家座標、面向及追擊位置。
+    // stopRange 是 Boss 與玩家中心之間的安全距離；speed 使用 px/ms，沿用一般 Boss 的追近速度。
+    function chapter3BossTrackPlayer(boss,dt,stopRange,speed){
+        if(!boss||!boss.isConnected)return {outOfRange:false,moving:false,distance:0};
+        const bossWidth=Math.max(1,boss.offsetWidth||460);
+        const heroCenter=x+(hero.offsetWidth||70)*.5;
+        const currentX=Number(boss.dataset.x)||0;
+        const bossCenter=currentX+bossWidth*.5;
+        const signedDistance=heroCenter-bossCenter;
+        const distance=Math.abs(signedDistance);
+        chapter3BossFaceHero(boss);
+        if(distance<=stopRange)return {outOfRange:false,moving:false,distance};
+
+        // 動態目標位置：保持在玩家前方的攻擊距離，不再走向預先寫死的固定 X 座標。
+        const targetCenter=heroCenter-Math.sign(signedDistance)*stopRange;
+        const maxLeft=Math.max(0,heroExitX()-bossWidth);
+        const targetX=Math.max(0,Math.min(maxLeft,targetCenter-bossWidth*.5));
+        const delta=targetX-currentX;
+        const step=Math.max(0,Number(dt)||0)*Math.max(0,Number(speed)||0.15);
+        const nextX=Math.max(0,Math.min(maxLeft,currentX+Math.sign(delta)*Math.min(Math.abs(delta),step)));
+        if(Math.abs(nextX-currentX)>.01){
+            boss.dataset.x=String(nextX);
+            boss.style.left=nextX+'px';
+        }
+        // 面向也在位置更新後再確認一次，讓玩家越過 Boss 時能即時轉身。
+        chapter3BossFaceHero(boss);
+        return {outOfRange:true,moving:Math.abs(nextX-currentX)>.01,distance};
+    }
+    function chapter3BossRegisterHit(boss,duration=310){
+        if(!boss||boss.classList.contains('dead')||chapter3BossState.boss!==boss)return;
+        // 特殊技能與最終絕招的動畫不由普通受擊覆蓋。
+        if(chapter3BossState.phase!=='combat'&&chapter3BossState.phase!=='mixed20Combat')return;
+        const now=performance.now();
+        boss.dataset.chapter3HitUntil=String(now+Math.max(120,Number(duration)||310));
+        boss.dataset.chapter3AttackUntil='0';
+        boss.dataset.chapter3AttackHitAt='0';
+        boss.dataset.chapter3AttackHitDone='1';
+        chapter3BossPose(boss,'hit');
     }
     function chapter3BossSetLift(boss,pixels){
         if(!boss)return;
@@ -1833,12 +1911,20 @@
     function chapter3BossClearLightning(){
         chapter3BossState.lightningEffects.forEach(effect=>effect.el?.remove());
         chapter3BossState.lightningEffects.length=0;
+        chapter3BossState.lightningPlan.forEach(item=>item.warning?.remove());
         chapter3BossState.lightningPlan.length=0;
         world.querySelectorAll('.chapter3-boss-lightning').forEach(el=>el.remove());
     }
     function chapter3BossStopEffects(removeBlackout=false){
         chapter3BossClearLightning();chapter3BossDropCountdown();
-        stage.querySelectorAll('.chapter3-boss-blackout').forEach(el=>el.remove());
+        if(chapter3BossState.playerElectricityEffect){
+            chapter3BossState.playerElectricityEffect.el?.remove();
+            chapter3BossState.playerElectricityEffect=null;
+        }
+        hero.classList.remove('boss-knocked');
+        stage.querySelectorAll('.chapter3-boss-blackout,.chapter3-boss-final-lightning,.chapter3-boss-final-impact-flash,.chapter3-boss-ultimate-overlay').forEach(el=>el.remove());
+        chapter3BossState.ultimateFx=null;
+        hero.classList.remove('chapter3-boss-final-hit');
         if(!removeBlackout){ /* 黑幕由最後絕招專用函式重新建立。 */ }
         if(chapter3BossState.boss){chapter3BossState.boss.classList.remove('chapter3-boss-charging','chapter3-boss-final-charge');chapter3BossSetLift(chapter3BossState.boss,0);}
     }
@@ -1846,50 +1932,204 @@
         chapter3BossStopEffects(true);
         chapter3BossState.boss=null;chapter3BossState.phase='';chapter3BossState.phaseStartedAt=0;chapter3BossState.triggered.clear();chapter3BossState.queue.length=0;
         chapter3BossState.lastAttackAt=0;chapter3BossState.jumpCount=0;chapter3BossState.jumpIndex=0;chapter3BossState.jumpMode='';chapter3BossState.wave=0;chapter3BossState.nextWaveAt=0;
-        chapter3BossState.killedHeroByUltimate=false;chapter3BossState.finalTriggered=false;
+        chapter3BossState.bgDarkness=0;chapter3BossState.bgFadeFrom=0;chapter3BossState.bgFadeTo=0;chapter3BossState.bgFadeStartedAt=0;chapter3BossState.bgFadeDuration=0;
+        chapter3BossState.mixed20Active=false;chapter3BossState.mixed20NextTentacleAt=0;chapter3BossState.mixed20NextLightningAt=0;chapter3BossState.tentacleSpawnQueue.length=0;chapter3BossState.tentacleSpawnNextAt=0;
+        const bgView=$('elevatorBgViewport');if(bgView)bgView.style.filter='brightness(1)';
+        chapter3BossState.killedHeroByUltimate=false;chapter3BossState.finalTriggered=false;chapter3BossState.pendingFinal=false;
     }
     function chapter3BossStartEncounter(boss,now=performance.now()){
         chapter3BossReset();chapter3BossState.boss=boss;chapter3BossState.phase='intro';chapter3BossState.phaseStartedAt=now;
-        boss.dataset.facingLocked='1';boss.dataset.facing='left';boss.classList.add('enemy-facing-left');boss.style.visibility='visible';boss.style.opacity='1';boss.classList.add('chapter3-boss-intro');
-        chapter3BossSetLift(boss,Math.max(120,stageH*.48));chapter3BossPose(boss,'jump3');
+        boss.dataset.facingLocked='0';boss.classList.remove('enemy-facing-left');boss.dataset.chapter3HitUntil='0';boss.dataset.chapter3AttackUntil='0';boss.dataset.chapter3AttackHitAt='0';boss.dataset.chapter3AttackHitDone='1';boss.style.visibility='visible';boss.style.opacity='1';boss.classList.add('chapter3-boss-intro');
+        chapter3BossFaceHero(boss);
+        chapter3BossSetLift(boss,Math.max(160,stageH*.60));chapter3BossPose(boss,'jump3');
         updateBossHealthBar(boss);if(bossHealthPanel)bossHealthPanel.hidden=false;
         floatText('雷暴海王降臨！',Number(boss.dataset.x)||x,58);
     }
     function chapter3BossFinishPhase(now){
         const state=chapter3BossState,boss=state.boss;if(!boss||boss.classList.contains('dead'))return;
-        boss.classList.remove('chapter3-boss-charging');chapter3BossSetLift(boss,0);boss.style.visibility='visible';boss.style.opacity='1';
+        boss.classList.remove('chapter3-boss-charging','chapter3-boss-skill60-charge');chapter3BossSetLift(boss,0);boss.style.visibility='visible';boss.style.opacity='1';
         if(state.queue.length){
             const threshold=state.queue.shift();chapter3BossStartPhase(boss,threshold,now);return;
         }
-        state.phase='combat';state.phaseStartedAt=now;state.lastAttackAt=now+500;chapter3BossPose(boss,'normal');
+        state.phase='combat';state.phaseStartedAt=now;state.lastAttackAt=now-700;boss.dataset.chapter3AttackUntil='0';boss.dataset.chapter3HitUntil='0';chapter3BossFaceHero(boss);chapter3BossPose(boss,'normal');
     }
     function chapter3BossStartPhase(boss,threshold,now){
         const state=chapter3BossState;if(!boss||boss.classList.contains('dead'))return;
         state.phaseStartedAt=now;state.jumpCount=0;state.jumpIndex=0;state.jumpMode='';state.wave=0;state.nextWaveAt=0;
         chapter3BossClearLightning();boss.style.visibility='visible';boss.style.opacity='1';chapter3BossSetLift(boss,0);
-        boss.classList.remove('chapter3-boss-final-charge');
+        boss.classList.remove('chapter3-boss-skill60-charge','chapter3-boss-final-charge');
         if(threshold===0.8){state.phase='jump80';state.jumpMode='charge';boss.classList.add('chapter3-boss-charging');chapter3BossPose(boss,'jump1');}
-        else if(threshold===0.6){state.phase='skill60Charge';boss.classList.add('chapter3-boss-charging');chapter3BossPose(boss,'skill1');}
+        else if(threshold===0.6){state.phase='skill60Charge';boss.classList.add('chapter3-boss-charging','chapter3-boss-skill60-charge');chapter3BossPose(boss,'skill1');}
         else if(threshold===0.4){state.phase='tentacle40Intro';boss.classList.add('chapter3-boss-charging');chapter3BossPose(boss,'jump1');}
-        else if(threshold===0.2){state.phase='mixed20Jump';state.jumpMode='charge';boss.classList.add('chapter3-boss-charging');chapter3BossPose(boss,'jump1');}
+        else if(threshold===0.2){
+            state.phase='mixed20Launch';state.mixed20Active=true;state.mixed20NextTentacleAt=0;state.mixed20NextLightningAt=0;
+            boss.style.visibility='visible';boss.classList.remove('chapter3-boss-jumping','chapter3-boss-launch-burst');
+            boss.classList.add('chapter3-boss-charging','chapter3-boss-launch-squash');chapter3BossPose(boss,'jump1');chapter3BossSetLift(boss,0);
+        }
+    }
+    function chapter3BossUltimateTentaclePath(frame){
+        const n=Math.max(1,Math.min(4,Number(frame)||1));
+        const file=n===1?'chapter3_boss_1_other_1png.png':'chapter3_boss_1_other_'+n+'.png';
+        return CHAPTER3_BOSS_DIR+file;
+    }
+    function chapter3BossUltimateLightningPath(frameIndex){
+        const n=CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES[Math.max(0,Math.min(CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES.length-1,Number(frameIndex)||0))];
+        return CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+n+'.png';
+    }
+    function chapter3BossUltimateExplosionPath(frame){
+        const n=Math.max(0,Math.min(11,Number(frame)||0)).toString().padStart(5,'0');
+        return CHAPTER3_BOSS_DIR+'Energy 016 Impact Explosion Radial/Energy 016 Impact Explosion Radial_'+n+'.png';
+    }
+    function chapter3BossCreateUltimateOverlay(now){
+        const state=chapter3BossState;
+        stage.querySelectorAll('.chapter3-boss-ultimate-overlay').forEach(el=>el.remove());
+        const root=document.createElement('div');root.className='chapter3-boss-ultimate-overlay';root.setAttribute('aria-hidden','true');
+        const sky=document.createElement('div');sky.className='chapter3-boss-ultimate-sky';root.appendChild(sky);
+        const tentacles=document.createElement('div');tentacles.className='chapter3-boss-ultimate-tentacle-layer';root.appendChild(tentacles);
+        const thunder=document.createElement('div');thunder.className='chapter3-boss-ultimate-thunder-layer';root.appendChild(thunder);
+        const impact=document.createElement('div');impact.className='chapter3-boss-ultimate-impact-layer';root.appendChild(impact);
+        stage.appendChild(root);
+        state.ultimateFx={root,sky,tentacleLayer:tentacles,thunderLayer:thunder,impactLayer:impact,tentacles:[],warnings:[],warningRefs:[null,null,null],pillars:[],strikes:[false,false,false],explosion:null,finalBolt:null,lastTentacleFrameAt:0};
+        // 在五秒蓄力期間預載所有素材，避免正式播放時逐格等待磁碟／瀏覽器讀取。
+        const preloadPaths=[1,2,3,4].map(chapter3BossUltimateTentaclePath)
+            .concat(CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES.map((_,i)=>chapter3BossUltimateLightningPath(i)))
+            .concat(Array.from({length:12},(_,i)=>chapter3BossUltimateExplosionPath(i)));
+        state.ultimateFx.preloaded={};
+        preloadPaths.forEach(path=>{const image=new Image();image.src=encodeURI(path);state.ultimateFx.preloaded[path]=image;});
+        requestAnimationFrame(()=>{if(root.isConnected)root.classList.add('is-active');});
+    }
+    function chapter3BossCreateUltimateTentacles(now){
+        const fx=chapter3BossState.ultimateFx;if(!fx||!fx.tentacleLayer)return;
+        fx.tentacles.forEach(el=>el.remove());fx.tentacles.length=0;
+        const width=Math.max(1,stage.clientWidth||stageW),height=Math.max(1,stage.clientHeight||stageH);
+        // 16 條觸手平均覆蓋畫面水平位置，每條隨機大小、角度及水平翻轉；底部固定貼齊 60% 階段觸手的地面基準線。
+        const count=16;
+        const groundBottom='var(--tune-ground-bottom, 14%)';
+        // 每次重新洗牌 16 個明顯不同的尺寸級距，確保同一畫面不會全部看起來差不多大。
+        const sizeLevels=Array.from({length:count},(_,i)=>.42+(i/(count-1))*.88);
+        for(let i=sizeLevels.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sizeLevels[i],sizeLevels[j]]=[sizeLevels[j],sizeLevels[i]];}
+        for(let index=0;index<count;index++){
+            const cell=width/count;
+            const centerX=cell*(index+.5)+(Math.random()-.5)*cell*.48;
+            const size=Math.max(.40,Math.min(1.32,sizeLevels[index]+(Math.random()-.5)*.035));
+            const tentacleWidth=width*.245*size;
+            const tentacleHeight=height*.92*size;
+            const rotation=((Math.random()-.5)*28).toFixed(1)+'deg';
+            const slide=centerX<width*.5?'-38%':'38%';
+            const flip=Math.random()<.5?-1:1;
+            const img=document.createElement('img');img.className='chapter3-boss-ultimate-tentacle';img.alt='';img.draggable=false;img.setAttribute('aria-hidden','true');
+            img.dataset.frame='1';img.dataset.index=String(index);img.dataset.baseWidth=String(tentacleWidth);img.dataset.baseHeight=String(tentacleHeight);
+            img.src=encodeURI(chapter3BossUltimateTentaclePath(1));
+            img.style.left=(centerX-tentacleWidth*.5)+'px';img.style.top='auto';img.style.bottom=groundBottom;
+            img.style.width=tentacleWidth+'px';img.style.height=tentacleHeight+'px';
+            img.style.objectFit='contain';img.style.objectPosition='center bottom';
+            img.style.setProperty('--tentacle-rotation',rotation);img.style.setProperty('--tentacle-slide',slide);img.style.setProperty('--tentacle-flip',String(flip));
+            fx.tentacleLayer.appendChild(img);fx.tentacles.push(img);
+            requestAnimationFrame(()=>img.classList.add('is-visible'));
+        }
+        fx.lastTentacleFrameAt=now;
+    }
+    function chapter3BossUpdateUltimateTentacles(now){
+        const fx=chapter3BossState.ultimateFx;if(!fx||!fx.tentacles.length||now-fx.lastTentacleFrameAt<125)return;
+        fx.lastTentacleFrameAt=now;
+        fx.tentacles.forEach(img=>{
+            const frame=1+((Number(img.dataset.frame)||1)%4);img.dataset.frame=String(frame);
+            img.src=encodeURI(chapter3BossUltimateTentaclePath(frame));
+        });
+    }
+    function chapter3BossConvergeUltimateTentacles(){
+        const fx=chapter3BossState.ultimateFx;if(!fx||!fx.tentacles.length)return;
+        const width=Math.max(1,stage.clientWidth||stageW),height=Math.max(1,stage.clientHeight||stageH);
+        const targetX=Math.max(width*.16,Math.min(width*.84,(x-cameraX)+(hero.offsetWidth||70)*.5));
+        const count=fx.tentacles.length;
+        fx.tentacles.forEach((img,index)=>{
+            const t=count===1?0:(index/(count-1)-.5);
+            const baseWidth=Math.max(1,Number(img.dataset.baseWidth)||width*.30);
+            const baseHeight=Math.max(1,Number(img.dataset.baseHeight)||height);
+            const tentacleWidth=baseWidth*1.12,tentacleHeight=baseHeight*1.08;
+            const centerX=targetX+t*width*.54;
+            const top=height*(.015+(index%3)*.105);
+            img.style.left=(centerX-tentacleWidth*.5)+'px';img.style.top=top+'px';
+            img.style.width=tentacleWidth+'px';img.style.height=tentacleHeight+'px';
+            img.style.setProperty('--tentacle-slide','0%');
+            img.style.setProperty('--tentacle-rotation',(index%2===0?'-':'')+(18+(index%4)*9)+'deg');
+            img.classList.add('is-converging');
+        });
+    }
+    function chapter3BossUltimateSpawnWarning(index,now){
+        const fx=chapter3BossState.ultimateFx;if(!fx)return;
+        const positions=[.18,.50,.82],warning=document.createElement('div');
+        warning.className='chapter3-boss-ultimate-warning';warning.setAttribute('aria-hidden','true');
+        warning.style.left=(positions[index]*100)+'%';fx.thunderLayer.appendChild(warning);
+        fx.warnings.push({el:warning,startedAt:now,expiresAt:now+430});fx.warningRefs[index]=warning;
+    }
+    function chapter3BossUltimateSpawnPillar(index,now){
+        const fx=chapter3BossState.ultimateFx;if(!fx)return;
+        const positions=[.18,.50,.82],img=document.createElement('img');
+        img.className='chapter3-boss-ultimate-pillar';img.alt='';img.draggable=false;img.setAttribute('aria-hidden','true');
+        const width=Math.max(220,(stage.clientWidth||stageW)*.43);
+        img.style.left=((stage.clientWidth||stageW)*positions[index]-width*.5)+'px';img.style.width=width+'px';
+        img.style.height=((stage.clientHeight||stageH)*1.18)+'px';img.src=encodeURI(chapter3BossUltimateLightningPath(0));
+        fx.thunderLayer.appendChild(img);fx.pillars.push({el:img,startedAt:now,endsAt:now+520,lastFrame:-1});
+    }
+    function chapter3BossUpdateUltimateThunder(elapsed,now){
+        const fx=chapter3BossState.ultimateFx;if(!fx)return;
+        const warningTimes=[0,560,1120],strikeDelay=230;
+        warningTimes.forEach((at,index)=>{
+            if(!fx.strikes[index]&&elapsed>=at){fx.strikes[index]=true;chapter3BossUltimateSpawnWarning(index,now);}
+            if(fx.strikes[index]&&elapsed>=at+strikeDelay&& !fx['strikeFired'+index]){
+                fx['strikeFired'+index]=true;
+                fx.warningRefs[index]?.remove();fx.warningRefs[index]=null;
+                chapter3BossUltimateSpawnPillar(index,now);
+            }
+        });
+        fx.warnings=fx.warnings.filter(item=>{
+            if(now>=item.expiresAt){item.el?.remove();return false;}
+            return item.el?.isConnected;
+        });
+        fx.pillars=fx.pillars.filter(item=>{
+            const frame=Math.min(3,Math.floor((now-item.startedAt)/105));
+            if(frame!==item.lastFrame&&frame<CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES.length){item.el.src=encodeURI(chapter3BossUltimateLightningPath(frame));item.lastFrame=frame;}
+            if(now>=item.endsAt){item.el.remove();return false;}
+            return item.el.isConnected;
+        });
+    }
+    function chapter3BossUltimateStartImpact(now){
+        const fx=chapter3BossState.ultimateFx;if(!fx)return;
+        const width=Math.max(320,Math.min((stage.clientWidth||stageW)*.68,(stage.clientHeight||stageH)*1.48));
+        const targetX=Math.max(width*.5,Math.min((stage.clientWidth||stageW)-width*.5,(x-cameraX)+(hero.offsetWidth||70)*.5));
+        const explosion=document.createElement('img');explosion.className='chapter3-boss-ultimate-explosion';explosion.alt='';explosion.draggable=false;explosion.setAttribute('aria-hidden','true');
+        explosion.style.width=width+'px';explosion.style.height=width+'px';explosion.style.left=(targetX-width*.5)+'px';explosion.style.top=((stage.clientHeight||stageH)*.5-width*.5)+'px';
+        explosion.src=encodeURI(chapter3BossUltimateExplosionPath(0));fx.impactLayer.appendChild(explosion);fx.explosion={el:explosion,startedAt:now,lastFrame:0};
+        const bolt=document.createElement('img');bolt.className='chapter3-boss-ultimate-final-bolt';bolt.alt='';bolt.draggable=false;bolt.setAttribute('aria-hidden','true');
+        bolt.src=encodeURI(chapter3BossUltimateLightningPath(2));fx.impactLayer.appendChild(bolt);fx.finalBolt=bolt;
+        const flash=document.createElement('div');flash.className='chapter3-boss-ultimate-whiteout';flash.setAttribute('aria-hidden','true');fx.impactLayer.appendChild(flash);
+    }
+    function chapter3BossUpdateUltimateExplosion(now){
+        const fx=chapter3BossState.ultimateFx;if(!fx||!fx.explosion)return;
+        const frame=Math.min(11,Math.floor((now-fx.explosion.startedAt)/66));
+        if(frame!==fx.explosion.lastFrame){fx.explosion.el.src=encodeURI(chapter3BossUltimateExplosionPath(frame));fx.explosion.lastFrame=frame;}
     }
     function chapter3BossStartFinal(boss,now){
         const state=chapter3BossState;if(!boss||boss.classList.contains('dead')||state.finalTriggered)return;
-        state.finalTriggered=true;state.phase='finalCharge';state.phaseStartedAt=now;state.queue.length=0;state.jumpMode='';state.wave=0;
+        state.finalTriggered=true;state.ambientLightningNextAt=0;chapter3BossClearLightning();state.phase='finalCharge';state.phaseStartedAt=now;state.queue.length=0;state.jumpMode='';state.wave=0;
+        // 12% 混合階段已完成清場／背景恢復後，才會進入本絕招；蓄力五秒內玩家仍可移動及攻擊。
+        state.mixed20Active=false;state.mixed20NextTentacleAt=0;state.mixed20NextLightningAt=0;state.tentacleSpawnQueue.length=0;state.tentacleSpawnNextAt=0;
         chapter3BossStopEffects(true);
-        // 最終集氣會中止當前觸手攻擊，玩家仍可移動和攻擊，並可在 5 秒內擊敗 Boss。
-        enemyList.forEach(e=>{if(e.dataset.chapter3Tentacle==='1'&&!e.classList.contains('dead')){e.classList.add('dead');}});
+        chapter3BossTransitionBackground(.34,now,900);
+        chapter3BossRemoveAllTentacles();
+        chapter3BossCreateUltimateOverlay(now);
         boss.classList.remove('chapter3-boss-charging');boss.classList.add('chapter3-boss-final-charge');
         chapter3BossSetLift(boss,0);boss.style.visibility='visible';chapter3BossPose(boss,'skill1');
         const node=document.createElement('div');node.id='chapter3BossCountdown';node.className='chapter3-boss-countdown';node.setAttribute('role','status');node.setAttribute('aria-live','assertive');
-        node.textContent='⚡ 絕招蓄能：5 秒';stage.appendChild(node);state.countdown=node;
-        floatText('雷暴終極絕招・最後 5 秒！',Number(boss.dataset.x)||x,66);
+        node.textContent='匠心觸手：特殊愛好者天堂 · 蓄能 5 秒';stage.appendChild(node);state.countdown=node;
+        floatText('匠心觸手：特殊愛好者天堂！',Number(boss.dataset.x)||x,66);
     }
     function chapter3BossKilled(boss){
         if(chapter3BossState.boss!==boss)return;
         chapter3BossState.phase='dead';chapter3BossState.queue.length=0;
         chapter3BossStopEffects(true);
-        boss.classList.remove('chapter3-boss-charging','chapter3-boss-final-charge');chapter3BossSetLift(boss,0);
+        boss.classList.remove('chapter3-boss-charging','chapter3-boss-skill60-charge','chapter3-boss-final-charge');chapter3BossSetLift(boss,0);
         enemyList.forEach(e=>{if(e.dataset.chapter3Tentacle==='1'&&!e.classList.contains('dead'))e.classList.add('dead');});
         updateBossHealthBar(boss);
     }
@@ -1904,23 +2144,68 @@
     }
     function chapter3BossSpawnTentacle(xp,wave){
         const displayName='雷暴觸手',e=document.createElement('div');
-        e.className='enemy chapter3-boss-tentacle enemy-skeleton';
-        e.innerHTML='<div class="enemy-name">'+displayName+'</div><div class="ehealth"><i></i></div><div class="enemy-art"><div class="enemy-art-frame"><img class="enemySprite" src="'+enemySpritePath('chapter3_boss_1_tentacle','other_1')+'" alt="'+displayName+'"></div></div>';
+        e.className='enemy chapter3-boss-tentacle enemy-skeleton chapter3-tentacle-emerging';
+        e.innerHTML='<div class="enemy-name">'+displayName+'</div><div class="ehealth" role="progressbar" aria-label="雷暴觸手生命值" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i></i></div><div class="enemy-art"><div class="enemy-art-frame"><img class="enemySprite" src="'+enemySpritePath('chapter3_boss_1_tentacle','other_1')+'" alt="'+displayName+'"></div></div>';
         e.dataset.x=String(xp);e.style.left=xp+'px';e.dataset.type='skeleton';e.dataset.spriteType='chapter3_boss_1_tentacle';e.dataset.hp=String((gameTuning.enemyHP||{}).default||2);e.dataset.maxhp=e.dataset.hp;
         e.dataset.boss='0';e.dataset.chapter3Tentacle='1';e.dataset.chapter3TentacleWave=String(wave);e.dataset.lastAttack='0';e.dataset.lastAttackFrame='0';e.dataset.facingLocked='1';
-        enemies.appendChild(e);enemyList.push(e);return e;
+        // 每條觸手獨立隨機朝左或朝右，避免同一波全部同向。
+        const faceLeft=Math.random()<0.5;e.dataset.facing=faceLeft?'left':'right';e.classList.toggle('enemy-facing-left',faceLeft);
+        const healthFill=e.querySelector('.ehealth i');if(healthFill)healthFill.style.width='100%';
+        enemies.appendChild(e);enemyList.push(e);
+        const artFrame=e.querySelector('.enemy-art-frame');if(artFrame){artFrame.addEventListener('animationend',()=>e.classList.remove('chapter3-tentacle-emerging'),{once:true});}
+        return e;
     }
-    function chapter3BossSpawnTentacleWave(count,wave){
+    function chapter3BossSpawnTentacleWave(count,wave,spreadAcrossWorld=false){
         const positions=[];const heroCenter=x+(hero.offsetWidth||70)*.5;
-        for(let i=0;i<count;i++){
-            let px=chapter3BossVisibleRandomX(85);
-            if(Math.abs(px-heroCenter)<stageW*.10)px=Math.min(heroExitX()-35,px+stageW*.18);
-            positions.push(Math.max(20,Math.min(heroExitX()-35,px)));
+        if(spreadAcrossWorld&&count>1){
+            // 15 條初始觸手分布在整段可活動世界，避免全部堆在同一個鏡頭寬度內。
+            const left=28,right=Math.max(30,heroExitX()-40),span=(right-left)/(count-1);
+            for(let i=0;i<count;i++){
+                const jitter=(Math.random()-.5)*span*.22;
+                positions.push(Math.max(20,Math.min(heroExitX()-35,left+span*i+jitter)));
+            }
+        }else{
+            const occupied=enemyList.filter(e=>e.dataset.chapter3Tentacle==='1'&&!e.classList.contains('dead')).map(e=>Number(e.dataset.x)||0);
+            const minGap=Math.max(78,Math.min(150,stageW*.085));
+            for(let i=0;i<count;i++){
+                let px=chapter3BossVisibleRandomX(85),tries=0;
+                while(tries++<14&&occupied.some(existing=>Math.abs(existing-px)<minGap))px=chapter3BossVisibleRandomX(85);
+                if(Math.abs(px-heroCenter)<stageW*.055)px=Math.min(heroExitX()-35,px+stageW*.13);
+                px=Math.max(20,Math.min(heroExitX()-35,px));positions.push(px);occupied.push(px);
+            }
         }
-        positions.forEach(px=>chapter3BossSpawnTentacle(px,wave));
-        const alive=positions.length;
-        floatText('觸手出現！第 '+wave+' 波',positions[0]||x,57);
-        return alive;
+        const state=chapter3BossState;
+        let spawnAt=Math.max(performance.now(),state.tentacleSpawnNextAt||0);
+        positions.forEach(px=>{state.tentacleSpawnQueue.push({x:px,wave,at:spawnAt});spawnAt+=300;});
+        state.tentacleSpawnNextAt=spawnAt;
+        return positions.length;
+    }
+    function chapter3BossUpdateTentacleSpawnQueue(now){
+        const state=chapter3BossState,first=state.tentacleSpawnQueue[0];
+        if(!first||now<first.at)return;
+        state.tentacleSpawnQueue.shift();
+        chapter3BossSpawnTentacle(first.x,first.wave);
+        // 下一條至少相隔 300ms；即使單幀卡頓，也不會在同一幀補生多條。
+        state.tentacleSpawnNextAt=Math.max(state.tentacleSpawnNextAt||0,now+300);
+        if(state.tentacleSpawnQueue.length)state.tentacleSpawnQueue[0].at=Math.max(state.tentacleSpawnQueue[0].at,now+300);
+        if(first.wave!=='mixed20'){
+            const label=first.wave===20?'15 條觸手出現！':'觸手出現！第 '+first.wave+' 波';
+            if(!state.tentacleSpawnQueue.some(item=>item.wave===first.wave))floatText(label,first.x||x,57);
+        }
+    }
+    function chapter3BossPendingTentacleCount(wave=null){
+        return chapter3BossState.tentacleSpawnQueue.reduce((n,item)=>n+(wave===null||item.wave===wave?1:0),0);
+    }
+    function chapter3BossAliveTentacleCount(){
+        return enemyList.reduce((count,e)=>count+(e.dataset.chapter3Tentacle==='1'&&!e.classList.contains('dead')?1:0),0);
+    }
+    function chapter3BossRemoveAllTentacles(){
+        for(let i=enemyList.length-1;i>=0;i--){
+            const e=enemyList[i];if(e.dataset.chapter3Tentacle!=='1')continue;
+            clearTimeout(e._spriteTimer);clearTimeout(e._deathPoseTimer);disconnectChapter3FootAnchorObserver(e);
+            e.classList.add('dead');e.style.pointerEvents='none';e.style.transition='opacity .28s ease, transform .28s ease';e.style.opacity='0';e.style.transform='scale(.72)';
+            enemyList.splice(i,1);setTimeout(()=>e.remove(),320);
+        }
     }
     function chapter3BossUpdateTentacle(e,now){
         if(!e||e.classList.contains('dead'))return;
@@ -1934,31 +2219,145 @@
         }
     }
     function chapter3BossPlanLightning(count,duration,sameLocation=false){
-        const state=chapter3BossState;state.lightningPlan.length=0;
+        const state=chapter3BossState;state.lightningPlan.forEach(item=>item.warning?.remove());state.lightningPlan.length=0;
         const fixedX=sameLocation?chapter3BossVisibleRandomX(110):null;
         for(let i=0;i<count;i++){
-            const at=count===1?0:Math.round(i*(duration-400)/(count-1));
-            state.lightningPlan.push({at,x:sameLocation?fixedX:chapter3BossVisibleRandomX(95),fired:false});
+            // 三次落雷分布於 3 秒攻擊段內；每次提前 430ms 顯示地面警示。
+            const at=count===1?550:550+i*900;
+            const xp=sameLocation?fixedX:chapter3BossVisibleRandomX(120);
+            const warning=document.createElement('div');warning.className='chapter3-boss-lightning-warning';
+            warning.setAttribute('aria-hidden','true');warning.style.left=(xp-62)+'px';
+            warning.style.bottom=(chapter3BossLightningGroundBottom()+4)+'px';world.appendChild(warning);
+            state.lightningPlan.push({at,warnAt:Math.max(0,at-430),x:xp,fired:false,warning});
         }
     }
-    function chapter3BossSpawnLightningStrike(xp,now,duration=440,requestedFrames=null){
-        const el=document.createElement('img');el.className='chapter3-boss-lightning';el.alt='';el.draggable=false;el.setAttribute('aria-hidden','true');
-        const frames=(Array.isArray(requestedFrames)&&requestedFrames.length)?requestedFrames:[1,2,3,4];
-        const frame=frames[0];el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+frame+'.png';
-        const width=Math.max(108,Math.min(176,stageH*.23)),height=Math.max(170,Math.min(270,stageH*.40));
-        el.style.width=width+'px';el.style.height=height+'px';el.style.left=(xp-width*.5)+'px';el.style.bottom='5%';world.appendChild(el);
-        chapter3BossState.lightningEffects.push({el,x:xp,start:now,ends:now+duration,nextFrame:now+100,frame,frames,frameIndex:0,hit:false});
+    function chapter3BossLightningGroundBottom(){
+        // 所有第三章 Boss 落雷統一再向下移 2%；底部距離由舞台高度 6% 改為 4%。
+        return stageH*.04;
     }
-    function chapter3BossUpdateLightning(now){
+    function chapter3BossShowPlayerElectricity(now){
         const state=chapter3BossState;
-        const elapsed=now-state.phaseStartedAt;
-        const requestedFrames=state.phase==='mixed20Lightning'?[2,3,4]:[1,2,3,4];
-        state.lightningPlan.forEach(item=>{if(!item.fired&&elapsed>=item.at){item.fired=true;chapter3BossSpawnLightningStrike(item.x,now,440,requestedFrames);const heroCenter=x+(hero.offsetWidth||70)*.5;if(Math.abs(heroCenter-item.x)<74&&jumpT===0)chapter3BossHeroHit(12);}});
+        const files=[
+            'images/effects/chapter3_electricity_1.png',
+            'images/effects/chapter3_electricity_2.png',
+            'images/effects/chapter3_electricity_3.png',
+            'images/effects/chapter3_electricity_4.png'
+        ];
+        const until=now+2000;
+        let fx=state.playerElectricityEffect;
+        if(!fx||!fx.el?.isConnected){
+            const el=document.createElement('img');
+            el.className='chapter3-player-electricity';el.alt='';el.draggable=false;
+            el.setAttribute('aria-hidden','true');el.src=files[0];
+            el.style.position='absolute';el.style.pointerEvents='none';
+            el.style.zIndex='999';el.style.display='block';el.style.visibility='visible';
+            el.style.opacity='1';el.style.objectFit='contain';
+            world.appendChild(el);
+            fx=state.playerElectricityEffect={el,files,start:now,nextFrame:now+85,index:0,ends:until};
+        }else{
+            fx.ends=until;
+        }
+        chapter3BossUpdatePlayerElectricity(now);
+    }
+    function chapter3BossUpdatePlayerElectricity(now){
+        const fx=chapter3BossState.playerElectricityEffect;
+        if(!fx)return;
+        if(!fx.el?.isConnected||now>=fx.ends){
+            fx.el?.remove();chapter3BossState.playerElectricityEffect=null;
+            hero.classList.remove('boss-knocked');
+            return;
+        }
+        const wr=world.getBoundingClientRect(),hr=hero.getBoundingClientRect();
+        // 加大電流外框，覆蓋角色全身四周；隨角色擊退移動，但不影響地面落雷定位。
+        const w=Math.max(hr.width*2.45,190),h=Math.max(hr.height*2.35,220);
+        fx.el.style.left=(hr.left-wr.left+(hr.width-w)*.5)+'px';
+        fx.el.style.top=(hr.top-wr.top+(hr.height-h)*.5)+'px';
+        fx.el.style.width=w+'px';fx.el.style.height=h+'px';
+        fx.el.style.transform='translateZ(0)';
+        if(now>=fx.nextFrame){
+            fx.index=(fx.index+1)%fx.files.length;
+            fx.el.src=fx.files[fx.index];fx.nextFrame=now+85;
+        }
+    }
+    function chapter3BossSpawnLightningStrike(xp,now,duration=520,requestedFrames=null){
+        const el=document.createElement('img');el.className='chapter3-boss-lightning';el.alt='';el.draggable=false;el.setAttribute('aria-hidden','true');
+        const frames=(Array.isArray(requestedFrames)&&requestedFrames.length)?requestedFrames:CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES;
+        const frame=frames[0];el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+frame+'.png';
+        // 明顯加粗可見電柱；高度延伸至畫面頂部，底端以玩家腳底作水平基準。
+        const width=Math.max(560,Math.min(820,stageH*1.02));
+        const height=Math.max(900,stageH*1.55);
+        el.style.width=width+'px';el.style.height=height+'px';el.style.left=(xp-width*.5)+'px';
+        el.style.setProperty('bottom',chapter3BossLightningGroundBottom()+'px','important');
+        world.appendChild(el);
+        chapter3BossState.lightningEffects.push({el,x:xp,width,height,start:now,ends:now+duration,nextFrame:now+85,frame,frames,frameIndex:0,hit:false,followHeroFeet:false});
+        return {width,height};
+    }
+    function chapter3BossTryLightningHit(xp,width){
+        const heroRect=hero.getBoundingClientRect(),worldRect=world.getBoundingClientRect();
+        const heroWidth=heroRect.width||hero.offsetWidth||70,heroCenter=heroRect.left-worldRect.left+heroWidth*.5;
+        const hitHalfWidth=width*.40*.5+heroWidth*.12;
+        if(Math.abs(heroCenter-xp)>=hitHalfWidth||jumpT>0||!onGround)return false;
+        const now=performance.now();
+        if(now<bashLockUntil||now<knockbackHitUntil){floatText('防禦！',x,48);return false;}
+        if(!chapter3BossHeroHit(12,'⚡ −'))return false;
+        // 落雷命中後改為真正的向外拋飛弧線；鎖定方向直至落地，玩家不能立即走掉抵消效果。
+        knockbackHitUntil=now+650;knockbackUntilLanding=true;
+        knockbackDirection=heroCenter>=xp?1:-1;
+        keys.left=false;keys.right=false;moveV=knockbackDirection*.42;jumpBufferMs=0;
+        onGround=false;coyoteMs=0;jumpY=Math.max(jumpY,10);jumpV=.66;jumpT=1;
+        faceDir=knockbackDirection;hero.classList.toggle('face-left',faceDir<0);
+        hero.classList.add('boss-knocked','jump');setHeroSprite('images/hero/hero_jump.png');
+        heroActionUntil=now+650;
+        chapter3BossShowPlayerElectricity(now);
+        floatText('⚡ 電擊擊退！',x,66);
+        return true;
+    }
+    function chapter3BossUpdateLightningEffects(now){
+        const state=chapter3BossState;
         state.lightningEffects=state.lightningEffects.filter(effect=>{
             if(!effect.el?.isConnected||now>=effect.ends){effect.el?.remove();return false;}
-            if(now>=effect.nextFrame){effect.nextFrame=now+95;effect.frameIndex=(effect.frameIndex+1)%effect.frames.length;effect.frame=effect.frames[effect.frameIndex];effect.el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+effect.frame+'.png';}
+            if(now>=effect.nextFrame){effect.nextFrame=now+85;effect.frameIndex=(effect.frameIndex+1)%effect.frames.length;effect.frame=effect.frames[effect.frameIndex];effect.el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+effect.frame+'.png';}
             return true;
         });
+    }
+    function chapter3BossUpdateLightning(now){
+        const state=chapter3BossState,elapsed=now-state.phaseStartedAt,requestedFrames=CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES;
+        state.lightningPlan.forEach(item=>{
+            if(!item.fired&&elapsed>=item.warnAt)item.warning?.classList.add('is-visible');
+            if(!item.fired&&elapsed>=item.at){item.fired=true;item.warning?.remove();item.warning=null;const result=chapter3BossSpawnLightningStrike(item.x,now,520,requestedFrames);chapter3BossTryLightningHit(item.x,result.width);}
+        });
+        chapter3BossUpdateLightningEffects(now);
+        chapter3BossUpdatePlayerElectricity(now);
+    }
+    function chapter3BossUpdateMixed20Lightning(now){
+        // 保留相容入口；閃電統一由每 2 秒一次的全血量階段判定管理。
+        chapter3BossUpdateLightningEffects(now);
+    }
+    function chapter3BossUpdateAmbientLightning(boss,now){
+        chapter3BossUpdatePlayerElectricity(now);
+        const state=chapter3BossState;
+        const hpNow=Math.max(0,Number(boss?.dataset.hp)||0),hpMax=Math.max(1,Number(boss?.dataset.maxhp)||100);
+        const ratio=hpNow/hpMax;
+        if(ratio<=.10||ratio>1||state.finalTriggered||state.phase==='dead'||state.phase==='finalDead'||state.phase==='mixed20ExitFade'){ 
+            if(ratio<=.10){state.ambientLightningNextAt=0;chapter3BossClearLightning();}
+            return;
+        }
+        if(!state.ambientLightningNextAt)state.ambientLightningNextAt=now+2000;
+        if(now>=state.ambientLightningNextAt){
+            // 每兩秒固定做一次隨機判定；本次可能沒有落雷，也可能同時出現兩道。
+            if(Math.random()<.68){
+                const count=Math.random()<.22?2:1;
+                for(let i=0;i<count;i++){
+                    const xp=chapter3BossVisibleRandomX(110);
+                    const frames=[1,2,3,5].sort(()=>Math.random()-.5);
+                    const result=chapter3BossSpawnLightningStrike(xp,now,520+Math.random()*90,frames);
+                    chapter3BossTryLightningHit(xp,result.width);
+                }
+            }
+            state.ambientLightningNextAt=now+2000;
+        }
+        chapter3BossUpdateLightningEffects(now);
+        chapter3BossUpdatePlayerElectricity(now);
     }
     function chapter3BossBeginJump(boss,now,mode){
         const state=chapter3BossState;state.jumpMode=mode;state.jumpCount=0;state.jumpIndex=0;state.phaseStartedAt=now;
@@ -1966,84 +2365,290 @@
     }
     function chapter3BossUpdateJumpSequence(boss,now,dt,maxJumps,afterJump){
         const state=chapter3BossState,elapsed=now-state.phaseStartedAt;
+        const bossWidth=Math.max(1,boss.offsetWidth||460);
+        const maxLeft=Math.max(0,heroExitX()-bossWidth);
+        const currentX=Number(boss.dataset.x)||0;
+        const heroCenter=()=>x+(hero.offsetWidth||70)*.5;
+        const targetForHero=()=>Math.max(0,Math.min(maxLeft,heroCenter()-bossWidth*.5));
+        const moveToward=(target,speedPxPerMs)=>{
+            const bx=Number(boss.dataset.x)||0,dx=target-bx;
+            const step=Math.min(Math.abs(dx),Math.max(0,dt||0)*speedPxPerMs);
+            const nx=Math.max(0,Math.min(maxLeft,bx+Math.sign(dx)*step));
+            boss.dataset.x=String(nx);boss.style.left=nx+'px';
+            return Math.abs(target-nx);
+        };
         if(state.jumpMode==='charge'){
-            if(elapsed<520){chapter3BossPose(boss,'jump1');return;}
-            state.jumpMode='air';state.jumpIndex=0;state.phaseStartedAt=now;chapter3BossPose(boss,'jump1');
-            return;
+            // 先快速追向主角，讓跳躍不是站在原地起跳；起跳前仍持續讀取主角位置。
+            const remaining=moveToward(targetForHero(),0.82);
+            chapter3BossFaceHero(boss);
+            if(elapsed<260){
+                if(remaining>Math.max(60,stageW*.045))chapter3BossPose(boss,'walk'+(1+Math.floor(now/85)%8));
+                else chapter3BossPose(boss,'jump1');
+                chapter3BossSetLift(boss,0);return;
+            }
+            state.jumpMode='air';state.phaseStartedAt=now;state.jumpStartX=Number(boss.dataset.x)||currentX;state.jumpLandX=null;state.jumpImpactDone=false;
+            boss.classList.remove('chapter3-boss-charging');boss.classList.add('chapter3-boss-jumping');chapter3BossPose(boss,'jump1');chapter3BossSetLift(boss,0);return;
         }
         if(state.jumpMode==='wait'){
-            if(elapsed<1000){chapter3BossPose(boss,'normal');chapter3BossSetLift(boss,0);return;}
-            state.jumpMode='air';state.jumpIndex=0;state.phaseStartedAt=now;chapter3BossPose(boss,'jump1');return;
+            if(elapsed<520){chapter3BossPose(boss,'normal');chapter3BossSetLift(boss,0);return;}
+            state.jumpMode='air';state.phaseStartedAt=now;state.jumpStartX=Number(boss.dataset.x)||0;state.jumpLandX=null;state.jumpImpactDone=false;
+            boss.classList.remove('chapter3-boss-charging');boss.classList.add('chapter3-boss-jumping');chapter3BossPose(boss,'jump1');return;
         }
         if(state.jumpMode!=='air')return;
-        const sequence=[
-            {pose:'jump1',lift:Math.max(0,stageH*.02)},
-            {pose:'jump2',lift:stageH*.20},
-            {pose:'jump3',lift:stageH*.33},
-            {pose:'jump2',lift:stageH*.29},
-            {pose:'jump1',lift:stageH*.12},
-            {pose:'normal',lift:0}
-        ];
-        const frame=Math.min(sequence.length-1,Math.floor(elapsed/175));
-        chapter3BossPose(boss,sequence[frame].pose);chapter3BossSetLift(boss,sequence[frame].lift);
-        if(frame>=sequence.length-1&&elapsed>=sequence.length*175){
-            state.jumpCount++;
-            const bossCenter=(Number(boss.dataset.x)||0)+(boss.offsetWidth||230)*.5;
-            const heroCenter=x+(hero.offsetWidth||70)*.5;
-            if(Math.abs(bossCenter-heroCenter)<Math.max(120,stageW*.14)&&jumpT===0)chapter3BossHeroHit(8);
-            if(state.jumpCount<maxJumps){
-                state.jumpMode='wait';state.phaseStartedAt=now;chapter3BossPose(boss,'normal');chapter3BossSetLift(boss,0);
-            }else{
-                boss.classList.remove('chapter3-boss-jumping');chapter3BossSetLift(boss,0);
-                if(typeof afterJump==='function')afterJump(now);
-            }
+
+        // 高速拋物線：上升約 220ms，短暫越過主角頭頂，最後 170ms 加速俯衝落地。
+        // 起跳上升期間持續追蹤主角；進入下降段時鎖定一次落點，讓玩家能及時走位閃避。
+        const t=Math.max(0,now-state.phaseStartedAt),ascentMs=230,apexEnd=355,descentMs=180,landAt=apexEnd+descentMs,reboundMs=145,recoverUntil=landAt+reboundMs;
+        const peak=Math.max(stageH*.46,stageH*.50);
+        if(t<ascentMs){
+            moveToward(targetForHero(),1.65);chapter3BossFaceHero(boss);
+            const p=t/ascentMs;chapter3BossSetLift(boss,peak*(1-Math.pow(1-p,1.35)));
+            chapter3BossPose(boss,t<95?'jump1':'jump2');return;
+        }
+        if(t<apexEnd){
+            // 在玩家頭頂略作停頓，清楚讀出高點，接著快速下砸。
+            moveToward(targetForHero(),1.2);chapter3BossFaceHero(boss);chapter3BossSetLift(boss,peak);chapter3BossPose(boss,'jump3');return;
+        }
+        if(state.jumpLandX===null)state.jumpLandX=targetForHero();
+        if(t<landAt){
+            const fallP=Math.min(1,(t-apexEnd)/descentMs);
+            moveToward(state.jumpLandX,2.25);chapter3BossFaceHero(boss);
+            // 二次曲線令下降速度愈接近地面愈快，強化俯衝的重量與速度感。
+            chapter3BossSetLift(boss,peak*(1-Math.pow(fallP,2.45)));
+            chapter3BossPose(boss,fallP<.60?'jump2':'jump1');return;
+        }
+        // 撞擊瞬間先壓低，再做一次短促小回彈；不是停在空中或大幅跳起。
+        const reboundP=Math.max(0,Math.min(1,(t-landAt)/reboundMs));
+        const reboundHeight=Math.max(12,stageH*.026);
+        chapter3BossSetLift(boss,reboundHeight*Math.sin(Math.PI*reboundP));
+        chapter3BossPose(boss,'normal');
+        if(!state.jumpImpactDone){
+            state.jumpImpactDone=true;
+            boss.classList.remove('chapter3-boss-impact');void boss.offsetWidth;boss.classList.add('chapter3-boss-impact');
+            setTimeout(()=>boss.classList.remove('chapter3-boss-impact'),280);
+            const bossCenter=(Number(boss.dataset.x)||0)+bossWidth*.5;
+            const impactRange=Math.max(112,bossWidth*.29);
+            if(Math.abs(heroCenter()-bossCenter)<impactRange&&jumpT===0)chapter3BossHeroHit(12,'−');
+        }
+        if(t>=recoverUntil){
+            state.jumpCount++;state.jumpLandX=null;state.jumpImpactDone=false;
+            if(state.jumpCount<maxJumps){state.jumpMode='wait';state.phaseStartedAt=now;boss.classList.remove('chapter3-boss-jumping');chapter3BossPose(boss,'normal');chapter3BossSetLift(boss,0);}
+            else{state.jumpMode='';boss.classList.remove('chapter3-boss-jumping');chapter3BossSetLift(boss,0);if(typeof afterJump==='function')afterJump(now);}
         }
     }
     function chapter3BossBeginWalkReturn(boss,now,forMixed=false){
         const state=chapter3BossState;state.phase=forMixed?'mixed20Return':'tentacle40Return';state.phaseStartedAt=now;
-        const target=Math.max(cameraX+stageW*.58,Math.min(heroExitX()-40,cameraX+stageW*.74));
-        state.returnTargetX=target;state.returnStartX=Math.min(heroExitX()-20,cameraX+stageW+80);
-        boss.style.visibility='visible';boss.style.opacity='1';boss.dataset.facing='left';boss.classList.add('enemy-facing-left');boss.dataset.x=String(state.returnStartX);boss.style.left=state.returnStartX+'px';chapter3BossSetLift(boss,0);
-        boss.classList.add('chapter3-boss-returning');chapter3BossPose(boss,'walk1');
+        const bossWidth=Math.max(1,boss.offsetWidth||460);
+        const target=Math.max(cameraX+stageW*.58,Math.min(heroExitX()-bossWidth*.55,cameraX+stageW*.74));
+        state.returnTargetX=target;state.returnStartX=Math.min(heroExitX()-bossWidth*.55,cameraX+stageW+bossWidth*.22);
+        boss.style.visibility='visible';boss.style.opacity='1';boss.classList.remove('enemy-facing-left');boss.dataset.x=String(state.returnStartX);boss.style.left=state.returnStartX+'px';chapter3BossSetLift(boss,0);
+        boss.classList.add('chapter3-boss-returning');if(forMixed)boss.classList.add('chapter3-boss-return-dash');chapter3BossFaceHero(boss);chapter3BossPose(boss,'walk1');
     }
-    function chapter3BossUpdateReturn(boss,now,forMixed=false){
+    function chapter3BossUpdateReturn(boss,now,forMixed=false,dt=16){
         const state=chapter3BossState,elapsed=now-state.phaseStartedAt;
-        const from=Number(state.returnStartX)||Number(boss.dataset.x)||0,to=Number(state.returnTargetX)||Math.max(0,cameraX+stageW*.65);
-        const p=Math.min(1,elapsed/1550),nx=from+(to-from)*p;boss.dataset.x=String(nx);boss.style.left=nx+'px';
-        chapter3BossPose(boss,'walk'+(1+Math.floor(elapsed/135)%8));
-        if(p>=1){boss.classList.remove('chapter3-boss-returning');chapter3BossSetLift(boss,0);chapter3BossFinishPhase(now);}
+        const returnStopRange=Math.max(150,stageW*.14);
+        // 參照蜘蛛 Boss broodReturn：Walk1–Walk8 播放期間，每幀追蹤玩家，而不是只走向固定終點。
+        const tracking=chapter3BossTrackPlayer(boss,dt,returnStopRange,forMixed?.92:.24);
+        chapter3BossPose(boss,'walk'+(1+Math.floor(elapsed/(forMixed?72:135))%8));
+        // 一到正常攻擊距離便銜接戰鬥；若玩家持續跑動，最多 7 秒後交由普通追擊 AI 接手。
+        if(!tracking.outOfRange||elapsed>=7000){
+            boss.classList.remove('chapter3-boss-returning','chapter3-boss-return-dash');chapter3BossSetLift(boss,0);
+            if(forMixed)chapter3BossStartMixed20Combat(boss,now);else chapter3BossFinishPhase(now);
+        }
+    }
+    function chapter3BossTransitionBackground(darkness,now,duration=1500){
+        const state=chapter3BossState;
+        state.bgFadeFrom=state.bgDarkness;state.bgFadeTo=Math.max(0,Math.min(1,Number(darkness)||0));
+        state.bgFadeStartedAt=now;state.bgFadeDuration=Math.max(0,Number(duration)||0);
+        if(state.bgFadeDuration===0){state.bgDarkness=state.bgFadeTo;const view=$('elevatorBgViewport');if(view)view.style.filter='brightness('+(1-state.bgDarkness).toFixed(3)+')';}
+    }
+    function chapter3BossUpdateMixed20Launch(boss,now){
+        const state=chapter3BossState,elapsed=now-state.phaseStartedAt,squashMs=260,launchMs=470;
+        if(elapsed<squashMs){
+            boss.style.visibility='visible';chapter3BossSetLift(boss,0);chapter3BossPose(boss,'jump1');return;
+        }
+        boss.classList.remove('chapter3-boss-launch-squash','chapter3-boss-charging');boss.classList.add('chapter3-boss-launch-burst');
+        const p=Math.max(0,Math.min(1,(elapsed-squashMs)/launchMs));
+        const travel=Math.max(stageH*1.4,(boss.offsetHeight||500)+stageH+80);
+        chapter3BossSetLift(boss,travel*Math.pow(p,2.1));
+        chapter3BossPose(boss,p<.34?'jump2':'jump3');
+        if(p>=1){
+            boss.style.visibility='hidden';boss.classList.remove('chapter3-boss-launch-burst');chapter3BossSetLift(boss,0);
+            state.phase='mixed20InitialTentacles';state.phaseStartedAt=now;
+            chapter3BossSpawnTentacleWave(15,20,true);
+        }
+    }
+    function chapter3BossBeginMixed20Return(boss,now){
+        const state=chapter3BossState;state.phase='mixed20Return';state.phaseStartedAt=now;
+        const bossWidth=Math.max(1,boss.offsetWidth||460);
+        const target=Math.max(cameraX+stageW*.58,Math.min(heroExitX()-bossWidth*.55,cameraX+stageW*.74));
+        state.returnTargetX=target;state.returnStartX=cameraX+stageW+bossWidth*.18;
+        boss.style.visibility='visible';boss.style.opacity='1';boss.classList.remove('enemy-facing-left');
+        boss.dataset.x=String(state.returnStartX);boss.style.left=state.returnStartX+'px';chapter3BossSetLift(boss,0);
+        boss.classList.add('chapter3-boss-returning','chapter3-boss-return-dash');chapter3BossFaceHero(boss);chapter3BossPose(boss,'walk1');
+    }
+    function chapter3BossStartMixed20Combat(boss,now){
+        const state=chapter3BossState;
+        state.phase='mixed20Combat';state.phaseStartedAt=now;state.mixed20Active=true;
+        state.lastAttackAt=now-700;state.mixed20NextTentacleAt=now+850+Math.random()*750;
+        state.mixed20NextLightningAt=0;
+        boss.classList.remove('chapter3-boss-returning','chapter3-boss-charging','chapter3-boss-launch-squash','chapter3-boss-launch-burst');
+        boss.style.visibility='visible';boss.style.opacity='1';chapter3BossSetLift(boss,0);chapter3BossFaceHero(boss);chapter3BossPose(boss,'normal');
+        chapter3BossSpawnTentacleWave(6+Math.floor(Math.random()*5),'mixed20',false);
+    }
+    function chapter3BossUpdateMixed20Support(now){
+        const state=chapter3BossState,alive=chapter3BossAliveTentacleCount(),pending=chapter3BossPendingTentacleCount('mixed20');
+        if(alive+pending<6&&pending===0){
+            // 觸手低於 6 條時立即補足；不等待下一個隨機生成週期。
+            chapter3BossSpawnTentacleWave(Math.min(6-alive,10-alive),'mixed20',false);
+            state.mixed20NextTentacleAt=now+800+Math.random()*700;
+        }else if(alive+pending<10&&pending===0&&now>=state.mixed20NextTentacleAt){
+            const amount=Math.min(10-alive,1+Math.floor(Math.random()*2));
+            chapter3BossSpawnTentacleWave(amount,'mixed20',false);
+            state.mixed20NextTentacleAt=now+850+Math.random()*1450;
+        }
+    }
+    function chapter3BossStartMixed20Exit(boss,now){
+        const state=chapter3BossState;if(!state.mixed20Active||state.phase==='mixed20ExitFade')return;
+        state.phase='mixed20ExitFade';state.phaseStartedAt=now;state.mixed20NextTentacleAt=0;state.mixed20NextLightningAt=0;state.tentacleSpawnQueue.length=0;state.tentacleSpawnNextAt=0;
+        chapter3BossRemoveAllTentacles();chapter3BossClearLightning();
+        // 不修改 boss.dataset.hp：12% 是階段觸發線，不是血量鎖定值。
+        updateBossHealthBar(boss);chapter3BossTransitionBackground(0,now,1500);
+    }
+    function chapter3BossUpdateCombatAI(boss,now,dt,checkQueue=true){
+        const state=chapter3BossState;
+        if(checkQueue&&state.queue.length){const threshold=state.queue.shift();chapter3BossStartPhase(boss,threshold,now);return;}
+        const bossWidth=boss.offsetWidth||460;
+        const attackRange=Math.max(150,stageW*.14);
+        const hitUntil=Number(boss.dataset.chapter3HitUntil)||0;
+        const attackUntil=Number(boss.dataset.chapter3AttackUntil)||0;
+        const bossApproachSpeed=gameTuning.enemyAI?.approachSpeed?.boss??gameTuning.enemyAI?.approachSpeed?.default??.15;
+
+        // 跟隨蜘蛛 Boss 的做法：即使正在受擊／攻擊，也持續讀取玩家位置並調整 Boss 座標與面向。
+        const tracking=chapter3BossTrackPlayer(boss,dt,attackRange,bossApproachSpeed);
+        if(now<hitUntil){chapter3BossPose(boss,'hit');return;}
+        if(now<attackUntil){
+            chapter3BossPose(boss,'attack');
+            const hitAt=Number(boss.dataset.chapter3AttackHitAt)||0;
+            if(now>=hitAt&&boss.dataset.chapter3AttackHitDone!=='1'){
+                boss.dataset.chapter3AttackHitDone='1';
+                const liveHeroCenter=x+(hero.offsetWidth||70)*.5;
+                const liveBossCenter=(Number(boss.dataset.x)||0)+bossWidth*.5;
+                if(Math.abs(liveHeroCenter-liveBossCenter)<=attackRange&&jumpT===0)chapter3BossHeroHit(8);
+            }
+            return;
+        }
+        if(attackUntil>0){boss.dataset.chapter3AttackUntil='0';boss.dataset.chapter3AttackHitAt='0';}
+        if(tracking.outOfRange){
+            chapter3BossPose(boss,'walk'+(1+Math.floor(now/130)%8));return;
+        }
+        if(now-state.lastAttackAt>=1350){
+            state.lastAttackAt=now;boss.dataset.chapter3AttackUntil=String(now+610);
+            boss.dataset.chapter3AttackHitAt=String(now+260);boss.dataset.chapter3AttackHitDone='0';chapter3BossPose(boss,'attack');return;
+        }
+        chapter3BossPose(boss,'normal');
     }
     function chapter3BossUpdate(boss,now,dt){
         const state=chapter3BossState;if(!boss||boss.classList.contains('dead'))return;
         if(state.boss!==boss)chapter3BossStartEncounter(boss,now);
+        chapter3BossUpdateAmbientLightning(boss,now);
+        chapter3BossUpdateTentacleSpawnQueue(now);
+        // 與第二章蜘蛛 Boss 的 updateSpiderBossSkill 一樣，不論目前播放哪個動作，都逐幀面向玩家。
+        if(boss.style.visibility!=='hidden')chapter3BossFaceHero(boss);
         const elapsed=Math.max(0,now-state.phaseStartedAt),hpNow=Math.max(0,Number(boss.dataset.hp)||0),maxHP=Math.max(1,Number(boss.dataset.maxhp)||100);
-        if(!state.finalTriggered&&hpNow>0&&hpNow/maxHP<=.10){state.triggered.add('10');chapter3BossStartFinal(boss,now);}
+        if(state.mixed20Active&&state.phase!=='mixed20ExitFade'&&hpNow>0&&hpNow/maxHP<=.12){
+            chapter3BossStartMixed20Exit(boss,now);if(hpNow/maxHP<=.10)state.pendingFinal=true;return;
+        }
+        if(!state.finalTriggered&&state.phase!=='mixed20ExitFade'&&hpNow>0&&hpNow/maxHP<=.10){state.triggered.add('10');chapter3BossStartFinal(boss,now);}
         if(state.phase==='intro'){
-            if(elapsed<300){chapter3BossPose(boss,'jump3');chapter3BossSetLift(boss,stageH*.48);}
-            else if(elapsed<600){chapter3BossPose(boss,'jump2');chapter3BossSetLift(boss,stageH*.30);}
-            else if(elapsed<900){chapter3BossPose(boss,'jump1');chapter3BossSetLift(boss,stageH*.12);}
-            else{chapter3BossSetLift(boss,0);boss.classList.remove('chapter3-boss-intro');chapter3BossPose(boss,'normal');state.phase='combat';state.phaseStartedAt=now;state.lastAttackAt=now+500;}
+            // 初次登場改為短促加速俯衝：由高處直接落到玩家腳底基準線，避免慢慢飄落。
+            chapter3BossFaceHero(boss);
+            const fallDuration=410;
+            const p=Math.max(0,Math.min(1,elapsed/fallDuration));
+            const startLift=Math.max(160,stageH*.60);
+            chapter3BossSetLift(boss,startLift*(1-Math.pow(p,2.15)));
+            chapter3BossPose(boss,p<.48?'jump3':(p<.82?'jump2':'jump1'));
+            if(p>=1){
+                chapter3BossSetLift(boss,0);boss.classList.remove('chapter3-boss-intro');
+                boss.classList.remove('chapter3-boss-impact');void boss.offsetWidth;boss.classList.add('chapter3-boss-impact');
+                state.phase='introImpact';state.phaseStartedAt=now;
+            }
+            return;
+        }
+        if(state.phase==='introImpact'){
+            chapter3BossFaceHero(boss);chapter3BossSetLift(boss,0);
+            if(elapsed>=300){boss.classList.remove('chapter3-boss-impact');state.phase='combat';state.phaseStartedAt=now;state.lastAttackAt=now-700;chapter3BossPose(boss,'normal');}
             return;
         }
         if(state.phase==='dead')return;
         if(state.phase==='finalCharge'){
             chapter3BossPose(boss,(Math.floor(elapsed/280)%2)===0?'skill1':'skill2');
-            const remain=Math.max(0,Math.ceil((5000-elapsed)/1000));if(state.countdown)state.countdown.textContent='⚡ 絕招蓄能：'+remain+' 秒';
-            if(elapsed>=5000){state.phase='finalAttack';state.phaseStartedAt=now;chapter3BossPose(boss,'skill3');if(state.countdown)state.countdown.textContent='⚡ 絕招發動！';}
+            const remain=Math.max(0,Math.ceil((5000-elapsed)/1000));if(state.countdown)state.countdown.textContent='匠心觸手：特殊愛好者天堂 · 蓄能 '+remain+' 秒';
+            if(elapsed>=5000){
+                state.phase='finalTentacles';state.phaseStartedAt=now;
+                chapter3BossLockPlayerForUltimate();chapter3BossCreateUltimateTentacles(now);
+                chapter3BossPose(boss,'skill3');if(state.countdown)state.countdown.textContent='觸手降臨！';
+            }
             return;
         }
-        if(state.phase==='finalAttack'){
-            if(elapsed>=480){chapter3BossPose(boss,'skill4');if(state.countdown)state.countdown.textContent='⚡ 雷暴降臨！';}
-            if(elapsed>=980){const blackout=document.createElement('div');blackout.className='chapter3-boss-blackout';blackout.setAttribute('aria-hidden','true');stage.appendChild(blackout);state.killedHeroByUltimate=true;hp=0;updateHud();}
+        if(state.phase==='finalTentacles'){
+            chapter3BossUpdateUltimateTentacles(now);chapter3BossPose(boss,'skill3');
+            if(elapsed>=1050){state.phase='finalThunder';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='黑紫天雷：連續落下！';}
             return;
         }
+        if(state.phase==='finalThunder'){
+            chapter3BossUpdateUltimateThunder(elapsed,now);chapter3BossUpdateUltimateTentacles(now);chapter3BossPose(boss,'skill4');
+            if(elapsed>=1900){
+                const fx=state.ultimateFx;if(fx){fx.warnings.forEach(item=>item.el?.remove());fx.warnings.length=0;fx.warningRefs.forEach(el=>el?.remove());fx.pillars.forEach(item=>item.el?.remove());fx.pillars.length=0;}
+                // 移除觸手集中階段：連續雷柱結束後直接進入全場終極雷擊。
+                state.phase='finalImpact';state.phaseStartedAt=now;chapter3BossUltimateStartImpact(now);
+                hero.classList.add('chapter3-boss-final-hit');
+                const impact=document.createElement('div');impact.className='chapter3-boss-final-impact-flash';impact.setAttribute('aria-hidden','true');stage.appendChild(impact);
+                if(state.countdown)state.countdown.textContent='終極雷擊！';
+            }
+            return;
+        }
+        if(state.phase==='finalImpact'){
+            chapter3BossUpdateUltimateExplosion(now);
+            if(elapsed>=850&&!state.killedHeroByUltimate){
+                state.killedHeroByUltimate=true;hp=0;updateHud();
+                hero.classList.remove('chapter3-boss-final-hit');
+                stage.querySelectorAll('.chapter3-boss-final-impact-flash').forEach(el=>el.remove());
+                const blackout=document.createElement('div');blackout.className='chapter3-boss-blackout';blackout.setAttribute('aria-hidden','true');stage.appendChild(blackout);
+                state.phase='finalDead';
+            }
+            return;
+        }
+        if(state.phase==='finalDead')return;
         if(state.phase==='combat'){
-            if(state.queue.length){const threshold=state.queue.shift();chapter3BossStartPhase(boss,threshold,now);return;}
-            chapter3BossPose(boss,now<Number(boss.dataset.actionUntil||0)?'hit':'normal');
-            if(now-state.lastAttackAt>1500){
-                state.lastAttackAt=now;boss.dataset.actionUntil=String(now+420);chapter3BossPose(boss,'attack');
-                const bossCenter=(Number(boss.dataset.x)||0)+(boss.offsetWidth||230)*.5,heroCenter=x+(hero.offsetWidth||70)*.5;
-                if(Math.abs(bossCenter-heroCenter)<Math.max(120,stageW*.15)&&jumpT===0)chapter3BossHeroHit(8);
+            chapter3BossUpdateCombatAI(boss,now,dt,true);return;
+        }
+        if(state.phase==='mixed20Launch'){
+            chapter3BossUpdateMixed20Launch(boss,now);return;
+        }
+        if(state.phase==='mixed20InitialTentacles'){
+            if(chapter3BossAliveTentacleCount()===0&&chapter3BossPendingTentacleCount()===0){
+                state.phase='mixed20FadeToBlack';state.phaseStartedAt=now;chapter3BossTransitionBackground(1,now,1700);
+            }
+            return;
+        }
+        if(state.phase==='mixed20FadeToBlack'){
+            if(state.bgFadeDuration<=0)chapter3BossBeginMixed20Return(boss,now);
+            return;
+        }
+        if(state.phase==='mixed20Return'){
+            chapter3BossUpdateReturn(boss,now,true,dt);return;
+        }
+        if(state.phase==='mixed20Combat'){
+            chapter3BossUpdateCombatAI(boss,now,dt,false);
+            chapter3BossUpdateMixed20Support(now);return;
+        }
+        if(state.phase==='mixed20ExitFade'){
+            if(state.bgFadeDuration<=0){
+                state.mixed20Active=false;boss.classList.remove('chapter3-boss-returning','chapter3-boss-return-dash','chapter3-boss-charging');boss.style.visibility='visible';
+                chapter3BossSetLift(boss,0);chapter3BossFaceHero(boss);
+                if(state.pendingFinal||hpNow/maxHP<=.10){state.pendingFinal=false;state.triggered.add('10');chapter3BossStartFinal(boss,now);}
+                else{state.phase='combat';state.phaseStartedAt=now;state.lastAttackAt=now-400;chapter3BossPose(boss,'normal');}
             }
             return;
         }
@@ -2053,10 +2658,21 @@
         }
         if(state.phase==='skill60Charge'){
             const seq=['skill1','skill2','skill3','skill4'];const frame=Math.min(3,Math.floor(elapsed/240));chapter3BossPose(boss,seq[frame]);
-            if(elapsed>=960){state.phase='skill60Strike';state.phaseStartedAt=now;chapter3BossPlanLightning(7,3000,false);}return;
+            if(elapsed>=960){
+                boss.classList.remove('chapter3-boss-charging','chapter3-boss-skill60-charge');
+                state.phase='skill60Strike';state.phaseStartedAt=now;
+                // 60% 技能原本只更新效果、沒有建立落雷；在攻擊階段開始時安排三次落雷。
+                chapter3BossPlanLightning(3,2600,false);
+            }return;
         }
         if(state.phase==='skill60Strike'){
-            chapter3BossUpdateLightning(now);if(elapsed>=3000){chapter3BossClearLightning();chapter3BossFinishPhase(now);}return;
+            chapter3BossUpdateLightning(now);
+            if(elapsed>=3000){chapter3BossClearLightning();state.phase='skill60Recover';state.phaseStartedAt=now;chapter3BossPose(boss,'skill4');}return;
+        }
+        if(state.phase==='skill60Recover'){
+            const reverse=['skill4','skill3','skill2','skill1'];
+            const frame=Math.min(3,Math.floor(elapsed/240));chapter3BossPose(boss,reverse[frame]);
+            if(elapsed>=960)chapter3BossFinishPhase(now);return;
         }
         if(state.phase==='tentacle40Intro'){
             if(elapsed<180){chapter3BossPose(boss,'jump1');chapter3BossSetLift(boss,stageH*.06);}
@@ -2067,35 +2683,23 @@
         }
         if(state.phase==='tentacle40Wait'){
             const alive=enemyList.some(e=>e.dataset.chapter3Tentacle==='1'&&Number(e.dataset.chapter3TentacleWave)===state.wave&&!e.classList.contains('dead'));
-            if(!alive){if(state.wave<3){state.wave++;chapter3BossSpawnTentacleWave(2,state.wave);state.phaseStartedAt=now;}else chapter3BossBeginWalkReturn(boss,now,false);}return;
+            if(!alive&&chapter3BossPendingTentacleCount(state.wave)===0){if(state.wave<3){state.wave++;chapter3BossSpawnTentacleWave(2,state.wave);state.phaseStartedAt=now;}else chapter3BossBeginWalkReturn(boss,now,false);}return;
         }
-        if(state.phase==='tentacle40Return'){chapter3BossUpdateReturn(boss,now,false);return;}
-        if(state.phase==='mixed20Jump'){
-            if(state.jumpMode==='') {state.jumpMode='charge';state.jumpCount=0;state.phaseStartedAt=now;}
-            chapter3BossUpdateJumpSequence(boss,now,dt,1,(at)=>{boss.style.visibility='hidden';state.phase='mixed20Tentacles';state.phaseStartedAt=at;state.wave=1;chapter3BossSpawnTentacleWave(3,state.wave);});return;
-        }
-        if(state.phase==='mixed20Tentacles'){
-            const alive=enemyList.some(e=>e.dataset.chapter3Tentacle==='1'&&!e.classList.contains('dead'));
-            if(!alive){chapter3BossBeginWalkReturn(boss,now,true);}return;
-        }
-        if(state.phase==='mixed20Return'){
-            chapter3BossUpdateReturn(boss,now,true);
-            // 返回後先進入三連電擊，再循環跳躍與觸手；20% 階段持續至 10%。
-            if(state.phase==='combat'){
-                state.phase='mixed20Lightning';state.phaseStartedAt=now;chapter3BossPlanLightning(3,1500,true);chapter3BossPose(boss,'skill2');
-            }
-            return;
-        }
-        if(state.phase==='mixed20Lightning'){
-            chapter3BossUpdateLightning(now);if(elapsed>=1700){chapter3BossClearLightning();state.phase='mixed20Jump';state.phaseStartedAt=now;state.jumpMode='charge';state.jumpCount=0;chapter3BossPose(boss,'jump1');boss.classList.add('chapter3-boss-charging');}return;
-        }
+        if(state.phase==='tentacle40Return'){chapter3BossUpdateReturn(boss,now,false,dt);return;}
     }
     function chapter3BossUpdateBackground(now){
         if(!chapter3BossMode)return;
-        const state=chapter3BossState;
+        const state=chapter3BossState,view=$('elevatorBgViewport');
+        if(state.bgFadeDuration>0){
+            const p=Math.max(0,Math.min(1,(now-state.bgFadeStartedAt)/state.bgFadeDuration));
+            const eased=p*p*(3-2*p);
+            state.bgDarkness=state.bgFadeFrom+(state.bgFadeTo-state.bgFadeFrom)*eased;
+            if(p>=1)state.bgFadeDuration=0;
+        }
+        if(view)view.style.filter='brightness('+Math.max(0,1-state.bgDarkness).toFixed(3)+')';
         if(now-state.lastBgFrameAt<170)return;
         state.lastBgFrameAt=now;state.bgFrame=(state.bgFrame+1)%CHAPTER3_BOSS_BG_FRAMES.length;
-        const view=$('elevatorBgViewport');if(view)view.style.backgroundImage='url("'+CHAPTER3_BOSS_BG_FRAMES[state.bgFrame]+'")';
+        if(view)view.style.backgroundImage='url("'+CHAPTER3_BOSS_BG_FRAMES[state.bgFrame]+'")';
     }
 
     // ===== 第三章：水晶洞升降機測試關 =====
@@ -2618,7 +3222,7 @@
 
     // ===== 普通戰鬥：槍刺、盾擊、特殊技能的傷害判定 =====
     function attack(kind) {
-        if(!running||paused||document.body.classList.contains('spider-apocalypse')||attackCd>0||knockbackUntilLanding)return;
+        if(!running||paused||chapter3BossPlayerLocked()||document.body.classList.contains('spider-apocalypse')||attackCd>0||knockbackUntilLanding)return;
         const attackStartedAt=performance.now();
         if(kind==='bash'){
             bashLockUntil=attackStartedAt+500;
@@ -2666,19 +3270,25 @@
                 if(type==='shield'&&kind==='thrust')dmg=damage.shieldThrust??0.5;
                 let eh=applyEnemyDamage(e,dmg);
                 e.dataset.hp=eh;
-                e.querySelector('.ehealth i').style.width=Math.max(0,eh/(+e.dataset.maxhp)*100)+'%';
+                const healthRatio=Math.max(0,Math.min(1,eh/Math.max(1,Number(e.dataset.maxhp)||1)));
+                const enemyHealthFill=e.querySelector('.ehealth i');if(enemyHealthFill)enemyHealthFill.style.width=(healthRatio*100)+'%';
+                const localHealthBar=e.querySelector('.ehealth');if(localHealthBar&&e.dataset.chapter3Tentacle==='1')localHealthBar.setAttribute('aria-valuenow',String(Math.round(healthRatio*100)));
                 updateBossHealthBar(e);
                 if(eh>0)checkBossRushThreshold(e);
                 const es=e.querySelector('.enemySprite');
                 const bossIsRushing=bossRush.active&&e===bossRush.boss;
                 const spiderSkillLocked=isSpiderBoss(e)&&spiderBossSkill.active;
                 if(es&&!bossIsRushing&&!spiderSkillLocked) {
-                    if(!isChapter3Boss(e)||chapter3BossState.phase==='combat')es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
-                    e.dataset.actionUntil=String(performance.now()+310);
-                    clearTimeout(e._spriteTimer);
-                    e._spriteTimer=setTimeout(()=> {
-                        if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss)&&(!isChapter3Boss(e)||chapter3BossState.phase==='combat'))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
-                    },tuneEffects.enemyHitPoseMs??300)
+                    if(isChapter3Boss(e)){
+                        chapter3BossRegisterHit(e,tuneEffects.enemyHitPoseMs??300);
+                    }else{
+                        es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
+                        e.dataset.actionUntil=String(performance.now()+310);
+                        clearTimeout(e._spriteTimer);
+                        e._spriteTimer=setTimeout(()=> {
+                            if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
+                        },tuneEffects.enemyHitPoseMs??300)
+                    }
                 }
                 if(!bossIsRushing&&!spiderSkillLocked&&!isChapter3Boss(e) && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
                     flashEnemy(e,tuneEffects.enemyHitFlashMs??180);
@@ -2724,7 +3334,7 @@
     }
     // ===== 絕招：蓄力、播放大絕影格、造成傷害並收招 =====
     function ultimate() {
-        if(!running||paused||document.body.classList.contains('spider-apocalypse')||ultimateActive)return;
+        if(!running||paused||chapter3BossPlayerLocked()||document.body.classList.contains('spider-apocalypse')||ultimateActive)return;
         const now=performance.now();
         if(now<ultimateCooldownUntil) {
             floatText('絕招冷卻中 '+Math.ceil((ultimateCooldownUntil-now)/1000)+'s',x,38);
@@ -2781,12 +3391,16 @@
                 const bossIsRushing=bossRush.active&&e===bossRush.boss;
                 const spiderSkillLocked=isSpiderBoss(e)&&spiderBossSkill.active;
                 if(es&&!bossIsRushing&&!spiderSkillLocked) {
-                    es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
-                    e.dataset.actionUntil=String(performance.now()+370);
-                    clearTimeout(e._spriteTimer);
-                    e._spriteTimer=setTimeout(()=> {
-                        if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
-                    },tuneEffects.ultimateEnemyHitPoseMs??360)
+                    if(isChapter3Boss(e)){
+                        chapter3BossRegisterHit(e,tuneEffects.ultimateEnemyHitPoseMs??360);
+                    }else{
+                        es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
+                        e.dataset.actionUntil=String(performance.now()+370);
+                        clearTimeout(e._spriteTimer);
+                        e._spriteTimer=setTimeout(()=> {
+                            if(es.isConnected&&!e.classList.contains('dead')&&!(bossRush.active&&e===bossRush.boss))es.src=enemySpritePath(e.dataset.spriteType||type,'idle')
+                        },tuneEffects.ultimateEnemyHitPoseMs??360)
+                    }
                 }
                 if(!bossIsRushing&&!spiderSkillLocked&&!isChapter3Boss(e) && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
                     flashEnemy(e,tuneEffects.ultimateHitFlashMs??180);
@@ -2970,13 +3584,16 @@
                     if(isSpiderBoss(e)&&spiderBossSkill.boss===e)resetSpiderBossSkill();
                     if(!e.dataset.removed) {
                         e.dataset.removed='1';
-                        setTimeout(()=>e.classList.add('fade-out'),tuneEffects.corpseFadeDelayMs??1650);
+                        const quickMixedTentacle=e.dataset.chapter3Tentacle==='1'&&chapter3BossState.mixed20Active;
+                        const corpseFadeDelay=quickMixedTentacle?260:(tuneEffects.corpseFadeDelayMs??1650);
+                        const corpseRemoveDelay=quickMixedTentacle?620:(tuneEffects.corpseRemoveDelayMs??2450);
+                        setTimeout(()=>e.classList.add('fade-out'),corpseFadeDelay);
                         setTimeout(()=> {
                             disconnectChapter3FootAnchorObserver(e);
                             e.remove();
                             const idx=enemyList.indexOf(e);
                             if(idx>=0)enemyList.splice(idx,1)
-                        },tuneEffects.corpseRemoveDelayMs??2450)
+                        },corpseRemoveDelay)
                     }
                     continue
                 }
@@ -3161,13 +3778,13 @@
                 resetSpiderBossSkill();
                 resetBossRush();
                 if(chapter1FinalSkill.killedHero) {
-                    showEnd('血紅巨劍・末日降臨','Boss 1 的終極技能命中女神。巨劍落地後 1 秒，死亡判定已生效。','重新開始');
+                    showEnd('黑柴巨劍・末日降臨','黑騎士的巨劍終極技能命中女神。巨劍落地後 1 秒，死亡判定已生效。','重新開始');
                 } else if(spiderUltKilled) {
-                    showEnd('萬毒蛛域・天羅降臨','5 秒蓄勢結束，萬毒蛛域吞噬了女神。','重新開始');
+                    showEnd('毒男降臨','5 秒蓄勢結束，毒燃吞噬了女神。','重新開始');
                 } else if(chapter3BossState.killedHeroByUltimate) {
-                    showEnd('雷暴終極絕招・世界歸於黑暗','五秒蓄能完成，雷暴海王的終極電擊擊敗了女神。','重新開始');
+                    showEnd('匠心觸手：特殊愛好者天堂','電擊觸手擊敗了女神。','重新開始');
                 } else {
-                    showEnd('女神需要休息！','敵人太多了，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始');
+                    showEnd('女神需要休息被干爆了！','敵人太多了，真係多，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始');
                 }
             }
             updateHud()
@@ -3260,7 +3877,15 @@
         $('titlePopup').hidden=false
     }
     // ===== 輸入控制：把鍵盤和畫面按鈕轉成遊戲動作 =====
+    // 5 秒 finalCharge 倒數仍可操作；只有閃電發動、命中及死亡轉場才鎖定玩家。
+    function chapter3BossPlayerLocked(){return document.body.classList.contains('chapter3-boss-mode')&&['finalTentacles','finalThunder','finalImpact','finalDead'].includes(chapter3BossState.phase);}
+    function chapter3BossLockPlayerForUltimate(){
+        keys.left=false;keys.right=false;moveV=0;jumpBufferMs=0;jumpV=0;jumpY=0;jumpT=0;onGround=true;
+        hero.classList.remove('walking','jump');
+        hero.style.setProperty('bottom',activeGroundBottom(),'important');
+    }
     function action(a) {
+        if(chapter3BossPlayerLocked()){keys.left=false;keys.right=false;return;}
         if(document.body.classList.contains('spider-apocalypse')){keys.left=false;keys.right=false;return;}
         if(a==='left'||a==='right') {
             keys[a]=true;
@@ -3288,6 +3913,7 @@
     });
     window.addEventListener('keydown',e=> {
         if(['ArrowLeft','ArrowRight','ArrowUp',' '].includes(e.key))e.preventDefault();
+        if(chapter3BossPlayerLocked()){keys.left=false;keys.right=false;if(['ArrowLeft','ArrowRight','ArrowUp',' ','z','x','q','Z','X','Q'].includes(e.key))e.preventDefault();return;}
         if(document.body.classList.contains('spider-apocalypse')){keys.left=false;keys.right=false;return;}
         if(e.key==='ArrowLeft')keys.left=true;
         if(e.key==='ArrowRight')keys.right=true;

@@ -20,28 +20,28 @@ body.chapter3-boss-mode #world > .hero { z-index: 10; }
 body.chapter3-boss-mode #world #enemies { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
 body.chapter3-boss-mode #world #enemies > .enemy { pointer-events: none; }
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] {
-  width: clamp(190px, 24vw, 292px) !important; height: clamp(180px, 29vw, 330px) !important;
+  width: clamp(380px, 48vw, 584px) !important; height: clamp(360px, 58vw, 660px) !important;
   bottom: calc(var(--tune-ground-bottom, 14%) + var(--chapter3-boss-lift, 0px)) !important;
   z-index: 12; filter: drop-shadow(0 7px 12px #03142ccc);
 }
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-art,
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-art-frame { overflow: visible; }
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemySprite {
-  object-fit: contain; filter: none !important; animation: none !important; transform-origin: 50% 100%;
+  object-fit: contain; object-position: center bottom !important; filter: none !important; animation: none !important; transform-origin: 50% 100%;
 }
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-name {
   top: -24px !important; background: #082d50; border-color: #66c9ff; color: #e8f9ff;
 }
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .ehealth { display: none !important; }
 body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle {
-  width: clamp(95px, 12vw, 145px) !important; height: clamp(110px, 16vw, 178px) !important;
-  bottom: var(--tune-ground-bottom, 14%) !important; z-index: 9; filter: drop-shadow(0 5px 7px #00182ccc);
+  width: clamp(190px, 24vw, 290px) !important; height: clamp(220px, 32vw, 356px) !important;
+  bottom: var(--tune-ground-bottom, 14%) !important; z-index: 18; isolation: isolate; overflow: visible !important; filter: drop-shadow(0 5px 7px #00182ccc);
 }
-body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .enemySprite { animation: none !important; object-fit: contain; }
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .enemySprite { animation: none !important; object-fit: contain; object-position: center bottom !important; }
 body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .enemy-name {
   top: -22px; background: #092949; border-color: #54c8ff; color: #f3fcff;
 }
-body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .ehealth { top: -2px; }
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .ehealth { top: 28px; }
 body.chapter3-boss-mode .chapter3-boss-charging .enemy-art { filter: drop-shadow(0 0 14px #48caff) drop-shadow(0 0 28px #247bff); }
 body.chapter3-boss-mode .chapter3-boss-final-charge .enemy-art { animation: chapter3BossBlueAura .42s ease-in-out infinite alternate; }
 @keyframes chapter3BossBlueAura {
@@ -50,7 +50,7 @@ body.chapter3-boss-mode .chapter3-boss-final-charge .enemy-art { animation: chap
 }
 .chapter3-boss-lightning {
   position: absolute; z-index: 14; display: block; object-fit: contain; pointer-events: none;
-  filter: drop-shadow(0 0 10px #39baff) drop-shadow(0 0 20px #1c7cff);
+  filter: drop-shadow(0 0 14px #39baff) drop-shadow(0 0 30px #1c7cff) drop-shadow(0 0 48px #0878ff) brightness(1.22) saturate(1.2);
   user-select: none; -webkit-user-drag: none;
 }
 .chapter3-boss-countdown {
@@ -65,7 +65,325 @@ body.chapter3-boss-mode .chapter3-boss-final-charge .enemy-art { animation: chap
 }
 @media (max-width: 620px) {
   body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] {
-    width: clamp(160px, 33vw, 220px) !important; height: clamp(160px, 37vw, 250px) !important;
+    width: clamp(320px, 66vw, 440px) !important; height: clamp(320px, 74vw, 500px) !important;
   }
   .chapter3-boss-countdown { top: 14%; padding: 9px 12px; }
+}
+
+/* 2026-10-30：俯衝電擊及觸手血條可讀性修正 */
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .ehealth {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: clamp(28px, 4vw, 64px) !important;
+  width: clamp(112px, 10vw, 148px) !important;
+  height: 10px !important;
+  transform: translateX(-50%) !important;
+  z-index: 40 !important;
+  overflow: hidden !important;
+  background: #111827 !important;
+  border: 2px solid #d7ecff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 8px #1ea5ffbd, 0 2px 3px #000b !important;
+}
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .ehealth i {
+  display: block !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  background: linear-gradient(90deg, #54f28c, #b5ff6e) !important;
+  transition: width .12s linear !important;
+}
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle .enemy-name {
+  top: clamp(4px, 2vw, 30px) !important;
+  z-index: 41 !important;
+  white-space: nowrap;
+}
+.chapter3-boss-lightning {
+  bottom: var(--tune-ground-bottom, 14%) !important;
+  object-position: center bottom !important;
+  transform-origin: 50% 100%;
+}
+/* 俯衝落地時的短促重量回彈：先壓扁，再迅速恢復，不做大幅彈跳。 */
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss.chapter3-boss-impact .enemy-art-frame {
+  animation: chapter3BossImpactBounce .30s cubic-bezier(.2,.72,.3,1) both !important;
+  transform-origin: 50% 100%;
+}
+@keyframes chapter3BossImpactBounce {
+  0% { transform: scaleX(1) scaleY(1); }
+  18% { transform: scaleX(1.09) scaleY(.88); }
+  48% { transform: scaleX(.97) scaleY(1.035); }
+  72% { transform: scaleX(1.015) scaleY(.985); }
+  100% { transform: scaleX(1) scaleY(1); }
+}
+
+/* 2026-10-30：20% HP 混合模式的彈簧式彈射離場。 */
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss.chapter3-boss-launch-squash .enemy-art-frame {
+  animation: chapter3BossLaunchSquash .26s cubic-bezier(.22,.72,.25,1) both !important;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss.chapter3-boss-launch-burst .enemy-art-frame {
+  animation: chapter3BossLaunchBurst .47s cubic-bezier(.18,.72,.2,1) both !important;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+@keyframes chapter3BossLaunchSquash {
+  0% { transform: translateY(0) scaleX(1) scaleY(1); }
+  48% { transform: translateY(18px) scaleX(1.18) scaleY(.72); }
+  78% { transform: translateY(14px) scaleX(1.14) scaleY(.78); }
+  100% { transform: translateY(9px) scaleX(1.10) scaleY(.84); }
+}
+@keyframes chapter3BossLaunchBurst {
+  0% { transform: translateY(9px) scaleX(1.10) scaleY(.84); }
+  18% { transform: translateY(-18px) scaleX(.88) scaleY(1.18); }
+  58% { transform: translateY(-38px) scaleX(.93) scaleY(1.12); }
+  100% { transform: translateY(-58px) scaleX(.80) scaleY(1.24); }
+}
+
+/* Restore the requested original 5% lowering from the stage baseline. */
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] { bottom: calc(var(--tune-ground-bottom, 14%) - 5% + var(--chapter3-boss-lift, 0px)) !important; }
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle { bottom: calc(var(--tune-ground-bottom, 14%) - 5%) !important; }
+body.chapter3-boss-mode .chapter3-boss-lightning { bottom: calc(var(--tune-ground-bottom, 14%) - 8%) !important; }
+.chapter3-boss-final-lightning { position:absolute;inset:0;width:100%;height:100%;z-index:38;object-fit:fill;object-position:center center;pointer-events:none;filter:drop-shadow(0 0 22px #55caff) brightness(1.3); }
+
+
+/* Chapter 3 Boss: Spider-Boss-style tracking; live facing and position are updated by game.js. */
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-art {
+  transform-origin: 50% 100%;
+}
+body.chapter3-boss-mode .hero.chapter3-boss-final-hit {
+  animation: chapter3BossFinalHitFlash .46s steps(2, end) both !important;
+  filter: brightness(2.25) saturate(1.8) drop-shadow(0 0 18px #b9f5ff) !important;
+}
+.chapter3-boss-final-impact-flash {
+  position: absolute; inset: 0; z-index: 38; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 55%, #e8fdffbb 0%, #63d8ff55 34%, #ffffff00 74%);
+  animation: chapter3BossImpactFlash .46s ease-out both;
+}
+@keyframes chapter3BossFinalHitFlash {
+  0%, 22%, 48%, 72% { filter: brightness(2.6) saturate(1.7) drop-shadow(0 0 22px #d8fbff); }
+  11%, 35%, 60%, 100% { filter: brightness(.72) saturate(.8) drop-shadow(0 0 5px #53bfff); }
+}
+@keyframes chapter3BossImpactFlash {
+  0% { opacity: 1; }
+  25% { opacity: .9; }
+  100% { opacity: 0; }
+}
+
+/* 2026-10-31：觸手逐條由地底高速竄出，視覺升起及放大 350ms；不改動外層碰撞盒。 */
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle.chapter3-tentacle-emerging .enemy-art-frame {
+  transform-origin: 50% 100%;
+  animation: chapter3TentacleEmerge .35s cubic-bezier(.12,.82,.22,1) both !important;
+  will-change: transform, opacity;
+}
+@keyframes chapter3TentacleEmerge {
+  /* 單向上升：位置及尺寸只向正常值推進，不越位、不回彈。 */
+  0% { opacity: 0; transform: translateY(105%) scale(.14,.12); }
+  35% { opacity: .92; transform: translateY(58%) scale(.42,.40); }
+  72% { opacity: 1; transform: translateY(18%) scale(.78,.76); }
+  100% { opacity: 1; transform: translateY(0) scale(1,1); }
+}
+
+/* 2026-10-31：Chapter 3 落雷加粗、加強電光層次；實際水平線由 JS 跟隨玩家腳底。 */
+body.chapter3-boss-mode .chapter3-boss-lightning {
+  filter: drop-shadow(0 0 18px #b9f5ff) drop-shadow(0 0 34px #39baff) drop-shadow(0 0 58px #126bff) brightness(1.28) saturate(1.28) !important;
+  opacity: .98;
+}
+
+/* Chapter 3: four-frame electricity aura wrapping the player on lightning hit. */
+.chapter3-player-electricity {
+  position: absolute; z-index: 18; display: block; object-fit: contain;
+  pointer-events: none; user-select: none; -webkit-user-drag: none;
+  filter: drop-shadow(0 0 10px #62caff) drop-shadow(0 0 22px #237cff) brightness(1.08);
+}
+.hero.boss-knocked { animation: chapter3LightningHitStun .12s steps(2,end) infinite; }
+@keyframes chapter3LightningHitStun {
+  0% { filter: brightness(1.9) saturate(1.8); }
+  100% { filter: brightness(1.15) saturate(1.3); }
+}
+
+/* 2026-10-31 fix: larger, clearly visible four-frame player electricity wrap. */
+body.chapter3-boss-mode .chapter3-player-electricity {
+  position: absolute !important;
+  z-index: 999 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  object-fit: contain !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+  filter: drop-shadow(0 0 16px #9beaff) drop-shadow(0 0 34px #278dff) drop-shadow(0 0 54px #064cff) brightness(1.35) !important;
+}
+#hero.boss-knocked { animation: chapter3LightningHitStun .12s steps(2,end) infinite !important; }
+
+/* 2026-10-31 Chapter 3 boss tuning: clearer charge, lightning warning, and mixed-phase dash. */
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss.chapter3-boss-charging .enemy-art-frame {
+  transform-origin: 50% 100%;
+  animation: chapter3BossChargePulse .24s ease-in-out infinite alternate !important;
+  filter: drop-shadow(0 0 10px rgba(80,190,255,.8)) brightness(1.14) !important;
+}
+@keyframes chapter3BossChargePulse {
+  from { transform: scale(1,1) translateY(0); }
+  to { transform: scale(1.035,.965) translateY(-4px); }
+}
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss.chapter3-boss-return-dash .enemy-art-frame {
+  filter: drop-shadow(0 0 12px rgba(90,195,255,.7));
+}
+.chapter3-boss-lightning-warning {
+  position: absolute; z-index: 16; width: 124px; height: 24px;
+  border: 3px solid rgba(105,225,255,.95); border-radius: 50%;
+  box-shadow: 0 0 9px #5bdcff, 0 0 22px rgba(38,139,255,.9), inset 0 0 12px rgba(91,220,255,.85);
+  opacity: 0; transform: scale(.72,.72); pointer-events: none;
+}
+.chapter3-boss-lightning-warning.is-visible {
+  animation: chapter3LightningWarningPulse .14s ease-in-out infinite alternate;
+}
+@keyframes chapter3LightningWarningPulse {
+  from { opacity: .62; transform: scale(.78,.68); }
+  to { opacity: 1; transform: scale(1.08,1); }
+}
+
+/* 2026-10-31 Chapter 3 ultimate: 「匠心觸手：特殊愛好者天堂」 */
+body.chapter3-boss-mode .chapter3-boss-final-charge .enemy-art {
+  animation: chapter3BossPurpleAura .36s ease-in-out infinite alternate !important;
+}
+@keyframes chapter3BossPurpleAura {
+  from { filter: drop-shadow(0 0 14px #9c45ff) drop-shadow(0 0 28px #5420b8) brightness(1.12) saturate(1.25); }
+  to { filter: drop-shadow(0 0 30px #e0a5ff) drop-shadow(0 0 54px #782de0) brightness(1.28) saturate(1.5); }
+}
+.chapter3-boss-ultimate-overlay {
+  position: absolute; inset: 0; z-index: 18; overflow: hidden;
+  pointer-events: none; opacity: 0; transition: opacity .42s ease;
+}
+.chapter3-boss-ultimate-overlay.is-active { opacity: 1; }
+.chapter3-boss-ultimate-sky {
+  position: absolute; inset: -2%;
+  background:
+    radial-gradient(ellipse at 52% 4%, rgba(143,57,219,.34) 0%, rgba(48,8,91,.26) 37%, rgba(5,0,20,.76) 100%),
+    linear-gradient(180deg, rgba(8,0,28,.78) 0%, rgba(27,5,58,.36) 48%, rgba(4,0,18,.42) 100%);
+  mix-blend-mode: multiply;
+  animation: chapter3UltimateSkyPulse .7s ease-in-out infinite alternate;
+}
+.chapter3-boss-ultimate-sky::before,
+.chapter3-boss-ultimate-sky::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+}
+.chapter3-boss-ultimate-sky::before {
+  background: linear-gradient(112deg, transparent 0 30%, rgba(191,119,255,.14) 43%, transparent 52% 100%);
+  opacity: .72; animation: chapter3UltimateSkyFlash 2.1s steps(2,end) infinite;
+}
+.chapter3-boss-ultimate-sky::after {
+  background: radial-gradient(ellipse at 50% 0%, rgba(177,90,255,.16), transparent 58%);
+}
+@keyframes chapter3UltimateSkyPulse {
+  from { filter: brightness(.76) saturate(1.1); }
+  to { filter: brightness(1.18) saturate(1.55); }
+}
+@keyframes chapter3UltimateSkyFlash {
+  0%, 72%, 100% { opacity: .1; }
+  74% { opacity: .85; }
+  77% { opacity: .2; }
+}
+.chapter3-boss-ultimate-tentacle-layer,
+.chapter3-boss-ultimate-thunder-layer,
+.chapter3-boss-ultimate-impact-layer { position: absolute; inset: 0; }
+.chapter3-boss-ultimate-tentacle-layer { z-index: 2; }
+.chapter3-boss-ultimate-tentacle {
+  position: absolute; display: block; object-fit: contain; opacity: 0;
+  transform: translateX(var(--tentacle-slide,0)) scaleX(var(--tentacle-flip,1)) scale(.22) rotate(var(--tentacle-rotation,0deg));
+  transform-origin: 50% 100%;
+  filter: hue-rotate(43deg) saturate(1.35) drop-shadow(0 0 18px #8c35f7) drop-shadow(0 0 34px #43118f);
+  transition: left .82s cubic-bezier(.16,.72,.2,1), top .82s cubic-bezier(.16,.72,.2,1),
+    width .82s ease, height .82s ease, opacity .42s ease, transform .82s cubic-bezier(.16,.72,.2,1);
+  will-change: left, top, transform, opacity;
+}
+.chapter3-boss-ultimate-tentacle.is-visible {
+  opacity: .98; transform: translateX(0) scaleX(var(--tentacle-flip,1)) scale(1) rotate(var(--tentacle-rotation,0deg));
+}
+.chapter3-boss-ultimate-tentacle.is-converging {
+  opacity: 1; transform: translateX(0) scaleX(var(--tentacle-flip,1)) scale(1.12) rotate(var(--tentacle-rotation,0deg));
+}
+.chapter3-boss-ultimate-thunder-layer { z-index: 3; }
+.chapter3-boss-ultimate-warning {
+  position: absolute; bottom: 7%; width: 13%; height: 8%;
+  transform: translateX(-50%) scale(.72,.7); border: 3px solid rgba(224,173,255,.98);
+  border-radius: 50%; opacity: .92;
+  box-shadow: 0 0 12px #c77cff, 0 0 32px rgba(133,53,238,.9), inset 0 0 15px rgba(217,163,255,.88);
+  animation: chapter3UltimateWarningPulse .16s ease-in-out infinite alternate;
+}
+@keyframes chapter3UltimateWarningPulse {
+  from { opacity: .55; transform: translateX(-50%) scale(.72,.68); }
+  to { opacity: 1; transform: translateX(-50%) scale(1.08,1); }
+}
+.chapter3-boss-ultimate-pillar {
+  position: absolute; bottom: -12%; display: block; object-fit: contain; object-position: center bottom;
+  pointer-events: none; filter: hue-rotate(28deg) saturate(1.45) brightness(1.32)
+    drop-shadow(0 0 20px #c18aff) drop-shadow(0 0 42px #7422e8);
+  animation: chapter3UltimatePillarDrop .22s ease-out both;
+}
+@keyframes chapter3UltimatePillarDrop {
+  from { opacity: 0; transform: translateY(-12%) scaleY(.7); }
+  45% { opacity: 1; }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+.chapter3-boss-ultimate-impact-layer { z-index: 5; }
+.chapter3-boss-ultimate-explosion {
+  position: absolute; display: block; object-fit: contain; pointer-events: none;
+  filter: hue-rotate(48deg) saturate(1.6) brightness(1.12)
+    drop-shadow(0 0 22px #d8a2ff) drop-shadow(0 0 54px #7826e4);
+}
+.chapter3-boss-ultimate-final-bolt {
+  position: absolute; left: 14%; top: -20%; width: 72%; height: 140%; object-fit: fill;
+  pointer-events: none; opacity: .9;
+  filter: hue-rotate(35deg) saturate(1.55) brightness(1.35)
+    drop-shadow(0 0 26px #e3c1ff) drop-shadow(0 0 58px #802ce9);
+  animation: chapter3UltimateFinalBoltFlash .34s steps(2,end) both;
+}
+@keyframes chapter3UltimateFinalBoltFlash {
+  0%, 100% { opacity: .28; }
+  35%, 72% { opacity: 1; }
+}
+.chapter3-boss-ultimate-whiteout {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 58%, rgba(255,255,255,.78) 0%, rgba(205,158,255,.44) 24%, rgba(99,35,178,.16) 55%, transparent 78%);
+  animation: chapter3UltimateWhiteout .58s ease-out both;
+}
+@keyframes chapter3UltimateWhiteout {
+  0% { opacity: .05; }
+  18% { opacity: 1; }
+  100% { opacity: .05; }
+}
+@media (max-width: 620px) {
+  .chapter3-boss-ultimate-tentacle { filter: hue-rotate(43deg) saturate(1.35) drop-shadow(0 0 12px #8c35f7); }
+  .chapter3-boss-ultimate-warning { width: 18%; height: 7%; }
+  .chapter3-boss-ultimate-final-bolt { left: 5%; width: 90%; }
+}
+
+
+/* 2026-10-31 refinement: eight randomized horizontal ultimate tentacles. */
+.chapter3-boss-ultimate-tentacle {
+  object-fit: contain;
+  transform-origin: 50% 100%;
+  object-position: center bottom;
+}
+.chapter3-boss-ultimate-tentacle.is-visible {
+  opacity: .98;
+  transform: translateX(0) scaleX(var(--tentacle-flip,1)) scale(1) rotate(var(--tentacle-rotation,0deg));
+}
+.chapter3-boss-ultimate-tentacle.is-converging {
+  opacity: 1;
+  transform: translateX(0) scaleX(var(--tentacle-flip,1)) scale(1.08) rotate(var(--tentacle-rotation,0deg));
+}
+
+/* 60% charge: one continuous, slow enlargement over exactly 960ms (no bounce). */
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss.chapter3-boss-charging.chapter3-boss-skill60-charge .enemy-art-frame {
+  transform-origin: 50% 100%;
+  animation: chapter3BossSkill60SlowGrow 960ms linear both !important;
+  filter: drop-shadow(0 0 14px rgba(111,190,255,.85)) brightness(1.12) !important;
+}
+@keyframes chapter3BossSkill60SlowGrow {
+  from { transform: scale(1,1); }
+  to { transform: scale(1.12,1.12); }
 }
