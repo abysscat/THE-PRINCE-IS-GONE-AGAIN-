@@ -378,3 +378,13 @@ body.chapter3-boss-mode .chapter3-boss-final-charge .enemy-art {
   transform: translateX(0) scaleX(var(--tentacle-flip,1)) scale(1.08) rotate(var(--tentacle-rotation,0deg));
 }
 
+/* 60% charge: one continuous, slow enlargement over exactly 960ms (no bounce). */
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss.chapter3-boss-charging.chapter3-boss-skill60-charge .enemy-art-frame {
+  transform-origin: 50% 100%;
+  animation: chapter3BossSkill60SlowGrow 960ms linear both !important;
+  filter: drop-shadow(0 0 14px rgba(111,190,255,.85)) brightness(1.12) !important;
+}
+@keyframes chapter3BossSkill60SlowGrow {
+  from { transform: scale(1,1); }
+  to { transform: scale(1.12,1.12); }
+}

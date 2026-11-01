@@ -2016,7 +2016,7 @@
     }
     function chapter3BossFinishPhase(now){
         const state=chapter3BossState,boss=state.boss;if(!boss||boss.classList.contains('dead'))return;
-        boss.classList.remove('chapter3-boss-charging');chapter3BossSetLift(boss,0);boss.style.visibility='visible';boss.style.opacity='1';
+        boss.classList.remove('chapter3-boss-charging','chapter3-boss-skill60-charge');chapter3BossSetLift(boss,0);boss.style.visibility='visible';boss.style.opacity='1';
         if(state.queue.length){
             const threshold=state.queue.shift();chapter3BossStartPhase(boss,threshold,now);return;
         }
@@ -2026,9 +2026,9 @@
         const state=chapter3BossState;if(!boss||boss.classList.contains('dead'))return;
         state.phaseStartedAt=now;state.jumpCount=0;state.jumpIndex=0;state.jumpMode='';state.wave=0;state.nextWaveAt=0;
         chapter3BossClearLightning();boss.style.visibility='visible';boss.style.opacity='1';chapter3BossSetLift(boss,0);
-        boss.classList.remove('chapter3-boss-final-charge');
+        boss.classList.remove('chapter3-boss-skill60-charge','chapter3-boss-final-charge');
         if(threshold===0.8){state.phase='jump80';state.jumpMode='charge';boss.classList.add('chapter3-boss-charging');chapter3BossPose(boss,'jump1');}
-        else if(threshold===0.6){state.phase='skill60Charge';boss.classList.add('chapter3-boss-charging');chapter3BossPose(boss,'skill1');}
+        else if(threshold===0.6){state.phase='skill60Charge';boss.classList.add('chapter3-boss-charging','chapter3-boss-skill60-charge');chapter3BossPose(boss,'skill1');}
         else if(threshold===0.4){state.phase='tentacle40Intro';boss.classList.add('chapter3-boss-charging');chapter3BossPose(boss,'jump1');}
         else if(threshold===0.2){
             state.phase='mixed20Launch';state.mixed20Active=true;state.mixed20NextTentacleAt=0;state.mixed20NextLightningAt=0;
@@ -2192,13 +2192,13 @@
         chapter3BossSetLift(boss,0);boss.style.visibility='visible';chapter3BossPose(boss,'skill1');
         const node=document.createElement('div');node.id='chapter3BossCountdown';node.className='chapter3-boss-countdown';node.setAttribute('role','status');node.setAttribute('aria-live','assertive');
         node.textContent='⚡ 絕招蓄能：5 秒';stage.appendChild(node);state.countdown=node;
-        floatText('雷暴終極絕招・最後 5 秒！',Number(boss.dataset.x)||x,66);
+        floatText('匠心觸手・最後 5 秒！',Number(boss.dataset.x)||x,66);
     }
     function chapter3BossKilled(boss){
         if(chapter3BossState.boss!==boss)return;
         chapter3BossState.phase='dead';chapter3BossState.queue.length=0;
         chapter3BossStopEffects(true);
-        boss.classList.remove('chapter3-boss-charging','chapter3-boss-final-charge');chapter3BossSetLift(boss,0);
+        boss.classList.remove('chapter3-boss-charging','chapter3-boss-skill60-charge','chapter3-boss-final-charge');chapter3BossSetLift(boss,0);
         enemyList.forEach(e=>{if(e.dataset.chapter3Tentacle==='1'&&!e.classList.contains('dead')){chapter3TentacleAudio.removeTentacle(e);e.classList.add('dead');}});
         updateBossHealthBar(boss);
     }
@@ -2684,14 +2684,14 @@
         }
         if(state.phase==='finalTentacles'){
             chapter3BossUpdateUltimateTentacles(now);chapter3BossPose(boss,'skill3');
-            if(elapsed>=1050){state.phase='finalThunder';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='黑紫天雷：連續落下！';}
+            if(elapsed>=1050){state.phase='finalThunder';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='特殊愛好者天堂！';}
             return;
         }
         if(state.phase==='finalThunder'){
             chapter3BossUpdateUltimateThunder(elapsed,now);chapter3BossUpdateUltimateTentacles(now);chapter3BossPose(boss,'skill4');
             if(elapsed>=1900){
                 const fx=state.ultimateFx;if(fx){fx.warnings.forEach(item=>item.el?.remove());fx.warnings.length=0;fx.warningRefs.forEach(el=>el?.remove());fx.pillars.forEach(item=>item.el?.remove());fx.pillars.length=0;}
-                state.phase='finalAttack';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='⚡ 全畫面雷暴降臨！';
+                state.phase='finalAttack';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='觸手降臨！';
             }
             return;
         }
@@ -2709,7 +2709,7 @@
                 chapter3BossUltimateStartImpact(now);
                 hero.classList.add('chapter3-boss-final-hit');
                 const impact=document.createElement('div');impact.className='chapter3-boss-final-impact-flash';impact.setAttribute('aria-hidden','true');stage.appendChild(impact);
-                if(state.countdown)state.countdown.textContent='⚡ 命中！終極爆發！';
+                if(state.countdown)state.countdown.textContent='天堂製造！';
             }
             return;
         }
@@ -2764,6 +2764,7 @@
         if(state.phase==='skill60Charge'){
             const seq=['skill1','skill2','skill3','skill4'];const frame=Math.min(3,Math.floor(elapsed/240));chapter3BossPose(boss,seq[frame]);
             if(elapsed>=960){
+                boss.classList.remove('chapter3-boss-charging','chapter3-boss-skill60-charge');
                 state.phase='skill60Strike';state.phaseStartedAt=now;
                 // 60% 技能原本只更新效果、沒有建立落雷；在攻擊階段開始時安排三次落雷。
                 chapter3BossPlanLightning(3,2600,false);
@@ -3894,11 +3895,11 @@
                 resetSpiderBossSkill();
                 resetBossRush();
                 if(chapter1FinalSkill.killedHero) {
-                    showEnd('血紅巨劍・末日降臨','Boss 1 的終極技能命中女神。巨劍落地後 1 秒，死亡判定已生效。','重新開始');
+                    showEnd('黑仁巨劍・末日降臨','黑仁騎士 的終極技能命中女神。巨劍插入貫穿女神，死亡判定已生效。','重新開始');
                 } else if(spiderUltKilled) {
-                    showEnd('萬毒蛛域・天羅降臨','5 秒蓄勢結束，萬毒蛛域吞噬了女神。','重新開始');
+                    showEnd('毒能領域・降臨','5 秒蓄勢結束，毒能吞噬了女神。','重新開始');
                 } else if(chapter3BossState.killedHeroByUltimate) {
-                    showEnd('雷暴終極絕招・世界歸於黑暗','五秒蓄能完成，雷暴海王的終極電擊擊敗了女神。','重新開始');
+                    showEnd('匠心觸手：特殊愛好者天堂','五秒蓄能完成，觸手海王的終極電擊擊敗了女神。','重新開始');
                 } else {
                     showEnd('女神需要休息！','敵人太多了，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始');
                 }
