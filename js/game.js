@@ -14,10 +14,12 @@
 (()=> {
     const $=id=>document.getElementById(id),stage=$('stage'),hero=$('hero'),enemies=$('enemies'),overlay=$('overlay');
     let running=false,paused=false,x=0,cameraX=0,worldW=0,stageW=0,stageH=0,bgW=0,hp=100,mp=65,kills=0,levelKills=0,level=1,combo=0,lastHit=0,attackCd=0,jumpT=0,last=0,spawnTimer=0,keys= {
-    },moveV=0,jumpY=0,jumpV=0,onGround=true,coyoteMs=0,jumpBufferMs=0,faceDir=1,spawnedThisLevel=0,bossSpawnedThisLevel=false,clues=[],clueIndex=0,exitOpen=false,exitX=0,heroActionUntil=0,heroActionSprite='images/hero/hero_stand.png',ultimateActive=false,ultimateCooldownUntil=0,ultimateToken=0,ultimateStartedAt=0,bashLockUntil=0,attackMoveLockUntil=0;
+    },moveV=0,jumpY=0,jumpV=0,onGround=true,coyoteMs=0,jumpBufferMs=0,faceDir=1,spawnedThisLevel=0,bossSpawnedThisLevel=false,clues=[],clueIndex=0,exitOpen=false,exitX=0,heroActionUntil=0,heroActionSprite='images/hero/hero_stand.webp',ultimateActive=false,ultimateCooldownUntil=0,ultimateToken=0,ultimateStartedAt=0,bashLockUntil=0,attackMoveLockUntil=0;
     const world=$('world'),levelBackground=$('levelBackground'),exitPrompt=$('exitPrompt');
     const bossHealthPanel=$('bossHealthPanel'),bossHealthFill=$('bossHealthFill'),bossHealthPercent=$('bossHealthPercent');
     let bossShakeTimer=0;
+    let chapter1BossHitStopUntil=0;
+    let spiderBossHitStopUntil=0;
     // 撞飛物理：鎖定輸入，利用原有跳躍重力完成拋物線。
     let knockbackUntilLanding=false,knockbackDirection=0,knockbackHitUntil=0;
     const bossRush={active:false,boss:null,phase:'',phaseStartedAt:0,runStartedAt:0,originX:0,targetX:0,leftX:0,rightX:0,cameraAnchor:null,currentThreshold:0,triggered:new Set(),queue:[],originalFacing:'right',originalFacingLocked:'0',speed:2.5,hitDashes:new Set(),dashDirection:1,nextTimer:0,cooldownUntil:0};
@@ -33,12 +35,12 @@
     const CHAPTER3_BOSS_DIR='images/chapter3/enemies/chapter3_boss/';
     // 最終絕招沿用舊版實際存在的四張閃電圖（第 4 張檔名為 attack5）。
     const CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES=[1,2,3,5];
-    const CHAPTER3_BOSS_BG_FRAMES=[1,2,3,4].map(n=>'images/chapter3/bg3/chapter3_stage_7_layer2_bg'+n+'.png');
+    const CHAPTER3_BOSS_BG_FRAMES=[1,2,3,4].map(n=>'images/chapter3/bg3/chapter3_stage_7_layer2_bg'+n+'.webp');
     const chapter3BossState={boss:null,phase:'',phaseStartedAt:0,triggered:new Set(),queue:[],lastAttackAt:0,jumpCount:0,jumpIndex:0,jumpMode:'',wave:0,nextWaveAt:0,lightningPlan:[],lightningEffects:[],lastBgFrameAt:0,bgFrame:0,bgDarkness:0,bgFadeFrom:0,bgFadeTo:0,bgFadeStartedAt:0,bgFadeDuration:0,mixed20Active:false,mixed20NextTentacleAt:0,mixed20NextLightningAt:0,tentacleSpawnQueue:[],tentacleSpawnNextAt:0,countdown:null,killedHeroByUltimate:false,finalTriggered:false,pendingFinal:false,ultimateFx:null};
     const elevatorState={phase:'lift',wave:1,betweenMs:0,transitionMs:0,exitStartedAt:0,exitDurationMs:1250,startedAt:0,scrollY:0,scrollProgress:0,scrollMax:0,scrollHeight:0,scrollSpeed:0,shakeNextAt:0,shakeStartedAt:0,shakeUntil:0,shakeX:0,shakeY:0,brakeStartedAt:0,brakeDurationMs:0,brakeStartOffset:0,brakeDistance:0,brakeStartSpeed:0,brakeTargetOffset:0,stopShakeStartedAt:0,stopShakeUntil:0};
     // 第三章鬼魂發射使用者指定的原始藍青色圓球素材；慢速高拋物線、命中只扣血，不建立毒池。
     const ghostProjectiles=[];
-    const GHOST_ORB_ASSET='images/chapter3/enemies/chapter3_enemy_1/chapter3_2_skin1_enemy_1_attack.png';
+    const GHOST_ORB_ASSET='images/chapter3/enemies/chapter3_enemy_1/chapter3_2_skin1_enemy_1_attack.webp';
     // 升降機專用提示：原版本在首波生成後呼叫 announce()，但沒有定義函式，令 setup() 中途停止。
     let elevatorAnnouncementTimer=0;
     function announce(message, seconds=1.8){
@@ -68,6 +70,9 @@
     const tuneEffects=gameTuning.effects||{};
     const tuneCombat=gameTuning.combat||{};
     const tuneEnemyAI=gameTuning.enemyAI||{};
+    const enemyHitStunTuning=gameTuning.enemyHitStun||{};
+    const ENEMY_HIT_COMBO_GAP_MS=Math.max(250,Number(enemyHitStunTuning.comboWindowMs)||1100);
+    const ENEMY_HIT_STUN_MS=Math.max(100,Number(enemyHitStunTuning.durationMs)||260);
     // 第三章海況效果：只讀取背景檔名決定效果，不更改戰鬥、碰撞或 HUD。
     const seaWeatherState={profile:null,startedAt:0,nextLightningAt:0,pulses:[],shakeStartedAt:0,shakeUntil:0,shakeStrength:0,nextDarkAt:0,darkStartedAt:0,darkUntil:0,darkDuration:0,darkStrength:0};
     const seaRainOverlay=$('seaRainOverlay'),seaLightningFlash=$('seaLightningFlash'),seaBackgroundDarken=$('seaBackgroundDarken');
@@ -324,6 +329,7 @@
         $('clueDialog').hidden=true;
         $('clueContinue').hidden=true;
         $('clueBook').textContent='線索 '+clues.length+'/6';
+        $('clueRevealItem').focus({preventScroll:true});
         $('pause').textContent='▶';
     }
     function closeClue() {
@@ -336,6 +342,18 @@
         $('pause').textContent='Ⅱ';
         last=performance.now();
         keys={};
+    }
+    // Space / Enter performs the same step as clicking: reveal -> announcement -> resume game.
+    function advanceClue() {
+        if(clueModalPhase===1) {
+            clueModalPhase=2;
+            $('clueReveal').hidden=true;
+            $('clueDialog').hidden=false;
+            $('clueContinue').hidden=false;
+            $('clueContinue').focus({preventScroll:true});
+            return;
+        }
+        if(clueModalPhase===2)closeClue();
     }
     // ===== 世界與鏡頭：計算關卡寬度、角色位置及鏡頭跟隨 =====
     function sizeWorld() {
@@ -377,7 +395,7 @@
         const currentConfig=levelConfigs[level-1]||{};
         // Chapter 3's four side-scrolling storm arenas must always leave room for the camera to track the hero.
         // On unusually wide viewports, retain at least 1.8 view widths of world so scrolling cannot collapse to zero.
-        const isChapter3SeaArena=currentConfig.chapter===3&&!currentConfig.elevator&&!currentConfig.noEnemies&&/chapter3_stage_[3-6]_BG\.png$/.test(currentConfig.background||'');
+        const isChapter3SeaArena=currentConfig.chapter===3&&!currentConfig.elevator&&!currentConfig.noEnemies&&/chapter3_stage_[3-6]_BG\.webp$/.test(currentConfig.background||'');
         const minimumWorldWidth=isChapter3SeaArena?stageW*1.8:stageW;
         bgW=Math.max(stageW,stageH*ratio,minimumWorldWidth);
         worldW=bgW;
@@ -400,10 +418,10 @@
         const config=levelConfigs[level-1]||{};
         if(config.chapter3Boss)return SEA_WEATHER_PROFILES.stage7;
         const bg=config.background||'';
-        if(bg.endsWith('chapter3_stage_3_BG.png'))return SEA_WEATHER_PROFILES.stage3;
-        if(bg.endsWith('chapter3_stage_4_BG.png'))return SEA_WEATHER_PROFILES.stage4;
-        if(bg.endsWith('chapter3_stage_5_BG.png'))return SEA_WEATHER_PROFILES.stage5;
-        if(bg.endsWith('chapter3_stage_6_BG.png'))return SEA_WEATHER_PROFILES.stage6;
+        if(bg.endsWith('chapter3_stage_3_BG.webp'))return SEA_WEATHER_PROFILES.stage3;
+        if(bg.endsWith('chapter3_stage_4_BG.webp'))return SEA_WEATHER_PROFILES.stage4;
+        if(bg.endsWith('chapter3_stage_5_BG.webp'))return SEA_WEATHER_PROFILES.stage5;
+        if(bg.endsWith('chapter3_stage_6_BG.webp'))return SEA_WEATHER_PROFILES.stage6;
         return null;
     }
     function clearSeaWeather(){
@@ -557,7 +575,7 @@
         }
         const seaOffset=getSeaCameraOffset(performance.now());
         const currentConfig=levelConfigs[level-1]||{};
-        const useSeparateSeaCamera=(currentConfig.chapter===3&&!currentConfig.elevator&&!currentConfig.noEnemies&&/chapter3_stage_[3-6]_BG\.png$/.test(currentConfig.background||''))||chapter3BossMode;
+        const useSeparateSeaCamera=(currentConfig.chapter===3&&!currentConfig.elevator&&!currentConfig.noEnemies&&/chapter3_stage_[3-6]_BG\.webp$/.test(currentConfig.background||''))||chapter3BossMode;
         if(useSeparateSeaCamera){
             // Move the world with `left` and reserve `transform` for the storm sway. This prevents any transform animation/compositor rule from cancelling camera follow.
             world.style.left=(-cameraX).toFixed(2)+'px';
@@ -585,7 +603,9 @@
     };
     const spiderBossSkill={boss:null,queue:[],triggered:new Set(),active:false,phase:'',phaseStartedAt:0,didLaunch:false,token:0,effects:new Set(),timers:new Set(),intervals:new Set(),warning:null,warningArea:null,originalFacingLocked:'0',slowUntil:0,returnStartX:0,returnTargetX:0,returnDuration:0,returnSide:null,killedHero:false,broodWave:0,broodMode:'',lastPoisonTick:0,poisonInterval:null,invulnerable:false,awakeningTriggered:false,ultimateActivated:false,finalHit2Triggered:false,goddessDeadAudioPlayed:false,fullscreenAnimation:null};
     const SPIDER_ASSET_DIR='images/chapter2/enemies/chapter2_boss_2/';
-    const SPIDER_LAST_PHASE_FRAMES=['chapter2_boss_2_skin1_last1.png','chapter2_boss_2_skin1_last2.png','chapter2_boss_2_skin1_last3.png','chapter2_boss_2_skin1_last4.png'];
+    // 蛛王沿用第一章 Boss 的連續兩次命中硬直節奏。
+    const SPIDER_BOSS_HIT_STUN_MS=ENEMY_HIT_STUN_MS,SPIDER_BOSS_COMBO_GAP_MS=ENEMY_HIT_COMBO_GAP_MS;
+    const SPIDER_LAST_PHASE_FRAMES=['chapter2_boss_2_skin1_last1.webp','chapter2_boss_2_skin1_last2.webp','chapter2_boss_2_skin1_last3.webp','chapter2_boss_2_skin1_last4.webp'];
     // 蜘蛛 Boss 專用音效；與普通武器音效分開，避免技能時機互相干擾。
     const spiderBossAudio={
         fight:new Audio('audio/Boss fighting_sound effect.ogg'),
@@ -635,7 +655,47 @@
     function isSpiderBoss(e){return level===8&&!!e&&e.dataset.boss==='1'&&e.dataset.spriteType==='chapter2_boss_2';}
     function spiderHoldNormalPoseBeforeFinalHit2(e){return isSpiderBoss(e)&&spiderBossSkill.ultimateActivated&&spiderBossSkill.awakeningTriggered&&!spiderBossSkill.finalHit2Triggered&&spiderBossSkill.phase==='ultimateAwakened'&&hp>SPIDER_PLAYER_MAX_HP*.05;}
     function isSpiderBroodProtected(e){return isSpiderBoss(e)&&spiderBossSkill.boss===e&&/^brood/.test(spiderBossSkill.phase)&&spiderBossSkill.active;}
-    function spiderPose(e,pose){const img=e?.querySelector('.enemySprite');if(!img)return;img.style.filter='';const file='chapter2_boss_2_'+pose+'.png';const src=SPIDER_ASSET_DIR+file;if(img.getAttribute('src')!==src&&!img.getAttribute('src')?.endsWith('/'+file))img.src=src;}
+    function spiderPose(e,pose){const img=e?.querySelector('.enemySprite');if(!img)return;img.style.filter='';const file='chapter2_boss_2_'+pose+'.webp';const src=SPIDER_ASSET_DIR+file;if(img.getAttribute('src')!==src&&!img.getAttribute('src')?.endsWith('/'+file))img.src=src;}
+    function clearSpiderBossHitStun(e,restore=true){
+        if(!e)return;
+        clearTimeout(e._spiderHitSpriteTimer);e._spiderHitSpriteTimer=0;
+        e.dataset.spiderHitStunUntil='0';
+        if(restore&&!e.classList.contains('dead')&&!spiderBossSkill.active&&!spiderBossSkill.invulnerable){
+            const img=e.querySelector('.enemySprite');
+            if(img?.getAttribute('src')?.endsWith('/chapter2_boss_2_hit.webp'))spiderPose(e,'normal');
+        }
+        e._spiderHitSpriteOriginal='';
+    }
+    // 與第一章 Boss 一樣：連續命中每兩下觸發一次 260ms hit 立繪及硬直。
+    // 技能已排隊／正在施放、召喚保護或終局無敵期間不覆蓋專用技能動畫。
+    function registerSpiderBossHit(e,now,heavy=false){
+        if(!isSpiderBoss(e)||!e.isConnected||e.classList.contains('dead'))return false;
+        spiderBossSkill.boss=e;
+        if(spiderBossSkill.active||spiderBossSkill.queue.length||spiderBossSkill.invulnerable||spiderBossSkill.finalHit2Triggered||isSpiderBroodProtected(e))return false;
+        if(now-(Number(e._spiderLastHitAt)||0)>SPIDER_BOSS_COMBO_GAP_MS)e._spiderHitSequenceCount=0;
+        e._spiderLastHitAt=now;
+        e._spiderHitSequenceCount=(Number(e._spiderHitSequenceCount)||0)+1;
+        // 每次命中都有短促 hit-stop；重擊的停頓稍長，與第一章 Boss 一致。
+        spiderBossHitStopUntil=Math.max(spiderBossHitStopUntil,now+(heavy?70:35));
+        if(e._spiderHitSequenceCount%2!==0)return false;
+        const img=e.querySelector('.enemySprite');if(!img)return false;
+        if(now<Number(e.dataset.spiderHitStunUntil||0))return true;
+        clearTimeout(e._spiderHitSpriteTimer);
+        clearTimeout(e._spriteTimer);e._spriteTimer=0;
+        e.classList.remove('enemy-attacking');
+        const stunUntil=now+SPIDER_BOSS_HIT_STUN_MS;
+        e.dataset.spiderHitStunUntil=String(stunUntil);
+        e.dataset.lastAttack=String(now);
+        e.dataset.actionUntil=String(stunUntil);
+        spiderPose(e,'hit');
+        e._spiderHitSpriteTimer=setTimeout(()=>{
+            const stillHit=img.isConnected&&img.getAttribute('src')?.endsWith('/chapter2_boss_2_hit.webp');
+            if(stillHit&&!e.classList.contains('dead')&&!spiderBossSkill.active&&!spiderBossSkill.invulnerable)spiderPose(e,'normal');
+            e._spiderHitSpriteTimer=0;
+            if(img.isConnected&&!e.classList.contains('dead'))e.dataset.spiderHitStunUntil='0';
+        },SPIDER_BOSS_HIT_STUN_MS);
+        return true;
+    }
     function spiderLater(fn,delay){const id=setTimeout(()=>{spiderBossSkill.timers.delete(id);fn();},delay);spiderBossSkill.timers.add(id);return id;}
     function spiderClearInterval(id){if(id!==null&&id!==undefined){clearInterval(id);spiderBossSkill.intervals.delete(id);if(spiderBossSkill.poisonInterval===id)spiderBossSkill.poisonInterval=null;}}
     function spiderRemoveEffect(el){if(el&&el.remove)el.remove();spiderBossSkill.effects.delete(el);if(spiderBossSkill.warning===el)spiderBossSkill.warning=null;if(spiderBossSkill.warningArea===el)spiderBossSkill.warningArea=null;}
@@ -652,23 +712,25 @@
         spiderBossSkill.token++;
         const oldBoss=spiderBossSkill.boss;
         if(oldBoss&&oldBoss.isConnected){
+            clearSpiderBossHitStun(oldBoss,true);
             oldBoss.classList.remove('spider-boss-charging','spider-boss-ultimate-charging','spider-boss-dashing','spider-boss-lifting','spider-boss-returning','spider-boss-brood-hidden','spider-boss-awakening','spider-boss-final-hit2');
             oldBoss.dataset.facingLocked=spiderBossSkill.originalFacingLocked||'0';
             oldBoss.style.removeProperty('--spider-charge');oldBoss.style.removeProperty('visibility');oldBoss.style.removeProperty('opacity');oldBoss.style.removeProperty('transform');
             if(!oldBoss.classList.contains('dead'))spiderPose(oldBoss,'normal');
         }
         spiderClearEffects();
+        spiderBossHitStopUntil=0;
         spiderBossSkill.boss=null;spiderBossSkill.queue.length=0;spiderBossSkill.triggered.clear();spiderBossSkill.active=false;spiderBossSkill.phase='';spiderBossSkill.phaseStartedAt=0;spiderBossSkill.didLaunch=false;spiderBossSkill.originalFacingLocked='0';spiderBossSkill.slowUntil=0;spiderBossSkill.returnStartX=0;spiderBossSkill.returnTargetX=0;spiderBossSkill.returnDuration=0;spiderBossSkill.returnSide=null;spiderBossSkill.killedHero=false;spiderBossSkill.broodWave=0;spiderBossSkill.broodMode='';spiderBossSkill.lastPoisonTick=0;spiderBossSkill.invulnerable=false;spiderBossSkill.awakeningTriggered=false;spiderBossSkill.ultimateActivated=false;spiderBossSkill.finalHit2Triggered=false;spiderBossSkill.goddessDeadAudioPlayed=false;spiderBossSkill.fullscreenAnimation=null;
         hero.classList.remove('spider-slow','spider-toxic-glow');document.body.classList.remove('spider-apocalypse');keys.left=false;keys.right=false;
     }
     function spiderEffect(className,left,bottom,width,height,asset){
         const el=asset?document.createElement('img'):document.createElement('div');el.className='spider-skill-effect '+className;el.setAttribute('aria-hidden','true');
-        if(asset){el.src=SPIDER_ASSET_DIR+'chapter2_boss_2_'+asset+'.png';el.alt='';el.draggable=false;el.onerror=()=>{el.style.display='none';};}
+        if(asset){el.src=SPIDER_ASSET_DIR+'chapter2_boss_2_'+asset+'.webp';el.alt='';el.draggable=false;el.onerror=()=>{el.style.display='none';};}
         el.style.left=left+'px';el.style.bottom=bottom+'px';if(width)el.style.width=width+'px';if(height)el.style.height=height+'px';world.appendChild(el);spiderBossSkill.effects.add(el);return el;
     }
     function spiderStageEffect(className,asset){
         const el=document.createElement('img');el.className='spider-skill-effect '+className;el.setAttribute('aria-hidden','true');el.alt='';el.draggable=false;
-        el.src=SPIDER_ASSET_DIR+'chapter2_boss_2_'+asset+'.png';el.onerror=()=>{el.style.display='none';};stage.appendChild(el);spiderBossSkill.effects.add(el);return el;
+        el.src=SPIDER_ASSET_DIR+'chapter2_boss_2_'+asset+'.webp';el.onerror=()=>{el.style.display='none';};stage.appendChild(el);spiderBossSkill.effects.add(el);return el;
     }
     // Boss 進入 10% 階段時：全舞台淡入顯示 last1–last4，四格無限循環直到技能重設／戰鬥結束。
     function spiderStartLastPhaseAnimation(){
@@ -788,7 +850,7 @@
         minion.dataset.spiderMinionNextAttack=String(now+cooldownMs);minion.dataset.lastAttack=String(now);minion.dataset.actionUntil=String(now+420);
         const img=minion.querySelector('.enemySprite');if(img)img.src=enemySpritePath('chapter2_boss_2','attack');
         minion.classList.add('enemy-attacking');
-        spiderLater(()=>{if(minion.isConnected&&!minion.classList.contains('dead')){minion.classList.remove('enemy-attacking');const sp=minion.querySelector('.enemySprite');if(sp)sp.src=enemySpritePath('chapter2_boss_2','normal');}},420);
+        spiderLater(()=>{if(minion.isConnected&&!minion.classList.contains('dead')){if(performance.now()<Number(minion.dataset.enemyHitStunUntil||0))return;minion.classList.remove('enemy-attacking');const sp=minion.querySelector('.enemySprite');if(sp)sp.src=enemySpritePath('chapter2_boss_2','normal');}},420);
         if(jumpT===0){
             if(performance.now()<bashLockUntil)floatText('0',x,28);
             else {
@@ -799,13 +861,14 @@
     }
     function spiderMinionTriple(minion,now){
         const cfg=SPIDER_SKILL_TUNING.triple,token=spiderBossSkill.token,castMs=cfg.chargeMs+cfg.activeMs;
+        const castToken=(Number(minion._spiderMinionCastToken)||0)+1;minion._spiderMinionCastToken=castToken;
         minion.dataset.spiderMinionCasting='1';minion.dataset.spiderMinionCastingUntil=String(now+castMs);minion.dataset.spiderMinionNextAttack=String(now+6800+Math.random()*900);minion.dataset.actionUntil=String(now+castMs);
         const sourceX=()=> (+minion.dataset.x)+(minion.offsetWidth||75)*.5,targets=spiderRandomLandingTargets();
         targets.forEach((target,i)=>spiderLater(()=>{
-            if(token!==spiderBossSkill.token||!running||hp<=0||!minion.isConnected||minion.classList.contains('dead'))return;
+            if(token!==spiderBossSkill.token||castToken!==Number(minion._spiderMinionCastToken)||minion.dataset.spiderMinionCasting!=='1'||!running||hp<=0||!minion.isConnected||minion.classList.contains('dead'))return;
             // 蜘蛛小弟的毒三連第一發真正射出時播放 boss2 attack 音效；不是在蓄力開始時播放。
             if(i===0)spiderPlayOneShotIndependent(spiderBossAudio.triple);
-            const img=minion.querySelector('.enemySprite');if(img)img.src=SPIDER_ASSET_DIR+'chapter2_boss_2_'+(Math.random()<.5?'skin1':'skin2')+'.png';
+            const img=minion.querySelector('.enemySprite');if(img)img.src=SPIDER_ASSET_DIR+'chapter2_boss_2_'+(Math.random()<.5?'skin1':'skin2')+'.webp';
             spiderProjectile(sourceX(),target,cfg.damage,cfg.flightMs||1180,token,minion);
         },cfg.chargeMs+i*cfg.shotIntervalMs));
     }
@@ -884,6 +947,7 @@
     }
     function spiderStartSkill(e,skill,now){
         const cfg=SPIDER_SKILL_TUNING[skill];if(!cfg)return;
+        clearSpiderBossHitStun(e,false);
         // 60% 階段只召喚 8 隻隨機落點的小蜘蛛，不讓這個事件打斷 Boss 當前動作。
         if(skill==='minions60'){
             spiderSpawnMinions('normal',cfg.minionCount,60,1,true);
@@ -1060,7 +1124,7 @@
             getState(){
                 const boss=enemyList.find(isSpiderBoss)||spiderBossSkill.boss;
                 const minions=enemyList.filter(m=>m.dataset.spiderMinion==='1'&&!m.classList.contains('dead'));
-                return {level,hp,maxPlayerHP:SPIDER_PLAYER_MAX_HP,bossHP:boss?Number(boss.dataset.hp):null,bossMaxHP:boss?Number(boss.dataset.maxhp):null,bossX:boss?Number(boss.dataset.x):null,bossVisibility:boss?getComputedStyle(boss).visibility:null,bossSprite:boss?.querySelector('.enemySprite')?.getAttribute('src')||null,phase:spiderBossSkill.phase,active:spiderBossSkill.active,triggered:[...spiderBossSkill.triggered],queued:[...spiderBossSkill.queue],broodWave:spiderBossSkill.broodWave,returnSide:spiderBossSkill.returnSide||null,returnStartX:spiderBossSkill.returnStartX,returnTargetX:spiderBossSkill.returnTargetX,aliveMinions:minions.length,aliveMinionsByWave:[1,2,3,60].map(w=>minions.filter(m=>Number(m.dataset.spiderWave)===w).length),toxic:document.body.classList.contains('spider-apocalypse'),invulnerable:spiderBossSkill.invulnerable,awakeningTriggered:spiderBossSkill.awakeningTriggered,ultimateActivated:spiderBossSkill.ultimateActivated,descending:spiderIsDescending(),descentSequence:['runway4','runway3','runway2','runway1','normal','hit2'],finalHit2Triggered:spiderBossSkill.finalHit2Triggered,fullscreenAnimation:!!spiderBossSkill.fullscreenAnimation?.isConnected,poisonTimerActive:!!spiderBossSkill.poisonInterval,effects:stage.querySelectorAll('.spider-skill-effect').length};
+                return {level,hp,maxPlayerHP:SPIDER_PLAYER_MAX_HP,bossHP:boss?Number(boss.dataset.hp):null,bossMaxHP:boss?Number(boss.dataset.maxhp):null,bossX:boss?Number(boss.dataset.x):null,bossVisibility:boss?getComputedStyle(boss).visibility:null,bossSprite:boss?.querySelector('.enemySprite')?.getAttribute('src')||null,hitStunRemainingMs:boss?Math.max(0,Number(boss.dataset.spiderHitStunUntil||0)-performance.now()):0,hitSequenceCount:boss?(Number(boss._spiderHitSequenceCount)||0):0,phase:spiderBossSkill.phase,active:spiderBossSkill.active,triggered:[...spiderBossSkill.triggered],queued:[...spiderBossSkill.queue],broodWave:spiderBossSkill.broodWave,returnSide:spiderBossSkill.returnSide||null,returnStartX:spiderBossSkill.returnStartX,returnTargetX:spiderBossSkill.returnTargetX,aliveMinions:minions.length,aliveMinionsByWave:[1,2,3,60].map(w=>minions.filter(m=>Number(m.dataset.spiderWave)===w).length),toxic:document.body.classList.contains('spider-apocalypse'),invulnerable:spiderBossSkill.invulnerable,awakeningTriggered:spiderBossSkill.awakeningTriggered,ultimateActivated:spiderBossSkill.ultimateActivated,descending:spiderIsDescending(),descentSequence:['runway4','runway3','runway2','runway1','normal','hit2'],finalHit2Triggered:spiderBossSkill.finalHit2Triggered,fullscreenAnimation:!!spiderBossSkill.fullscreenAnimation?.isConnected,poisonTimerActive:!!spiderBossSkill.poisonInterval,effects:stage.querySelectorAll('.spider-skill-effect').length};
             },
             setBossHPPercent(percent){
                 const boss=enemyList.find(isSpiderBoss)||spiderBossSkill.boss;if(!boss||boss.classList.contains('dead'))return false;
@@ -1108,19 +1172,74 @@
     }
 
     // ===== 第一章 Boss：長血條與 80/60/40/20% 衝刺絕招 =====
-    const chapter1BossRushChargeSprite='images/chapter1/boss/chapter1_boss_1_attack_skin2.png';
-    const chapter1BossRushDashSprite='images/chapter1/boss/chapter1_boss_1_attack_skin%201.png';
+    // 第一章 Boss 素材固定從遊戲根目錄下的 images/chapter1/boss/ 載入。
+    // index.html 位於 prince_game_organized/，因此以 document.baseURI 為基準，
+    // 不受 js/game.js 的所在位置或外層 ZIP 資料夾名稱影響。
+    const CHAPTER1_BOSS_ASSET_DIR=new URL('images/chapter1/boss/',document.baseURI);
+    const chapter1BossRushChargeSprite=new URL('chapter1_boss_1_attack_skin2.webp',CHAPTER1_BOSS_ASSET_DIR).href;
+    const chapter1BossRushDashSprite=new URL('chapter1_boss_1_attack_skin 1.webp',CHAPTER1_BOSS_ASSET_DIR).href;
+    const chapter1BossHitSprite=new URL('chapter1_boss_1_hit.webp',CHAPTER1_BOSS_ASSET_DIR).href;
+    const CHAPTER1_BOSS_HIT_SPRITE_MS=ENEMY_HIT_STUN_MS;
+    const CHAPTER1_BOSS_COMBO_GAP_MS=ENEMY_HIT_COMBO_GAP_MS;
     const chapter1BossRushChargePreload=new Image();
     chapter1BossRushChargePreload.src=chapter1BossRushChargeSprite;
-    // 集氣使用 skin2；衝刺時切回 skin 1。若專用集氣圖未放入專案，才以 skin 1 作安全後備。
+    // 集氣必定指定 attack_skin2；即使圖片尚在載入，也讓瀏覽器直接載入正確素材，不退回衝刺圖。
     function setBossRushSprite(sprite, phase='windup') {
         if(!sprite)return;
-        if(phase==='dashOut'||phase==='dashAcross') {
-            sprite.src=chapter1BossRushDashSprite;
-        } else {
-            sprite.src=(chapter1BossRushChargePreload.complete && chapter1BossRushChargePreload.naturalWidth)
-                ? chapter1BossRushChargeSprite : chapter1BossRushDashSprite;
+        sprite.src=(phase==='dashOut'||phase==='dashAcross')
+            ? chapter1BossRushDashSprite
+            : chapter1BossRushChargeSprite;
+    }
+
+    // 清除短暫受擊立繪，必要時還原觸發受擊前的原始姿勢。
+    function clearChapter1BossHitSprite(e,restore=true) {
+        if(!e)return;
+        clearTimeout(e._chapter1HitSpriteTimer);
+        e._chapter1HitSpriteTimer=0;
+        if(restore)e.dataset.chapter1HitStunUntil='0';
+        const sprite=e.querySelector('.enemySprite');
+        if(restore&&sprite&&sprite.getAttribute('src')===chapter1BossHitSprite&&e._chapter1HitSpriteOriginal) {
+            sprite.setAttribute('src',e._chapter1HitSpriteOriginal);
         }
+        e._chapter1HitSpriteOriginal='';
+    }
+
+    // 每兩次連續命中播放一次指定 hit 立繪；間隔超過 1.1 秒便重新計數。
+    function registerChapter1BossHitSprite(e,now) {
+        if(!e||e.classList.contains('dead'))return;
+        // 集氣及衝刺階段必須保留專用動作圖，不讓受擊立繪覆蓋 Boss 技能姿勢。
+        if((bossRush.active&&bossRush.boss===e)||(chapter1FinalSkill.active&&chapter1FinalSkill.boss===e))return;
+        if(now-(Number(e._chapter1LastHitAt)||0)>CHAPTER1_BOSS_COMBO_GAP_MS)e._chapter1HitSequenceCount=0;
+        e._chapter1LastHitAt=now;
+        e._chapter1HitSequenceCount=(Number(e._chapter1HitSequenceCount)||0)+1;
+        if(e._chapter1HitSequenceCount%2!==0)return;
+
+        const sprite=e.querySelector('.enemySprite');
+        if(!sprite)return;
+        if(sprite.getAttribute('src')!==chapter1BossHitSprite) {
+            // hit 會中斷當前普通攻擊；受擊結束後回到待機圖，不把已被打斷的 attack 圖留在畫面。
+            e._chapter1HitSpriteOriginal=enemySpritePath(e.dataset.spriteType||'boss','idle');
+        }
+        clearTimeout(e._chapter1HitSpriteTimer);
+        // 取消可能仍在排程中的普通攻擊復原計時器，避免它提早覆蓋 hit 圖。
+        clearTimeout(e._spriteTimer);
+        e._spriteTimer=0;
+        e.classList.remove('enemy-attacking');
+        // 受擊期間 Boss 不得靠近、啟動攻擊或扣減玩家 HP；恢復後重新計算完整攻擊冷卻。
+        const hitStunUntil=now+CHAPTER1_BOSS_HIT_SPRITE_MS;
+        e.dataset.chapter1HitStunUntil=String(hitStunUntil);
+        e.dataset.lastAttack=String(now);
+        e.dataset.actionUntil=String(hitStunUntil);
+        sprite.setAttribute('src',chapter1BossHitSprite);
+        e._chapter1HitSpriteTimer=setTimeout(()=>{
+            // 只有立繪仍是 hit 時才還原，避免覆蓋其間已開始的技能或死亡流程。
+            if(sprite.isConnected&&!e.classList.contains('dead')&&sprite.getAttribute('src')===chapter1BossHitSprite&&e._chapter1HitSpriteOriginal) {
+                sprite.setAttribute('src',e._chapter1HitSpriteOriginal);
+            }
+            e._chapter1HitSpriteOriginal='';
+            e._chapter1HitSpriteTimer=0;
+            if(sprite.isConnected&&!e.classList.contains('dead'))e.dataset.chapter1HitStunUntil='0';
+        },CHAPTER1_BOSS_HIT_SPRITE_MS);
     }
     // 集氣期間把整張角色圖由原色逐漸染成強烈紅色，並同步增強紅色外發光。
     // progress 範圍為 0..1；只處理 Boss 精靈本身，不改變尺寸、位置或碰撞判定。
@@ -1154,6 +1273,7 @@
         }
         const oldBoss=chapter1FinalSkill.boss;
         if(oldBoss && oldBoss.isConnected) {
+            clearChapter1BossHitSprite(oldBoss,true);
             oldBoss.classList.remove('boss1-final-charging');
             clearBossChargeRedGlow(oldBoss);
             oldBoss.classList.remove('boss1-final-frozen');
@@ -1175,6 +1295,7 @@
         bossRush.currentThreshold=0;bossRush.queue=[];
         clearTimeout(bossShakeTimer);stage.classList.remove('boss-camera-shake');
         if(e && e.isConnected) {
+            clearChapter1BossHitSprite(e,true);
             e.classList.remove('boss-rushing');
             e.style.removeProperty('opacity');e.style.removeProperty('visibility');
             clearBossChargeRedGlow(e);
@@ -1206,6 +1327,10 @@
         stopBossRushForFinalSkill(e);
         e.dataset.facingLocked='1';
         e.classList.add('boss1-final-charging','boss1-final-frozen');
+        // 10% 血量觸發的最後五秒集氣，固定使用使用者指定的 attack_skin2。
+        clearChapter1BossHitSprite(e,true);
+        const finalChargeSprite=e.querySelector('.enemySprite');
+        if(finalChargeSprite)finalChargeSprite.setAttribute('src',chapter1BossRushChargeSprite);
         e.dataset.lastAttack=String(chapter1FinalSkill.phaseStartedAt);
         e.dataset.actionUntil=String(chapter1FinalSkill.phaseStartedAt+CHAPTER1_FINAL_CHARGE_MS+CHAPTER1_FINAL_DROP_MS+CHAPTER1_FINAL_HIT_DELAY_MS);
         setBossChargeRedGlow(e,0);
@@ -1299,7 +1424,7 @@
         chapter1FinalSkill.targetX=x;
         const sword=document.createElement('img');
         sword.className='boss1-final-sword';
-        sword.src='images/chapter1/boss/boss1_final_sword.png';
+        sword.src='images/chapter1/boss/boss1_final_sword.webp';
         sword.alt='';sword.setAttribute('aria-hidden','true');
         const swordHeight=Math.max(stageH*1.32,420);
         const swordWidth=swordHeight*(344/1083);
@@ -1329,7 +1454,7 @@
     function spawnChapter1FinalImpact(now) {
         const impact=document.createElement('img');
         impact.className='boss1-final-impact';
-        impact.src='images/chapter1/boss/boss1_final_impact.png';
+        impact.src='images/chapter1/boss/boss1_final_impact.webp';
         impact.alt='';impact.setAttribute('aria-hidden','true');
         const width=Math.max(stageW*1.36,stageH*2.35);
         impact.style.width=width+'px';
@@ -1398,25 +1523,62 @@
         e.classList.toggle('enemy-facing-left',heroIsRight);
         e.dataset.facing=heroIsRight?'right':'left';
     }
-    function bossReturnX(e) {
-        const width=Math.max(100,e?.offsetWidth||100);
-        const min=cameraX+stageW*.61-width*.5;
-        const max=cameraX+stageW*.78-width*.5;
-        const origin=Number.isFinite(+bossRush.originX)?+bossRush.originX:(Number.isFinite(+(e?.dataset.x))?+(e.dataset.x):cameraX+stageW*.7);
-        return Math.max(0,Math.min(Math.max(0,worldW-width),Math.max(min,Math.min(origin,max))));
-    }
-    // 絕招結束後直接在可視戰場內步行返回；不再有隱藏、透明或畫面外重新進場的流程。
-    function beginBossWalkBack(e,now) {
-        if(!e||!e.isConnected||e.classList.contains('dead'))return;
-        bossRush.phase='walkback';
-        bossRush.phaseStartedAt=now;
-        const sprite=e.querySelector('.enemySprite');
-        if(sprite)sprite.src=enemySpritePath(e.dataset.spriteType||'boss','walk1');
-        // 目標設在畫面內，Boss 從目前位置走回戰鬥區；不把位置瞬間移到畫面外。
-        bossRush.targetX=bossReturnX(e);
-        faceBossTowardHero(e);
-    }
+    function isChapter1Boss(e){return level===4&&!!e&&e.dataset.boss==='1'&&e.dataset.spriteType==='boss';}
     function isChapter3Boss(e){return !!e&&e.dataset.boss==='1'&&e.dataset.spriteType==='chapter3_boss_1';}
+
+    // 所有普通敵人、蜘蛛小弟、第三章 Boss／觸手共用的連擊硬直。
+    // Chapter 1 Boss 與蜘蛛 Boss 保留各自專用受擊素材控制，但共用同一組 1100ms／260ms 數值。
+    function registerUniversalEnemyHit(e,now=performance.now()) {
+        if(!e||!e.isConnected||e.classList.contains('dead'))return false;
+        if(isChapter1Boss(e)||isSpiderBoss(e))return false;
+        if((bossRush.active&&bossRush.boss===e)||(chapter1FinalSkill.active&&chapter1FinalSkill.boss===e))return false;
+        // 第三章 Boss 只在正常戰鬥階段接受一般硬直，不能覆蓋蓄力、召喚或終極技能。
+        if(isChapter3Boss(e)&&!['combat','mixed20Combat'].includes(chapter3BossState.phase))return false;
+
+        if(now-(Number(e._enemyHitComboLastAt)||0)>ENEMY_HIT_COMBO_GAP_MS)e._enemyHitComboCount=0;
+        e._enemyHitComboLastAt=now;
+        e._enemyHitComboCount=(Number(e._enemyHitComboCount)||0)+1;
+        if(e._enemyHitComboCount%2!==0)return false;
+
+        const stunUntil=now+ENEMY_HIT_STUN_MS;
+        e.dataset.enemyHitStunUntil=String(stunUntil);
+        e.dataset.lastAttack=String(now);
+        e.dataset.actionUntil=String(stunUntil);
+        clearTimeout(e._spriteTimer);e._spriteTimer=0;
+        clearTimeout(e._enemyHitStunSpriteTimer);e._enemyHitStunSpriteTimer=0;
+        e.classList.remove('enemy-attacking');
+
+        if(isChapter3Boss(e)) {
+            // Boss 的 hit 圖由 chapter3BossRegisterHit 負責；硬直期間不更新追近／攻擊 AI。
+            chapter3BossState.lastAttackAt=now;
+        } else if(e.dataset.chapter3Tentacle==='1') {
+            // 觸手沒有獨立 hit 素材：中斷蓄力／攻擊並保留當前畫面，不載入錯誤圖片。
+            e.dataset.attackPhase='idle';
+            e.dataset.attackSfx='';
+            e.classList.remove('chapter3-tentacle-charging');
+        } else {
+            const sprite=e.querySelector('.enemySprite');
+            const spriteType=e.dataset.spriteType||e.dataset.type;
+            if(sprite) {
+                sprite.src=enemySpritePath(spriteType,'hit');
+                e._enemyHitStunSpriteTimer=setTimeout(()=>{
+                    if(sprite.isConnected&&!e.classList.contains('dead')&&sprite.getAttribute('src')===enemySpritePath(spriteType,'hit')) {
+                        sprite.src=enemySpritePath(spriteType,'idle');
+                    }
+                    e._enemyHitStunSpriteTimer=0;
+                },ENEMY_HIT_STUN_MS);
+            }
+        }
+
+        // 蜘蛛小弟若正在蓄力三連毒液，受擊硬直會中斷尚未發射的連射排程。
+        if(e.dataset.spiderMinion==='1') {
+            e._spiderMinionCastToken=(Number(e._spiderMinionCastToken)||0)+1;
+            e.dataset.spiderMinionCasting='0';
+            e.dataset.spiderMinionNextAttack=String(stunUntil+450);
+        }
+        return true;
+    }
+
     function updateBossHealthBar(e) {
         const boss1=level===4&&e&&e.dataset.boss==='1'&&e.dataset.spriteType==='boss';
         const spider=level===8&&e&&e.dataset.boss==='1'&&e.dataset.spriteType==='chapter2_boss_2';
@@ -1475,6 +1637,7 @@
         // 保留可見狀態：每個血量階段不再使用隱藏／透明機制。
         e.style.removeProperty('opacity');
         e.style.removeProperty('visibility');
+        clearChapter1BossHitSprite(e,true);
         e.classList.add('boss-rushing');
         const sprite=e.querySelector('.enemySprite');
         setBossRushSprite(sprite,'windup');
@@ -1512,6 +1675,7 @@
     function finishBossRush(cancelled=false,now=performance.now()) {
         const e=bossRush.boss;
         if(e && e.isConnected) {
+            clearChapter1BossHitSprite(e,true);
             e.classList.remove('boss-rushing');
             clearBossChargeRedGlow(e);
             e.style.removeProperty('opacity');
@@ -1563,7 +1727,7 @@
         hero.classList.toggle('face-left',faceDir<0);
         hero.classList.add('jump','boss-knocked');
         heroActionUntil=now+1150;
-        heroActionSprite='images/hero/hero_jump.png';
+        heroActionSprite='images/hero/hero_jump.webp';
         setHeroSprite(heroActionSprite);
         shakeBossCamera();
     }
@@ -1573,8 +1737,7 @@
         if(!e || !e.isConnected || e.classList.contains('dead')) {finishBossRush(true,now);return;}
         // 全流程保護：任何絕招階段異常卡住，都把 Boss 帶回場內安全位置並結束該次絕招。
         if(bossRush.runStartedAt && now-bossRush.runStartedAt>18000) {
-            const safeX=bossReturnX(e);
-            e.dataset.x=String(safeX);e.style.left=safeX+'px';
+            // 安全逾時只結束技能，不改寫 Boss 當前座標，避免被強制拉回指定位置。
             e.style.removeProperty('opacity');e.style.removeProperty('visibility');
             finishBossRush(false,now);
             return;
@@ -1596,38 +1759,15 @@
                 setBossRushSprite(e.querySelector('.enemySprite'),bossRush.phase);
             }
         }
-        if(bossRush.phase==='walkback') {
-            // boss-rushing 會停用 CSS 動畫；因此用 4 張 WALK 圖手動逐格循環，確保回場時真的在行走。
-            e.style.removeProperty('opacity');
-            e.style.removeProperty('visibility');
-            const sprite=e.querySelector('.enemySprite');
-            if(sprite) {
-                const frame=1+(Math.floor((now-bossRush.phaseStartedAt)/130)%4);
-                const walkSrc=enemySpritePath(e.dataset.spriteType||'boss','walk'+frame);
-                if(!sprite.getAttribute('src')?.endsWith('/'+walkSrc.split('/').pop()))sprite.src=walkSrc;
-            }
-            // 防止步行返回流程卡住；4.5 秒仍未到位就落在場內目標位置，避免戰鬥停滯。
-            if(now-bossRush.phaseStartedAt>4500) {
-                e.dataset.x=String(bossRush.targetX);
-                e.style.left=bossRush.targetX+'px';
-                finishBossRush(false,now);
-                return;
-            }
-        }
         const current=+e.dataset.x||0,diff=bossRush.targetX-current;
-        const step=(bossRush.phase==='walkback' ? .30 : bossRush.speed)*dt;
+        const step=bossRush.speed*dt;
         const movingDir=Math.sign(diff)||1;
         const next=Math.abs(diff)<=step?bossRush.targetX:current+movingDir*step;
         if(bossRush.phase==='dashOut'||bossRush.phase==='dashAcross')bossDashCollision(e,now,current,next,movingDir);
         e.dataset.x=String(next);e.style.left=next+'px';
-        if(bossRush.phase==='walkback') {
-            // WALK 朝向以女神實際所在位置判斷，不再以「正在往左走」直接翻轉圖像。
-            faceBossTowardHero(e);
-        } else {
-            // Boss 這套原始立繪天生朝左；只有向右衝刺時才水平翻轉。
-            e.dataset.facing=movingDir<0?'left':'right';
-            e.classList.toggle('enemy-facing-left',movingDir>0);
-        }
+        // 衝刺期間只依衝刺方向更新朝向；抵達後再依玩家位置修正。
+        e.dataset.facing=movingDir<0?'left':'right';
+        e.classList.toggle('enemy-facing-left',movingDir>0);
         if(Math.abs(diff)>step)return;
         if(bossRush.phase==='dashOut') {
             shakeBossCamera();bossRush.phase='windup2';bossRush.phaseStartedAt=now;
@@ -1638,13 +1778,15 @@
             setBossChargeRedGlow(e,0);
             e.dataset.actionUntil=String(now+2500);
         } else if(bossRush.phase==='dashAcross') {
-            // 不再隱藏 Boss：第二次衝刺完成後，直接在畫面內走回戰鬥位置。
+            // 第二次衝刺在抵達位置自然停止；不返回中央、不播放 walkback。
             shakeBossCamera();
-            beginBossWalkBack(e,now);
-        } else if(bossRush.phase==='walkback')finishBossRush(false,now);
+            faceBossTowardHero(e);
+            finishBossRush(false,now);
+        }
     }
     function resetBossRush() {
         if(bossRush.boss && bossRush.boss.isConnected && !bossRush.boss.classList.contains('dead')) {
+            clearChapter1BossHitSprite(bossRush.boss,true);
             bossRush.boss.classList.remove('boss-rushing');
             bossRush.boss.style.removeProperty('opacity');
             bossRush.boss.style.removeProperty('visibility');
@@ -1716,7 +1858,7 @@
         jumpBufferMs=Math.max(0,jumpBufferMs-dt);
         if(jumpBufferMs>0&&(onGround||coyoteMs>0)&&!ultimateActive){
             jumpBufferMs=0;coyoteMs=0;onGround=false;jumpV=PHYSICS.jumpSpeed;jumpT=1;
-            setHeroSprite('images/hero/hero_jump.png');hero.classList.add('jump');
+            setHeroSprite('images/hero/hero_jump.webp');hero.classList.add('jump');
         }
         if(!onGround){
             jumpV-=PHYSICS.gravity*dt;
@@ -1740,7 +1882,7 @@
         if(chapter3BossMode){
             const bgView=$('elevatorBgViewport'),layer1=$('elevatorForeground'),exit=$('elevatorExitBackdrop');
             if(bgView){bgView.hidden=false;bgView.style.backgroundImage='url("'+CHAPTER3_BOSS_BG_FRAMES[0]+'")';bgView.style.backgroundPositionX='0px';bgView.style.backgroundSize='auto 100%';bgView.style.backgroundRepeat='repeat-x';bgView.style.filter='brightness(1)';}
-            if(layer1){layer1.hidden=false;layer1.onload=()=>{if(chapter3BossMode)sizeWorld();};layer1.src='images/chapter3/bg3/chapter3_stage_7_layer1_bg.png';if(layer1.complete&&layer1.naturalWidth)sizeWorld();}
+            if(layer1){layer1.hidden=false;layer1.onload=()=>{if(chapter3BossMode)sizeWorld();};layer1.src='images/chapter3/bg3/chapter3_stage_7_layer1_bg.webp';if(layer1.complete&&layer1.naturalWidth)sizeWorld();}
             if(exit)exit.hidden=true;
             chapter3BossState.bgFrame=0;chapter3BossState.lastBgFrameAt=performance.now();
         }
@@ -1797,7 +1939,7 @@
         if (!anchors || !sprite || !frame) return;
         const src = (sprite.getAttribute('src') || '').split('?')[0];
         const filename = src.slice(src.lastIndexOf('/') + 1);
-        const match = filename.match(/_(normal|attack2|attack|hit|idle|walk\d+)\.png$/);
+        const match = filename.match(/_(normal|attack2|attack|hit|idle|walk\d+)\.webp$/);
         const pose = match ? match[1] : '';
         const sourcePixels = Number(anchors[pose] || 0);
         // image is width-constrained (source width 515 px); inner offset is then scaled by the enemy-art multiplier.
@@ -2038,16 +2180,16 @@
     }
     function chapter3BossUltimateTentaclePath(frame){
         const n=Math.max(1,Math.min(4,Number(frame)||1));
-        const file=n===1?'chapter3_boss_1_other_1png.png':'chapter3_boss_1_other_'+n+'.png';
+        const file=n===1?'chapter3_boss_1_other_1png.webp':'chapter3_boss_1_other_'+n+'.webp';
         return CHAPTER3_BOSS_DIR+file;
     }
     function chapter3BossUltimateLightningPath(frameIndex){
         const n=CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES[Math.max(0,Math.min(CHAPTER3_BOSS_LIGHTNING_ATTACK_FRAMES.length-1,Number(frameIndex)||0))];
-        return CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+n+'.png';
+        return CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+n+'.webp';
     }
     function chapter3BossUltimateExplosionPath(frame){
         const n=Math.max(0,Math.min(11,Number(frame)||0)).toString().padStart(5,'0');
-        return CHAPTER3_BOSS_DIR+'Energy 016 Impact Explosion Radial/Energy 016 Impact Explosion Radial_'+n+'.png';
+        return CHAPTER3_BOSS_DIR+'Energy 016 Impact Explosion Radial/Energy 016 Impact Explosion Radial_'+n+'.webp';
     }
     function chapter3BossCreateUltimateOverlay(now){
         const state=chapter3BossState;
@@ -2192,7 +2334,7 @@
         chapter3BossSetLift(boss,0);boss.style.visibility='visible';chapter3BossPose(boss,'skill1');
         const node=document.createElement('div');node.id='chapter3BossCountdown';node.className='chapter3-boss-countdown';node.setAttribute('role','status');node.setAttribute('aria-live','assertive');
         node.textContent='⚡ 絕招蓄能：5 秒';stage.appendChild(node);state.countdown=node;
-        floatText('匠心觸手・最後 5 秒！',Number(boss.dataset.x)||x,66);
+        floatText('雷暴終極絕招・最後 5 秒！',Number(boss.dataset.x)||x,66);
     }
     function chapter3BossKilled(boss){
         if(chapter3BossState.boss!==boss)return;
@@ -2328,10 +2470,10 @@
     function chapter3BossShowPlayerElectricity(now){
         const state=chapter3BossState;
         const files=[
-            'images/effects/chapter3_electricity_1.png',
-            'images/effects/chapter3_electricity_2.png',
-            'images/effects/chapter3_electricity_3.png',
-            'images/effects/chapter3_electricity_4.png'
+            'images/effects/chapter3_electricity_1.webp',
+            'images/effects/chapter3_electricity_2.webp',
+            'images/effects/chapter3_electricity_3.webp',
+            'images/effects/chapter3_electricity_4.webp'
         ];
         const until=now+2000;
         let fx=state.playerElectricityEffect;
@@ -2372,7 +2514,7 @@
     function chapter3BossSpawnLightningStrike(xp,now,duration=520,requestedFrames=null){
         const el=document.createElement('img');el.className='chapter3-boss-lightning';el.alt='';el.draggable=false;el.setAttribute('aria-hidden','true');
         const frames=(Array.isArray(requestedFrames)&&requestedFrames.length)?requestedFrames:[1,2,3,4];
-        const frame=frames[0];el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+frame+'.png';
+        const frame=frames[0];el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+frame+'.webp';
         // 明顯加粗可見電柱；高度延伸至畫面頂部，底端以玩家腳底作水平基準。
         const width=Math.max(560,Math.min(820,stageH*1.02));
         const height=Math.max(900,stageH*1.55);
@@ -2389,14 +2531,14 @@
         if(Math.abs(heroCenter-xp)>=hitHalfWidth||jumpT>0||!onGround)return false;
         const now=performance.now();
         if(now<bashLockUntil||now<knockbackHitUntil){floatText('防禦！',x,48);return false;}
-        if(!chapter3BossHeroHit(1,'⚡ −'))return false;
+        if(!chapter3BossHeroHit(12,'⚡ −'))return false;
         // 落雷命中後改為真正的向外拋飛弧線；鎖定方向直至落地，玩家不能立即走掉抵消效果。
         knockbackHitUntil=now+650;knockbackUntilLanding=true;
         knockbackDirection=heroCenter>=xp?1:-1;
         keys.left=false;keys.right=false;moveV=knockbackDirection*.42;jumpBufferMs=0;
         onGround=false;coyoteMs=0;jumpY=Math.max(jumpY,10);jumpV=.66;jumpT=1;
         faceDir=knockbackDirection;hero.classList.toggle('face-left',faceDir<0);
-        hero.classList.add('boss-knocked','jump');setHeroSprite('images/hero/hero_jump.png');
+        hero.classList.add('boss-knocked','jump');setHeroSprite('images/hero/hero_jump.webp');
         heroActionUntil=now+650;
         chapter3BossShowPlayerElectricity(now);
         floatText('⚡ 電擊擊退！',x,66);
@@ -2406,7 +2548,7 @@
         const state=chapter3BossState;
         state.lightningEffects=state.lightningEffects.filter(effect=>{
             if(!effect.el?.isConnected||now>=effect.ends){effect.el?.remove();return false;}
-            if(now>=effect.nextFrame){effect.nextFrame=now+85;effect.frameIndex=(effect.frameIndex+1)%effect.frames.length;effect.frame=effect.frames[effect.frameIndex];effect.el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+effect.frame+'.png';}
+            if(now>=effect.nextFrame){effect.nextFrame=now+85;effect.frameIndex=(effect.frameIndex+1)%effect.frames.length;effect.frame=effect.frames[effect.frameIndex];effect.el.src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+effect.frame+'.webp';}
             return true;
         });
     }
@@ -2684,14 +2826,14 @@
         }
         if(state.phase==='finalTentacles'){
             chapter3BossUpdateUltimateTentacles(now);chapter3BossPose(boss,'skill3');
-            if(elapsed>=1050){state.phase='finalThunder';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='特殊愛好者天堂！';}
+            if(elapsed>=1050){state.phase='finalThunder';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='黑紫天雷：連續落下！';}
             return;
         }
         if(state.phase==='finalThunder'){
             chapter3BossUpdateUltimateThunder(elapsed,now);chapter3BossUpdateUltimateTentacles(now);chapter3BossPose(boss,'skill4');
             if(elapsed>=1900){
                 const fx=state.ultimateFx;if(fx){fx.warnings.forEach(item=>item.el?.remove());fx.warnings.length=0;fx.warningRefs.forEach(el=>el?.remove());fx.pillars.forEach(item=>item.el?.remove());fx.pillars.length=0;}
-                state.phase='finalAttack';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='觸手降臨！';
+                state.phase='finalAttack';state.phaseStartedAt=now;if(state.countdown)state.countdown.textContent='⚡ 全畫面雷暴降臨！';
             }
             return;
         }
@@ -2701,7 +2843,7 @@
             let effect=stage.querySelector('.chapter3-boss-final-lightning');
             if(!effect){effect=document.createElement('img');effect.className='chapter3-boss-final-lightning';effect.alt='';effect.draggable=false;effect.setAttribute('aria-hidden','true');stage.appendChild(effect);}
             const frameIndex=Math.min(frames.length-1,Math.floor(elapsed/frameDuration));
-            const src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+frames[frameIndex]+'.png';
+            const src=CHAPTER3_BOSS_DIR+'chapter3_boss_1_skin1_attack'+frames[frameIndex]+'.webp';
             if(effect.getAttribute('src')!==src)effect.src=src;
             chapter3BossPose(boss,frameIndex<2?'skill3':'skill4');
             if(elapsed>=animationDuration){
@@ -2709,7 +2851,7 @@
                 chapter3BossUltimateStartImpact(now);
                 hero.classList.add('chapter3-boss-final-hit');
                 const impact=document.createElement('div');impact.className='chapter3-boss-final-impact-flash';impact.setAttribute('aria-hidden','true');stage.appendChild(impact);
-                if(state.countdown)state.countdown.textContent='天堂製造！';
+                if(state.countdown)state.countdown.textContent='⚡ 命中！終極爆發！';
             }
             return;
         }
@@ -3023,7 +3165,7 @@
             const e=enemyList[enemyList.length-1];
             if(e){
                 e.dataset.elevatorWave=String(waveNo);e.dataset.facingLocked='0';
-                // 電梯關卡統一使用第三章鬼魂素材；normal 是站立常態圖，idle 使用獨立的 chapter3_enemy_1_idle.png，沿用既有敵人 AI、受擊與死亡系統。
+                // 電梯關卡統一使用第三章鬼魂素材；normal 是站立常態圖，idle 使用獨立的 chapter3_enemy_1_idle.webp，沿用既有敵人 AI、受擊與死亡系統。
                 e.dataset.spriteType='chapter3_enemy_1';
                 e.dataset.type='assassin';
                 const sprite=e.querySelector('.enemySprite');
@@ -3032,7 +3174,7 @@
                     sprite.onerror=function(){
                         // 只在可用影格真的失敗時回退到 walk1；避免舊的 missing normal 圖把角色永久隱藏。
                         const fallback=enemySpritePath('chapter3_enemy_1','walk1');
-                        if(!this.src.endsWith('/chapter3_enemy_1_walk1.png')){this.onerror=()=>{this.style.visibility='hidden';};this.src=fallback;}
+                        if(!this.src.endsWith('/chapter3_enemy_1_walk1.webp')){this.onerror=()=>{this.style.visibility='hidden';};this.src=fallback;}
                         else this.style.visibility='hidden';
                     };
                     sprite.src=enemySpritePath('chapter3_enemy_1','normal');sprite.alt='第三章鬼魂敵人';
@@ -3054,9 +3196,9 @@
         exitOpen=false;exitPrompt.hidden=true;
         const bgView=$('elevatorBgViewport'),fg=$('elevatorForeground'),exit=$('elevatorExitBackdrop'),exitImg=$('elevatorExitImg'),bg=$('elevatorBG'),bgNext=$('elevatorBGNext');
         if(bgView)bgView.hidden=false;if(fg)fg.hidden=false;if(exit)exit.hidden=true;
-        if(bg){bg.src='images/chapter3/bg3/chapter3_stage_1_BG_layer2_loop.png';bg.style.transform='';}
-        if(bgNext){bgNext.src='images/chapter3/bg3/chapter3_stage_1_BG_layer2_loop.png';bgNext.style.transform='';}
-        if(exitImg)exitImg.src='images/chapter3/bg3/chapter3_bg22.png';
+        if(bg){bg.src='images/chapter3/bg3/chapter3_stage_1_BG_layer2_loop.webp';bg.style.transform='';}
+        if(bgNext){bgNext.src='images/chapter3/bg3/chapter3_stage_1_BG_layer2_loop.webp';bgNext.style.transform='';}
+        if(exitImg)exitImg.src='images/chapter3/bg3/chapter3_bg22.webp';
         if(exitPrompt)exitPrompt.textContent='➜ 向右移動前往碼頭';
         elevatorMeasureBackground();
         updateCamera(); // 重開關卡時先按新 world 寬度更新鏡頭，讓第一波生成在目前可視畫面內。
@@ -3074,7 +3216,7 @@
         elevatorState.phase='chapter-ready';
         running=false;paused=false;keys={};resetMovementPhysics();
         hero.classList.remove('walking','jump','thrust','bash');
-        setHeroSprite('images/hero/hero_stand.png');
+        setHeroSprite('images/hero/hero_stand.webp');
         $('modalTitle').textContent='第三章準備中';
         const endSubtitle=overlay.querySelector('.enTitle');
         if(endSubtitle)endSubtitle.textContent='CHAPTER 3 COMING SOON';
@@ -3148,7 +3290,7 @@
         bashLockUntil=0;
         attackMoveLockUntil=0;
         heroActionUntil=0;
-        heroActionSprite='images/hero/hero_stand.png';
+        heroActionSprite='images/hero/hero_stand.webp';
         ultimateSound.stopAll();
         ultimateActive=false;
         ultimateCooldownUntil=0;
@@ -3195,7 +3337,7 @@
         bgmAudio.currentTime=0;
         const sprite=$('heroSprite');
         if(sprite) {
-            sprite.src='images/hero/hero_stand.png';
+            sprite.src='images/hero/hero_stand.webp';
             sprite.style.transform='';
         }
         clearEnemies();
@@ -3326,6 +3468,45 @@
         e.classList.remove('hitflash');
     }
 
+    // 第一章 Boss 專用短促受擊回饋：只加視覺效果與短暫 hit-stop，不改傷害、座標或攻擊判定。
+    function applyChapter1BossHit(e, heavy=false) {
+        if(level!==4 || !e || e.dataset.boss!=='1' || e.dataset.spriteType!=='boss' || e.classList.contains('dead'))return;
+        const now=performance.now(), duration=heavy?120:80, stop=heavy?70:35;
+        registerChapter1BossHitSprite(e,now);
+        clearTimeout(e._chapter1HitTimer);
+        clearTimeout(e._chapter1SparkTimer);
+        e.classList.remove('chapter1-boss-hit','chapter1-boss-heavy-hit');
+        void e.offsetWidth;
+        e.classList.add(heavy?'chapter1-boss-heavy-hit':'chapter1-boss-hit');
+        e._chapter1HitTimer=setTimeout(()=>{
+            e.classList.remove('chapter1-boss-hit','chapter1-boss-heavy-hit');
+            e._chapter1HitTimer=0;
+        },duration);
+        const frame=e.querySelector('.enemy-art-frame')||e.querySelector('.enemy-art');
+        if(frame){
+            frame.querySelector('.chapter1-boss-hit-sparks')?.remove();
+            const sparks=document.createElement('span');
+            sparks.className='chapter1-boss-hit-sparks'+(heavy?' is-heavy':'');
+            sparks.setAttribute('aria-hidden','true');
+            for(let i=0;i<(heavy?10:7);i++){
+                const particle=document.createElement('i');
+                particle.style.setProperty('--spark-angle',(i*(360/(heavy?10:7)))+'deg');
+                particle.style.setProperty('--spark-distance',(heavy?30:20)+(i%3)*(heavy?8:5)+'px');
+                sparks.appendChild(particle);
+            }
+            frame.appendChild(sparks);
+            e._chapter1SparkTimer=setTimeout(()=>{sparks.remove();e._chapter1SparkTimer=0;},heavy?300:220);
+        }
+        chapter1BossHitStopUntil=Math.max(chapter1BossHitStopUntil,now+stop);
+        if(heavy){
+            stage.classList.remove('boss-hit-camera-shake');
+            void stage.offsetWidth;
+            stage.classList.add('boss-hit-camera-shake');
+            clearTimeout(e._chapter1ShakeTimer);
+            e._chapter1ShakeTimer=setTimeout(()=>stage.classList.remove('boss-hit-camera-shake'),160);
+        }
+    }
+
     // ===== 普通戰鬥：槍刺、盾擊、特殊技能的傷害判定 =====
     function attack(kind) {
         if(!running||paused||chapter3BossPlayerLocked()||document.body.classList.contains('spider-apocalypse')||attackCd>0||knockbackUntilLanding)return;
@@ -3351,7 +3532,7 @@
         heroSprite.style.transformOrigin='center center';
         hero.classList.remove('native-left-sprite');
         heroSprite.classList.toggle('thrust-sprite',kind==='thrust');
-        heroActionSprite=kind==='thrust'?'images/hero/hero_thrust.png':(kind==='bash'||kind==='special'?'images/hero/hero_bash.png':'images/hero/hero_stand.png');
+        heroActionSprite=kind==='thrust'?'images/hero/hero_thrust.webp':(kind==='bash'||kind==='special'?'images/hero/hero_bash.webp':'images/hero/hero_stand.webp');
         heroActionUntil=performance.now()+attackRecoveryMs;
         setHeroSprite(heroActionSprite);
         hero.classList.remove('thrust','bash');
@@ -3376,7 +3557,10 @@
             const enemyCenter=ex+(e.offsetWidth||80)*.5;
             const heroCenter=x+(hero.offsetWidth||116)*.5;
             const dx=enemyCenter-heroCenter;
-            const range=stageW*(kind==='thrust'?.14:kind==='bash'?.09:.24);
+            const baseRange=stageW*(kind==='thrust'?.14:kind==='bash'?.09:.24);
+            const protectedUnit=e.dataset.boss==='1'||e.dataset.spiderMinion==='1'||e.dataset.chapter3Tentacle==='1';
+            // 小螢幕上也要讓玩家能從安全距離命中普通敵人，避免防重疊後槍刺／盾擊反而打不到。
+            const range=Math.max(baseRange,protectedUnit?0:getHeroEnemyKeepOutGap(e)+12);
             if(kind==='special'||(dx*faceDir>=0&&Math.abs(dx)<range)) {
                 const damage=tuneCombat.damage||{thrust:1,bash:2,special:3,shieldThrust:0.5};
                 let type=e.dataset.type,dmg=damage[kind]??3;
@@ -3391,10 +3575,13 @@
                 const es=e.querySelector('.enemySprite');
                 const bossIsRushing=bossRush.active&&e===bossRush.boss;
                 const spiderSkillLocked=isSpiderBoss(e)&&spiderBossSkill.active;
-                if(es&&!bossIsRushing&&!spiderSkillLocked) {
+                applyChapter1BossHit(e,kind==='bash'||kind==='special');
+                if(isSpiderBoss(e))registerSpiderBossHit(e,performance.now(),kind==='bash'||kind==='special');
+                registerUniversalEnemyHit(e,performance.now());
+                if(es&&!bossIsRushing&&!spiderSkillLocked&&!isSpiderBoss(e)) {
                     if(isChapter3Boss(e)){
                         chapter3BossRegisterHit(e,tuneEffects.enemyHitPoseMs??300);
-                    }else{
+                    }else if(!isChapter1Boss(e)){
                         es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
                         e.dataset.actionUntil=String(performance.now()+310);
                         clearTimeout(e._spriteTimer);
@@ -3403,7 +3590,7 @@
                         },tuneEffects.enemyHitPoseMs??300)
                     }
                 }
-                if(!bossIsRushing&&!spiderSkillLocked&&!isChapter3Boss(e) && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
+                if(!bossIsRushing&&!spiderSkillLocked&&!isChapter3Boss(e)&&!isChapter1Boss(e) && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
                     flashEnemy(e,tuneEffects.enemyHitFlashMs??180);
                     const knockbackX=ex+faceDir*stageW*(kind==='thrust'?.05:kind==='bash'?.08:.11);
                     if(e.dataset.boss==='1') {
@@ -3418,6 +3605,7 @@
                 lastHit=performance.now();
                 mp=Math.min(100,mp+5);
                 if(eh<=0) {
+                    if(isChapter1Boss(e))clearChapter1BossHitSprite(e,false);
                     if(e.dataset.boss==='1'&&level===4)resetBossRush();
                     if(isChapter3Boss(e))chapter3BossKilled(e);
                     clearTimeout(e._spriteTimer);
@@ -3506,10 +3694,13 @@
                 const es=e.querySelector('.enemySprite');
                 const bossIsRushing=bossRush.active&&e===bossRush.boss;
                 const spiderSkillLocked=isSpiderBoss(e)&&spiderBossSkill.active;
-                if(es&&!bossIsRushing&&!spiderSkillLocked) {
+                applyChapter1BossHit(e,true);
+                if(isSpiderBoss(e))registerSpiderBossHit(e,performance.now(),true);
+                registerUniversalEnemyHit(e,performance.now());
+                if(es&&!bossIsRushing&&!spiderSkillLocked&&!isSpiderBoss(e)) {
                     if(isChapter3Boss(e)){
                         chapter3BossRegisterHit(e,tuneEffects.ultimateEnemyHitPoseMs??360);
-                    }else{
+                    }else if(!isChapter1Boss(e)){
                         es.src=enemySpritePath(e.dataset.spriteType||type,'hit');
                         e.dataset.actionUntil=String(performance.now()+370);
                         clearTimeout(e._spriteTimer);
@@ -3518,7 +3709,7 @@
                         },tuneEffects.ultimateEnemyHitPoseMs??360)
                     }
                 }
-                if(!bossIsRushing&&!spiderSkillLocked&&!isChapter3Boss(e) && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
+                if(!bossIsRushing&&!spiderSkillLocked&&!isChapter3Boss(e)&&!isChapter1Boss(e) && !(chapter1FinalSkill.active && e===chapter1FinalSkill.boss)) {
                     flashEnemy(e,tuneEffects.ultimateHitFlashMs??180);
                     const knockbackX=ex+Math.sign(ex-x||faceDir)*stageW*.035;
                     if(e.dataset.boss==='1') {
@@ -3533,6 +3724,7 @@
                 lastHit=performance.now();
                 mp=Math.min(100,mp+5);
                 if(eh<=0) {
+                    if(isChapter1Boss(e))clearChapter1BossHitSprite(e,false);
                     if(e.dataset.boss==='1'&&level===4)resetBossRush();
                     if(isChapter3Boss(e))chapter3BossKilled(e);
                     clearTimeout(e._spriteTimer);
@@ -3569,8 +3761,8 @@
                 }
                 if(running) {
                     heroActionUntil=0;
-                    heroActionSprite='images/hero/hero_stand.png';
-                    setHeroSprite(keys.left||keys.right?('images/hero/hero_walk_1_'+(faceDir<0?'left':'right')+'.png'):'images/hero/hero_stand.png')
+                    heroActionSprite='images/hero/hero_stand.webp';
+                    setHeroSprite(keys.left||keys.right?('images/hero/hero_walk_1_'+(faceDir<0?'left':'right')+'.webp'):'images/hero/hero_stand.webp')
                 }
                 ultimateActive=false;
                 updateHud()
@@ -3656,15 +3848,84 @@
         }
         startLevel(level+1,true)
     }
+    // ===== 玩家與一般敵人的防重疊／前後圖層 =====
+    // 玩家 x 是角色中心；敵人 dataset.x 是容器左邊緣，因此必須先換算敵人中心。
+    // 僅處理一般敵人，刻意避開 Boss、蜘蛛小弟與觸手，避免干擾特殊戰鬥流程。
+    function getHeroEnemyKeepOutGap(enemy) {
+        const heroWidth = hero.offsetWidth || 116;
+        const enemyWidth = enemy.offsetWidth || 120;
+        // 以角色軀幹估算碰撞半徑，不把長武器／盾牌外緣當成硬碰撞，保留近身攻擊空間。
+        return Math.max(62, heroWidth * 0.24 + enemyWidth * 0.22 + 14);
+    }
+    function keepHeroAndEnemyApart(enemy) {
+        const currentLeft = Number(enemy.dataset.x || parseFloat(enemy.style.left) || 0);
+        const enemyWidth = enemy.offsetWidth || 120;
+        const gap = getHeroEnemyKeepOutGap(enemy);
+        const heroCenter = x;
+        let enemyCenter = currentLeft + enemyWidth * 0.5;
+        let direction = Math.sign(enemyCenter - heroCenter);
+        if (!direction) direction = faceDir || 1;
+
+        // 跳躍時允許跨越敵人；Boss、召喚物及死亡單位不參與一般角色碰撞。
+        const protectedUnit = enemy.dataset.boss === '1'
+            || enemy.dataset.spiderMinion === '1'
+            || enemy.dataset.chapter3Tentacle === '1'
+            || enemy.classList.contains('dead');
+        if (protectedUnit || jumpT > 0 || !onGround || knockbackUntilLanding || Math.abs(enemyCenter - heroCenter) >= gap) {
+            return { left: currentLeft, center: enemyCenter, gap };
+        }
+
+        // 玩家正朝敵人方向移動時，停在安全距離外，避免把敵人一路推著走或穿過敵人。
+        if (Math.abs(moveV) > 0.05 && moveV * direction > 0) {
+            const safeHeroCenter = enemyCenter - direction * gap;
+            const nextHeroCenter = Math.max(0, Math.min(heroExitX(), safeHeroCenter));
+            x = nextHeroCenter;
+            moveV = 0;
+            hero.style.left = x + 'px';
+            return { left: currentLeft, center: enemyCenter, gap };
+        }
+
+        // 若敵人由 AI 追近或碰撞時玩家沒有向前推進，優先把普通敵人推離玩家；
+        // 若敵人已貼近世界邊界而無法推開，才微調玩家位置。
+        const desiredEnemyCenter = heroCenter + direction * gap;
+        const minEnemyLeft = 0;
+        const maxEnemyLeft = Math.max(minEnemyLeft, heroExitX() - enemyWidth);
+        let nextLeft = Math.max(minEnemyLeft, Math.min(maxEnemyLeft, desiredEnemyCenter - enemyWidth * 0.5));
+        let nextCenter = nextLeft + enemyWidth * 0.5;
+        if (Math.abs(nextCenter - heroCenter) < gap - 1) {
+            const desiredHeroCenter = nextCenter - direction * gap;
+            const nextHeroCenter = Math.max(0, Math.min(heroExitX(), desiredHeroCenter));
+            if (Math.abs(nextHeroCenter - x) > 0.5) {
+                x = nextHeroCenter;
+                moveV = 0;
+                hero.style.left = x + 'px';
+            }
+        }
+        enemy.dataset.x = String(nextLeft);
+        enemy.style.left = nextLeft + 'px';
+        return { left: nextLeft, center: nextCenter, gap };
+    }
+    function updateActorDepthOrder(enemy) {
+        if (!enemy || enemy.dataset.boss === '1'
+            || enemy.dataset.spiderMinion === '1'
+            || enemy.dataset.chapter3Tentacle === '1') return;
+        // 2.5D 排序以腳底 Y 座標為準：畫面中腳底較低的角色畫在前面。
+        const heroFeetY = hero.getBoundingClientRect().bottom;
+        const enemyFeetY = enemy.getBoundingClientRect().bottom;
+        hero.style.zIndex = '10';
+        enemy.style.zIndex = enemyFeetY > heroFeetY + 2 ? '11' : '8';
+    }
+
     // ===== 遊戲主迴圈：每一幀更新角色、敵人與勝負狀態 =====
     function loop(t) {
         if(!running)return;
-        const dt=Math.min(45,t-last);
+        const rawDt=Math.min(45,t-last);
+        const dt=t<Math.max(chapter1BossHitStopUntil,spiderBossHitStopUntil)?0:rawDt;
         last=t;
         if(!paused) {
             updateChapter1FinalSkill(t);
             updatePlayerPhysics(dt);
-            if(knockbackUntilLanding){setHeroSprite('images/hero/hero_jump.png');}
+            if(knockbackUntilLanding){setHeroSprite('images/hero/hero_jump.webp');}
             else if(ultimateActive) {
                 const skillFrame=Math.min(7,Math.floor(Math.max(0,t-ultimateStartedAt)/130));
                 heroActionSprite=ultimateSpriteFiles[skillFrame];
@@ -3674,16 +3935,16 @@
                 setHeroSprite(heroActionSprite)
             }
             else if(jumpT>0) {
-                setHeroSprite('images/hero/hero_jump.png')
+                setHeroSprite('images/hero/hero_jump.webp')
             }
             else if(keys.left||keys.right) {
-                setHeroSprite('images/hero/hero_walk_'+((Math.floor(t/120)%4)+1)+'_'+(faceDir<0?'left':'right')+'.png');
+                setHeroSprite('images/hero/hero_walk_'+((Math.floor(t/120)%4)+1)+'_'+(faceDir<0?'left':'right')+'.webp');
                 // Walking art already has separate left/right images; don't mirror it twice.
                 hero.classList.toggle('native-left-sprite',faceDir<0)
             }
             else {
                 hero.classList.remove('native-left-sprite');
-                setHeroSprite('images/hero/hero_stand.png')
+                setHeroSprite('images/hero/hero_stand.webp')
             }
             hero.style.left=x+'px';
             updateSeaWeather(t);
@@ -3714,6 +3975,8 @@
                     }
                     continue
                 }
+                // 通用二連擊硬直：普通敵人、蜘蛛小弟、第三章 Boss／觸手均暫停追近與攻擊。
+                if(t<Number(e.dataset.enemyHitStunUntil||0))continue;
                 if(isChapter3Boss(e)){chapter3BossUpdate(e,t,dt);continue;}
                 if(e.dataset.chapter3Tentacle==='1'){chapter3BossUpdateTentacle(e,t);continue;}
                 let ex=+e.dataset.x,type=e.dataset.type;
@@ -3722,17 +3985,26 @@
                 if(isSpiderBoss(e)){
                     if(!spiderBossSkill.boss)spiderBossSkill.boss=e;
                     if(updateSpiderBossSkill(t))continue;
+                    // 蜘蛛 Boss hit 硬直期間停止追近、攻擊及玩家傷害判定；技能階段由上方優先處理。
+                    if(t<Number(e.dataset.spiderHitStunUntil||0))continue;
                 }
                 if(e.dataset.spiderMinion==='1'){
                     updateSpiderMinionSkill(e,t,dt);
                     continue;
                 }
+                // 普通敵人先執行安全距離修正，再以實際角色中心計算追近／攻擊範圍。
+                const spacing = keepHeroAndEnemyApart(e);
+                ex = spacing.left;
+                // 第一章 Boss 播放指定 hit 立繪期間進入受擊硬直：停止追近、攻擊及玩家傷害判定。
+                // hit 動作結束後才恢復 AI；lastAttack 已在觸發時重設，避免恢復當刻立即出手。
+                if(isChapter1Boss(e) && t<Number(e.dataset.chapter1HitStunUntil||0))continue;
                 // 第三章鬼魂與新增敵人都持續自動面向女神。新敵人原圖預設朝右，位於玩家右側時需水平翻轉朝左。
                 const spriteTypeForFacing=e.dataset.spriteType||type;
                 const isGhostEnemy=elevatorMode&&spriteTypeForFacing==='chapter3_enemy_1';
                 const isChapter3Enemy=/^chapter3_enemy_[2-8]$/.test(spriteTypeForFacing);
-                const heroCenterX=x+(hero.offsetWidth||70)*.5;
-                const enemyVisualCenter=ex+(isGhostEnemy?(e.offsetWidth||90)*.5:(e.dataset.boss==='1'?(e.offsetWidth||80)*.5:0));
+                const heroCenterX=x;
+                // dataset.x 是敵人容器左邊緣；一般敵人也必須用容器中心而非左邊緣判斷距離。
+                const enemyVisualCenter=ex+(e.offsetWidth||80)*.5;
                 if(isSpiderBoss(e)) spiderFacePlayer(e);
                 else if(isGhostEnemy){
                     const ghostFacesLeft=enemyVisualCenter>heroCenterX;
@@ -3751,13 +4023,15 @@
                     e.dataset.facing=enemyFacesLeft?'left':'right';
                     e.classList.toggle('enemy-facing-left',enemyFacesLeft);
                 }
-                const targetCenter=isGhostEnemy?heroCenterX:x;
+                const targetCenter=heroCenterX;
                 const approachDistance=Math.abs(enemyVisualCenter-targetCenter);
-                const approachRange=isGhostEnemy?Math.max(118,stageW*.13):stageW*.07;
+                const approachRange=isGhostEnemy
+                    ? Math.max(118,stageW*.13)
+                    : Math.max(stageW*.07,spacing.gap+8);
                 if(approachDistance>approachRange) {
                     const approachSpeed=tuneEnemyAI.approachSpeed||{assassin:0.22,heavy:0.10,shield:0.10,acolyte:0.12,default:0.15};
                     const speed=approachSpeed[type]??approachSpeed.default??0.15;
-                    const centerOffset=isGhostEnemy?(e.offsetWidth||90)*.5:(e.dataset.boss==='1'?(e.offsetWidth||80)*.5:0);
+                    const centerOffset=(e.offsetWidth||80)*.5;
                     ex=Math.max(24-centerOffset,Math.min(heroExitX()-20-centerOffset,ex+Math.sign(targetCenter-enemyVisualCenter)*dt*speed));
                     e.dataset.x=ex;
                     e.style.left=ex+'px';
@@ -3783,7 +4057,7 @@
                     if(t>+(e.dataset.actionUntil||0) && !e.classList.contains('hitflash')) {
                         const es=e.querySelector('.enemySprite');
                         if(spiderHoldNormalPoseBeforeFinalHit2(e)) spiderPose(e,'normal');
-                        else if(es && /_walk[1-8]\.png(?:$|\?)/.test(es.getAttribute('src')||'')) es.src=enemySpritePath(e.dataset.spriteType||type,'idle');
+                        else if(es && /_walk[1-8]\.webp(?:$|\?)/.test(es.getAttribute('src')||'')) es.src=enemySpritePath(e.dataset.spriteType||type,'idle');
                     }
                     if(t-lastAtk>cool) {
                         e.dataset.lastAttack=String(t);
@@ -3833,6 +4107,8 @@
                         }
                     }
                 }
+                // 依角色腳底的畫面高度排序，地面較低（較靠近鏡頭）的角色會顯示在前面。
+                updateActorDepthOrder(e);
             }
             if(elevatorMode){
                 updateElevatorMode(dt,t);
@@ -3895,11 +4171,11 @@
                 resetSpiderBossSkill();
                 resetBossRush();
                 if(chapter1FinalSkill.killedHero) {
-                    showEnd('黑仁巨劍・末日降臨','黑仁騎士 的終極技能命中女神。巨劍插入貫穿女神，死亡判定已生效。','重新開始');
+                    showEnd('血紅巨劍・末日降臨','Boss 1 的終極技能命中女神。巨劍落地後 1 秒，死亡判定已生效。','重新開始');
                 } else if(spiderUltKilled) {
-                    showEnd('毒能領域・降臨','5 秒蓄勢結束，毒能吞噬了女神。','重新開始');
+                    showEnd('萬毒蛛域・天羅降臨','5 秒蓄勢結束，萬毒蛛域吞噬了女神。','重新開始');
                 } else if(chapter3BossState.killedHeroByUltimate) {
-                    showEnd('匠心觸手：特殊愛好者天堂','五秒蓄能完成，觸手海王的終極電擊擊敗了女神。','重新開始');
+                    showEnd('雷暴終極絕招・世界歸於黑暗','五秒蓄能完成，雷暴海王的終極電擊擊敗了女神。','重新開始');
                 } else {
                     showEnd('女神需要休息！','敵人太多了，重新出發再試一次。已收集的線索會在本次遊戲重開後重置。','重新開始');
                 }
@@ -3939,7 +4215,7 @@
         bashLockUntil=0;
         attackMoveLockUntil=0;
         heroActionUntil=0;
-        heroActionSprite='images/hero/hero_stand.png';
+        heroActionSprite='images/hero/hero_stand.webp';
         ultimateSound.stopAll();
         ultimateActive=false;
         ultimateStartedAt=0;
@@ -3957,7 +4233,7 @@
         if(sprite) {
             sprite.style.removeProperty('--skill-frame-width');
             sprite.style.removeProperty('--skill-frame-height');
-            sprite.src='images/hero/hero_stand.png';
+            sprite.src='images/hero/hero_stand.webp';
             sprite.style.transform=''
         }
         stage.classList.add('title-mode');
@@ -4031,6 +4307,19 @@
         }))
     });
     window.addEventListener('keydown',e=> {
+        // While a clue is open, movement/combat keys are locked. Space advances one clue step;
+        // Enter is an accessible alternative. Ignore key-repeat so holding Space cannot dismiss
+        // both clue screens in a single press.
+        if(clueModalPhase) {
+            if(e.code==='Space'||e.key===' '||e.key==='Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                if(!e.repeat)advanceClue();
+            } else if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+                e.preventDefault();
+            }
+            return;
+        }
         if(['ArrowLeft','ArrowRight','ArrowUp',' '].includes(e.key))e.preventDefault();
         if(chapter3BossPlayerLocked()){keys.left=false;keys.right=false;if(['ArrowLeft','ArrowRight','ArrowUp',' ','z','x','q','Z','X','Q'].includes(e.key))e.preventDefault();return;}
         if(document.body.classList.contains('spider-apocalypse')){keys.left=false;keys.right=false;return;}
@@ -4095,18 +4384,7 @@
             last=performance.now()
         }
     });
-    // 線索互動：第一下只點物件本體，第二階段按「繼續」才恢復遊戲。
-    $('clueRevealItem').addEventListener('click',()=>{
-        if(clueModalPhase!==1 || !activeClue)return;
-        clueModalPhase=2;
-        $('clueReveal').hidden=true;
-        $('clueDialog').hidden=false;
-        $('clueContinue').hidden=false;
-    });
-    $('clueRevealItem').addEventListener('keydown',e=>{
-        if((e.key==='Enter'||e.key===' ') && clueModalPhase===1){e.preventDefault();$('clueRevealItem').click();}
-    });
-    $('clueContinue').addEventListener('click',()=>{
-        if(clueModalPhase===2)closeClue();
-    });
+    // 線索操作：滑鼠／觸控點擊與 Space 都可逐步略過；公告確認後才恢復遊戲。
+    $('clueRevealItem').addEventListener('click',advanceClue);
+    $('clueContinue').addEventListener('click',advanceClue);
 })();

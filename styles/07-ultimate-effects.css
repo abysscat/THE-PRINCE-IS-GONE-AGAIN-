@@ -95,7 +95,7 @@
 }
 /*Ultimate skill icon: custom supplied star button replaces the Q badge.*/
 .gamebtn.ultimate-btn {
-  background: url("../images/ui/buttons/btn_skill.png") center / contain no-repeat !important;
+  background: url("../images/ui/buttons/btn_skill.webp") center / contain no-repeat !important;
   border: 0 !important;
   box-shadow: none !important;
   color: transparent !important;
@@ -104,7 +104,7 @@
   flex: 0 0 auto;
 }
 .gamebtn.ultimate-btn:active {
-  background-image: url("../images/ui/buttons/btn_skill_pressed.png") !important;
+  background-image: url("../images/ui/buttons/btn_skill_pressed.webp") !important;
   filter: brightness(1.08);
   transform: scale(.94);
 }

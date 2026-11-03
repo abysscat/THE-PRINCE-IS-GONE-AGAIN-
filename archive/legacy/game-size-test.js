@@ -14,7 +14,7 @@
 (()=> {
     const $=id=>document.getElementById(id),stage=$('stage'),hero=$('hero'),enemies=$('enemies'),overlay=$('overlay');
     let running=false,paused=false,x=0,cameraX=0,worldW=0,stageW=0,stageH=0,bgW=0,hp=100,mp=65,kills=0,levelKills=0,level=1,combo=0,lastHit=0,attackCd=0,jumpT=0,last=0,spawnTimer=0,keys= {
-    },moveV=0,jumpY=0,jumpV=0,onGround=true,coyoteMs=0,jumpBufferMs=0,faceDir=1,spawnedThisLevel=0,clues=[],clueIndex=0,exitOpen=false,exitX=0,heroActionUntil=0,heroActionSprite='images/hero/hero_stand.png',ultimateActive=false,ultimateCooldownUntil=0,ultimateToken=0,ultimateStartedAt=0;
+    },moveV=0,jumpY=0,jumpV=0,onGround=true,coyoteMs=0,jumpBufferMs=0,faceDir=1,spawnedThisLevel=0,clues=[],clueIndex=0,exitOpen=false,exitX=0,heroActionUntil=0,heroActionSprite='images/hero/hero_stand.webp',ultimateActive=false,ultimateCooldownUntil=0,ultimateToken=0,ultimateStartedAt=0;
     const world=$('world'),levelBackground=$('levelBackground'),exitPrompt=$('exitPrompt');
     const gameSettings=window.GAME_SETTINGS;
     // Q 大絕音效由 js/ultimate-sound.js 獨立管理，避免混在戰鬥邏輯中。
@@ -86,12 +86,12 @@
     // ===== 線索掉落：每關指定一件；成功時暫停並進入兩階段點擊流程 =====
     let clueModalPhase=0, activeClue=null;
     const clueByLevel={
-        1:{id:'king',name:'王室徽章',dialog:'你發現了一枚王室徽章，上面的紋章似乎屬於失蹤的王子。',frame:'images/chapter1/clues/king_layer1.png',item:'images/chapter1/clues/king_layer2.png',glow:'images/chapter1/clues/king_layer3.png'},
-        2:{id:'letter',name:'染血密信',dialog:'這封染血的密信似乎隱藏著秘密，信中的內容指向一場不為人知的陰謀。',frame:'images/chapter1/clues/letter_layer1.png',item:'images/chapter1/clues/letter_layer2.png',glow:'images/chapter1/clues/letter_layer3.png'},
-        3:{id:'piece',name:'披風碎片',dialog:'這片紫色披風似乎曾經屬於王子。附近或許還藏著最後的線索。',frame:'images/chapter1/clues/piece_layer1.png',item:'images/chapter1/clues/piece_layer2.png',glow:'images/chapter1/clues/piece_layer3.png'},
-        5:{id:'chapter2_clock',name:'古老時鐘',dialog:'時鐘的指針停在王子失蹤的那一刻。',frame:'images/chapter2/clues/clock_layer1.png',item:'images/chapter2/clues/clock_layer2.png',glow:'images/chapter2/clues/clock_layer3.png'},
-        6:{id:'chapter2_jelwellery',name:'王室珠寶',dialog:'珠寶上的紋章揭示了王室深處的秘密。',frame:'images/chapter2/clues/jelwellery_layer1.png',item:'images/chapter2/clues/jelwellery_layer2.png',glow:'images/chapter2/clues/jelwellery_layer3.png'},
-        7:{id:'chapter2_sword',name:'王者之劍',dialog:'這把劍似乎能開啟通往王國真相的道路。',frame:'images/chapter2/clues/sword_layer1.png',item:'images/chapter2/clues/sword_layer2.png',glow:'images/chapter2/clues/sword_layer3.png'}
+        1:{id:'king',name:'王室徽章',dialog:'你發現了一枚王室徽章，上面的紋章似乎屬於失蹤的王子。',frame:'images/chapter1/clues/king_layer1.webp',item:'images/chapter1/clues/king_layer2.webp',glow:'images/chapter1/clues/king_layer3.webp'},
+        2:{id:'letter',name:'染血密信',dialog:'這封染血的密信似乎隱藏著秘密，信中的內容指向一場不為人知的陰謀。',frame:'images/chapter1/clues/letter_layer1.webp',item:'images/chapter1/clues/letter_layer2.webp',glow:'images/chapter1/clues/letter_layer3.webp'},
+        3:{id:'piece',name:'披風碎片',dialog:'這片紫色披風似乎曾經屬於王子。附近或許還藏著最後的線索。',frame:'images/chapter1/clues/piece_layer1.webp',item:'images/chapter1/clues/piece_layer2.webp',glow:'images/chapter1/clues/piece_layer3.webp'},
+        5:{id:'chapter2_clock',name:'古老時鐘',dialog:'時鐘的指針停在王子失蹤的那一刻。',frame:'images/chapter2/clues/clock_layer1.webp',item:'images/chapter2/clues/clock_layer2.webp',glow:'images/chapter2/clues/clock_layer3.webp'},
+        6:{id:'chapter2_jelwellery',name:'王室珠寶',dialog:'珠寶上的紋章揭示了王室深處的秘密。',frame:'images/chapter2/clues/jelwellery_layer1.webp',item:'images/chapter2/clues/jelwellery_layer2.webp',glow:'images/chapter2/clues/jelwellery_layer3.webp'},
+        7:{id:'chapter2_sword',name:'王者之劍',dialog:'這把劍似乎能開啟通往王國真相的道路。',frame:'images/chapter2/clues/sword_layer1.webp',item:'images/chapter2/clues/sword_layer2.webp',glow:'images/chapter2/clues/sword_layer3.webp'}
     };
     const foundClues=new Set();
     function showClue(item) {
@@ -184,7 +184,7 @@
         jumpBufferMs=Math.max(0,jumpBufferMs-dt);
         if(jumpBufferMs>0&&(onGround||coyoteMs>0)&&!ultimateActive){
             jumpBufferMs=0;coyoteMs=0;onGround=false;jumpV=PHYSICS.jumpSpeed;jumpT=1;
-            setHeroSprite('images/hero/hero_jump.png');hero.classList.add('jump');
+            setHeroSprite('images/hero/hero_jump.webp');hero.classList.add('jump');
         }
         if(!onGround){
             jumpV-=PHYSICS.gravity*dt;
@@ -289,7 +289,7 @@
         resetMovementPhysics();
         attackCd=0;
         heroActionUntil=0;
-        heroActionSprite='images/hero/hero_stand.png';
+        heroActionSprite='images/hero/hero_stand.webp';
         ultimateSound.stopAll();
         ultimateActive=false;
         ultimateCooldownUntil=0;
@@ -323,7 +323,7 @@
         bgmAudio.currentTime=0;
         const sprite=$('heroSprite');
         if(sprite) {
-            sprite.src='images/hero/hero_stand.png';
+            sprite.src='images/hero/hero_stand.webp';
             sprite.style.transform='';
         }
         clearEnemies();
@@ -410,7 +410,7 @@
         heroSprite.style.transformOrigin='center center';
         hero.classList.remove('native-left-sprite');
         heroSprite.classList.toggle('thrust-sprite',kind==='thrust');
-        heroActionSprite=kind==='thrust'?'images/hero/hero_thrust.png':(kind==='bash'||kind==='special'?'images/hero/hero_bash.png':'images/hero/hero_stand.png');
+        heroActionSprite=kind==='thrust'?'images/hero/hero_thrust.webp':(kind==='bash'||kind==='special'?'images/hero/hero_bash.webp':'images/hero/hero_stand.webp');
         heroActionUntil=performance.now()+520;
         setHeroSprite(heroActionSprite);
         hero.classList.remove('thrust','bash');
@@ -581,8 +581,8 @@
                 }
                 if(running) {
                     heroActionUntil=0;
-                    heroActionSprite='images/hero/hero_stand.png';
-                    setHeroSprite(keys.left||keys.right?('images/hero/hero_walk_1_'+(faceDir<0?'left':'right')+'.png'):'images/hero/hero_stand.png')
+                    heroActionSprite='images/hero/hero_stand.webp';
+                    setHeroSprite(keys.left||keys.right?('images/hero/hero_walk_1_'+(faceDir<0?'left':'right')+'.webp'):'images/hero/hero_stand.webp')
                 }
                 ultimateActive=false;
                 updateHud()
@@ -658,16 +658,16 @@
                 setHeroSprite(heroActionSprite)
             }
             else if(jumpT>0) {
-                setHeroSprite('images/hero/hero_jump.png')
+                setHeroSprite('images/hero/hero_jump.webp')
             }
             else if(keys.left||keys.right) {
-                setHeroSprite('images/hero/hero_walk_'+((Math.floor(t/120)%4)+1)+'_'+(faceDir<0?'left':'right')+'.png');
+                setHeroSprite('images/hero/hero_walk_'+((Math.floor(t/120)%4)+1)+'_'+(faceDir<0?'left':'right')+'.webp');
                 // Walking art already has separate left/right images; don't mirror it twice.
                 hero.classList.toggle('native-left-sprite',faceDir<0)
             }
             else {
                 hero.classList.remove('native-left-sprite');
-                setHeroSprite('images/hero/hero_stand.png')
+                setHeroSprite('images/hero/hero_stand.webp')
             }
             hero.style.left=x+'px';
             updateCamera();
@@ -716,7 +716,7 @@
                     // Return to the idle pose while waiting in attack range (unless a hit/attack animation is active).
                     if(t>+(e.dataset.actionUntil||0) && !e.classList.contains('hitflash')) {
                         const es=e.querySelector('.enemySprite');
-                        if(es && /_walk[1-4]\.png(?:$|\?)/.test(es.getAttribute('src')||'')) es.src=enemySpritePath(e.dataset.spriteType||type,'idle');
+                        if(es && /_walk[1-4]\.webp(?:$|\?)/.test(es.getAttribute('src')||'')) es.src=enemySpritePath(e.dataset.spriteType||type,'idle');
                     }
                     if(t-lastAtk>cool) {
                         e.dataset.lastAttack=String(t);
@@ -785,7 +785,7 @@
         resetMovementPhysics();
         attackCd=0;
         heroActionUntil=0;
-        heroActionSprite='images/hero/hero_stand.png';
+        heroActionSprite='images/hero/hero_stand.webp';
         ultimateSound.stopAll();
         ultimateActive=false;
         ultimateStartedAt=0;
@@ -803,7 +803,7 @@
         if(sprite) {
             sprite.style.removeProperty('--skill-frame-width');
             sprite.style.removeProperty('--skill-frame-height');
-            sprite.src='images/hero/hero_stand.png';
+            sprite.src='images/hero/hero_stand.webp';
             sprite.style.transform=''
         }
         stage.classList.add('title-mode');

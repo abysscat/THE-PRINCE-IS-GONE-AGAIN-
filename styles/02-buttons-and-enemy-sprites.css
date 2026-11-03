@@ -17,25 +17,25 @@
   aspect-ratio: 1 / 1;
 }
 .gamebtn[data-act="left"] {
-  background-image: url("../images/ui/buttons/btn_move_left.png");
+  background-image: url("../images/ui/buttons/btn_move_left.webp");
 }
 .gamebtn[data-act="jump"] {
-  background-image: url("../images/ui/buttons/btn_move_forward.png");
+  background-image: url("../images/ui/buttons/btn_move_forward.webp");
 }
 .gamebtn[data-act="right"] {
-  background-image: url("../images/ui/buttons/btn_move_right.png");
+  background-image: url("../images/ui/buttons/btn_move_right.webp");
 }
 .gamebtn[data-act="thrust"] {
-  background-image: url("../images/ui/buttons/btn_attack.png");
+  background-image: url("../images/ui/buttons/btn_attack.webp");
 }
 .gamebtn[data-act="bash"] {
-  background-image: url("../images/ui/buttons/btn_defend.png");
+  background-image: url("../images/ui/buttons/btn_defend.webp");
 }
 .gamebtn[data-act="special"] {
-  background-image: url("../images/ui/buttons/btn_skill.png");
+  background-image: url("../images/ui/buttons/btn_skill.webp");
 }
 .pause {
-  background-image: url("../images/ui/buttons/btn_pause.png");
+  background-image: url("../images/ui/buttons/btn_pause.webp");
   font-size: 0;
 }
 .gamebtn:active, .pause:active {
@@ -43,28 +43,28 @@
   filter: brightness(1.15);
 }
 .gamebtn[data-act="left"]:active {
-  background-image: url("../images/ui/buttons/btn_move_left_pressed.png");
+  background-image: url("../images/ui/buttons/btn_move_left_pressed.webp");
 }
 .gamebtn[data-act="jump"]:active {
-  background-image: url("../images/ui/buttons/btn_move_forward_pressed.png");
+  background-image: url("../images/ui/buttons/btn_move_forward_pressed.webp");
 }
 .gamebtn[data-act="right"]:active {
-  background-image: url("../images/ui/buttons/btn_move_right_pressed.png");
+  background-image: url("../images/ui/buttons/btn_move_right_pressed.webp");
 }
 .gamebtn[data-act="thrust"]:active {
-  background-image: url("../images/ui/buttons/btn_attack_pressed.png");
+  background-image: url("../images/ui/buttons/btn_attack_pressed.webp");
 }
 .gamebtn[data-act="bash"]:active {
-  background-image: url("../images/ui/buttons/btn_defend_pressed.png");
+  background-image: url("../images/ui/buttons/btn_defend_pressed.webp");
 }
 .gamebtn[data-act="special"]:active {
-  background-image: url("../images/ui/buttons/btn_skill_pressed.png");
+  background-image: url("../images/ui/buttons/btn_skill_pressed.webp");
 }
 .pause:active {
-  background-image: url("../images/ui/buttons/btn_pause_pressed.png");
+  background-image: url("../images/ui/buttons/btn_pause_pressed.webp");
 }
 .gamebtn.gold {
-  background: url("../images/ui/buttons/btn_attack.png") center / contain no-repeat;
+  background: url("../images/ui/buttons/btn_attack.webp") center / contain no-repeat;
   border: 0;
   color: transparent;
 }

@@ -33,19 +33,19 @@
   will-change: background-position;
 }
 #seaRainOverlay .rain-far {
-  background-image: url('../images/chapter3/effects/rain_far.png');
+  background-image: url('../images/chapter3/effects/rain_far.webp');
   background-size: 640px 640px;
   animation: chapter3RainFar 7.2s linear infinite;
   opacity: .42;
 }
 #seaRainOverlay .rain-mid {
-  background-image: url('../images/chapter3/effects/rain_mid.png');
+  background-image: url('../images/chapter3/effects/rain_mid.webp');
   background-size: 512px 512px;
   animation: chapter3RainMid 3.7s linear infinite;
   opacity: .58;
 }
 #seaRainOverlay .rain-near {
-  background-image: url('../images/chapter3/effects/rain_near.png');
+  background-image: url('../images/chapter3/effects/rain_near.webp');
   background-size: 384px 384px;
   animation: chapter3RainNear 2.15s linear infinite;
   opacity: .70;

@@ -91,6 +91,13 @@
       }
     },
 
+    // 全敵人通用受擊硬直：短時間連中兩次後，短暫停止追近及攻擊。
+    // Chapter 1 Boss 與蜘蛛 Boss 亦沿用相同的連擊時間窗及硬直時間。
+    enemyHitStun: {
+      comboWindowMs: 1100,
+      durationMs: 260
+    },
+
     // 敵人生命值。boss 是 Boss 的最大生命值；default 是沒列出的普通敵人。
     enemyHP: {
       boss: 10,

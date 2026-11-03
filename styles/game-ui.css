@@ -145,15 +145,6 @@
 #world #enemies > .enemy.enemy-boss .enemy-name {
   top: -44px !important;
 }
-/* enemy_2 的 hit 圖畫布比例比 normal 窄，受擊時補足橫向比例，避免視覺上突然縮小。
-   只調整受擊圖，不改變碰撞盒、血量或敵人座標。 */
-#world #enemies > .enemy.enemy-shield.hitflash .enemy-art .enemySprite[src*="chapter1_enemy_2_hit"],
-#world #enemies > .enemy.enemy-heavy.hitflash .enemy-art .enemySprite[src*="chapter1_enemy_2_hit"] {
-  transform: scaleX(1.25) !important;
-  animation: none !important;
-}
-
-
 /* 第二章一般敵人：各狀態 PNG 寬高比例不同，固定可見高度並允許攻擊姿勢向兩側伸展，
    避免 object-fit:contain 以寬度縮放，造成攻擊／受擊影格看起來突然變小。 */
 #world.chapter2-world #enemies > .enemy[data-sprite-type^="chapter2_enemy_"] .enemy-art .enemySprite {

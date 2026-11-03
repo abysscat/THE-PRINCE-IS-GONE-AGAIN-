@@ -1,0 +1,9 @@
+/* Shared visual control wrapper. Loaded by both the normal game and Editor build. */
+#world #enemies > .enemy .enemy-art > .eve-art-control {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform-origin: 50% 100% !important;
+  pointer-events: none;
+}

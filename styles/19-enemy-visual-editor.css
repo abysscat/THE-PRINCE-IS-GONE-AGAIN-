@@ -1,0 +1,98 @@
+/* ENEMY VISUAL EDITOR — 開發工具面板及獨立圖片控制層。 */
+#enemyVisualEditorLauncher,
+#enemyVisualEditor {
+  font-family: Inter, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  box-sizing: border-box;
+}
+#enemyVisualEditorLauncher *,
+#enemyVisualEditor * { box-sizing: border-box; }
+
+/* 重要：控制層位於原有 .enemy-art 內部，填滿相同畫框。 */
+#world #enemies > .enemy .enemy-art > .eve-art-control {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform-origin: 50% 100% !important;
+  pointer-events: none;
+}
+
+#enemyVisualEditorLauncher {
+  position: fixed;
+  z-index: 25000;
+  right: max(12px, env(safe-area-inset-right));
+  top: max(12px, env(safe-area-inset-top));
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(234, 201, 132, .72);
+  border-radius: 999px;
+  padding: 9px 13px;
+  color: #f8e8c4;
+  background: linear-gradient(180deg, #33465d, #17283d);
+  box-shadow: 0 6px 22px rgba(0,0,0,.3);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+#enemyVisualEditorLauncher:hover { filter: brightness(1.12); }
+#enemyVisualEditorLauncher:focus-visible,
+#enemyVisualEditor button:focus-visible,
+#enemyVisualEditor input:focus-visible,
+#enemyVisualEditor select:focus-visible {
+  outline: 2px solid #f4d48e;
+  outline-offset: 2px;
+}
+
+#enemyVisualEditor {
+  position: fixed;
+  z-index: 25001;
+  top: max(58px, calc(env(safe-area-inset-top) + 52px));
+  right: max(12px, env(safe-area-inset-right));
+  width: min(368px, calc(100vw - 24px));
+  max-height: calc(100dvh - 76px - env(safe-area-inset-bottom));
+  overflow: auto;
+  padding: 15px;
+  border: 1px solid rgba(232, 198, 127, .7);
+  border-radius: 17px;
+  color: #f4f0e8;
+  background: linear-gradient(155deg, rgba(29, 43, 60, .98), rgba(12, 22, 36, .98));
+  box-shadow: 0 18px 55px rgba(0,0,0,.48);
+  backdrop-filter: blur(12px);
+}
+#enemyVisualEditor[hidden] { display: none !important; }
+#enemyVisualEditor .eve-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+#enemyVisualEditor .eve-title { margin:0; color:#f3d99f; font-size:15px; line-height:1.2; letter-spacing:.08em; }
+#enemyVisualEditor .eve-subtitle { margin-top:5px; color:#b8c2ce; font-size:11px; line-height:1.45; }
+#enemyVisualEditor .eve-close { flex:0 0 30px; width:30px; height:30px; border:1px solid #526174; border-radius:9px; color:#fff; background:#27384d; font-size:20px; line-height:1; cursor:pointer; }
+#enemyVisualEditor .eve-card { margin:10px 0; padding:11px; border:1px solid rgba(151,171,192,.19); border-radius:12px; background:rgba(255,255,255,.045); }
+#enemyVisualEditor .eve-field { display:block; margin-bottom:11px; }
+#enemyVisualEditor .eve-field:last-child { margin-bottom:0; }
+#enemyVisualEditor .eve-labelrow { display:flex; align-items:center; justify-content:space-between; gap:9px; margin-bottom:7px; color:#e8edf3; font-size:12px; font-weight:700; }
+#enemyVisualEditor .eve-value { min-width:62px; color:#f3d99f; text-align:right; font-variant-numeric:tabular-nums; font-size:13px; }
+#enemyVisualEditor select { width:100%; min-height:39px; border:1px solid #53657a; border-radius:9px; padding:7px 10px; color:#f7f4ee; background:#1e3045; font:inherit; font-size:12px; }
+#enemyVisualEditor input[type="range"] { display:block; width:100%; margin:3px 0 0; accent-color:#e4bd72; cursor:pointer; }
+#enemyVisualEditor .eve-scale-ends { display:flex; justify-content:space-between; margin-top:3px; color:#8999aa; font-size:10px; }
+#enemyVisualEditor .eve-stats { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:10px; }
+#enemyVisualEditor .eve-stat { min-width:0; padding:8px; border-radius:9px; background:rgba(0,0,0,.19); }
+#enemyVisualEditor .eve-stat span { display:block; margin-bottom:3px; color:#9eacbb; font-size:10px; }
+#enemyVisualEditor .eve-stat strong { display:block; overflow-wrap:anywhere; color:#f5e7c9; font-size:12px; font-variant-numeric:tabular-nums; }
+#enemyVisualEditor .eve-note { margin:9px 0 0; color:#b5c1ce; font-size:10px; line-height:1.55; }
+#enemyVisualEditor .eve-status { min-height:34px; margin:9px 0 0; padding:8px 9px; border-radius:8px; color:#d8e6d7; background:rgba(96,143,105,.15); font-size:11px; line-height:1.45; }
+#enemyVisualEditor .eve-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:11px; }
+#enemyVisualEditor .eve-actions button { min-height:38px; border:1px solid #65758a; border-radius:9px; padding:7px 8px; color:#f4f0e8; background:#2d4056; font:inherit; font-size:11px; font-weight:700; cursor:pointer; }
+#enemyVisualEditor .eve-actions button.primary { border-color:#d8b779; color:#352817; background:linear-gradient(180deg,#efd49b,#c99d57); }
+#enemyVisualEditor .eve-actions button:hover { filter:brightness(1.1); }
+#enemyVisualEditor .eve-full { grid-column:1 / -1; }
+#enemyVisualEditor .eve-footer { margin-top:10px; color:#8f9dad; font-size:10px; line-height:1.5; }
+#enemyVisualEditor .eve-checkrow { display:flex; align-items:center; gap:8px; color:#dce4ec; font-size:11px; }
+#enemyVisualEditor .eve-checkrow input { accent-color:#e4bd72; }
+
+body.eve-show-frame #enemies > .enemy.eve-selected { outline:1px dashed #f2ce82; outline-offset:-4px; }
+body.eve-show-frame #enemies > .enemy.eve-selected .enemy-art { filter:drop-shadow(0 0 3px rgba(255,222,151,.5)); }
+
+@media (max-width:620px) {
+  #enemyVisualEditorLauncher { right:8px; top:max(8px,env(safe-area-inset-top)); padding:8px 10px; font-size:10px; }
+  #enemyVisualEditor { top:max(52px,calc(env(safe-area-inset-top) + 47px)); right:8px; width:min(350px,calc(100vw - 16px)); max-height:calc(100dvh - 64px - env(safe-area-inset-bottom)); padding:12px; }
+}

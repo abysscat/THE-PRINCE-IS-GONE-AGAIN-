@@ -154,7 +154,7 @@
     padding: 22px 15px 15px;
   }
 }
-/*FIXED JUMP: use the supplied hero_jump.png and visibly lift the whole character*/
+/*FIXED JUMP: use the supplied hero_jump.webp and visibly lift the whole character*/
 .hero.jump {
   bottom: 14% !important;
   animation: heroJumpUp .62s cubic-bezier(.2,.75,.25,1) both !important;

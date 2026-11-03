@@ -89,3 +89,65 @@
 /* Boss Rush 全程保持可見；第二次衝刺後在場內步行返回，不使用隱藏狀態。 */
 #hero.boss-knocked { pointer-events:none; }
 #hero.boss-knocked #heroSprite { animation:none !important; }
+
+
+/* Chapter 1 Boss 1：獨立受擊回饋，不切換完整 hit 素材、不改變角色尺寸或位置。 */
+#world #enemies > .enemy.enemy-boss[data-sprite-type="boss"].chapter1-boss-hit .enemySprite {
+  animation: chapter1BossLightHit 80ms ease-out both !important;
+}
+#world #enemies > .enemy.enemy-boss[data-sprite-type="boss"].chapter1-boss-heavy-hit .enemySprite {
+  animation: chapter1BossHeavyHit 120ms ease-out both !important;
+}
+@keyframes chapter1BossLightHit {
+  0% { transform: translateX(0) rotate(0); filter: brightness(1); }
+  35% { transform: translateX(-3px) rotate(-2deg); filter: brightness(2.25) saturate(.45); }
+  100% { transform: translateX(0) rotate(0); filter: brightness(1); }
+}
+@keyframes chapter1BossHeavyHit {
+  0% { transform: translateX(0) rotate(0); filter: brightness(1); }
+  22% { transform: translateX(-7px) rotate(-5deg); filter: brightness(2.7) saturate(.35); }
+  55% { transform: translateX(3px) rotate(2deg); filter: brightness(1.9) sepia(.25); }
+  100% { transform: translateX(0) rotate(0); filter: brightness(1); }
+}
+.chapter1-boss-hit-sparks {
+  position: absolute;
+  z-index: 8;
+  left: 54%;
+  top: 43%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.chapter1-boss-hit-sparks i {
+  position: absolute;
+  display: block;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 13px;
+  border-radius: 99px;
+  background: linear-gradient(180deg, #fffef0, #ffd34f 65%, rgba(255,177,37,0));
+  box-shadow: 0 0 7px #fff1a8, 0 0 12px #ffb52e;
+  transform: rotate(var(--spark-angle)) translateY(calc(-1 * var(--spark-distance)));
+  transform-origin: 50% 0;
+  animation: chapter1BossSpark 210ms ease-out both;
+}
+.chapter1-boss-hit-sparks.is-heavy i {
+  width: 7px;
+  height: 19px;
+  box-shadow: 0 0 9px #fff, 0 0 16px #ffb52e;
+  animation-duration: 280ms;
+}
+@keyframes chapter1BossSpark {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.stage.boss-hit-camera-shake #world {
+  animation: bossHitCameraShake 160ms linear;
+}
+@keyframes bossHitCameraShake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -3px 1px; }
+  45% { translate: 3px -1px; }
+  70% { translate: -2px 0; }
+}

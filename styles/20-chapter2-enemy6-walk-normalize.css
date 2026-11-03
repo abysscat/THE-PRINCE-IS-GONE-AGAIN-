@@ -1,0 +1,39 @@
+/*
+ * Chapter 2 Enemy 6 — walk frame visual-size normalization.
+ * The four walk WEBPs use a 190x213 canvas with different transparent margins,
+ * while normal uses a tightly packed 151x137 canvas. Since the Chapter 2 sprite
+ * rule renders every image at 100% frame height, the walk poses look smaller.
+ *
+ * Compensate only the artwork of walk1–walk4. Keep the enemy container,
+ * collision, AI, HP, animation timing and all other poses unchanged.
+ * The original game-tuning transform is retained, then a per-pose scale and
+ * foot-gap translation are appended. This preserves Enemy Editor scaling too.
+ */
+
+/* walk1: visible alpha bbox 126x161 in a 190x213 canvas; 26px transparent below. */
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_6"] .enemy-art .enemySprite[src$="chapter2_enemy_6_walk1.webp"] {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-6-y, 0px)) scale(var(--tune-chapter2-enemy-6-scale, 1)) translateY(16.14%) scale(1.323) !important;
+  transform-origin: 50% 100% !important;
+  bottom: 0 !important;
+}
+
+/* walk2: visible alpha bbox 140x161; it has 32px transparent below. */
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_6"] .enemy-art .enemySprite[src$="chapter2_enemy_6_walk2.webp"] {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-6-y, 0px)) scale(var(--tune-chapter2-enemy-6-scale, 1)) translateY(19.86%) scale(1.323) !important;
+  transform-origin: 50% 100% !important;
+  bottom: 0 !important;
+}
+
+/* walk3: its visible height is already close to the other normalized poses. */
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_6"] .enemy-art .enemySprite[src$="chapter2_enemy_6_walk3.webp"] {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-6-y, 0px)) scale(var(--tune-chapter2-enemy-6-scale, 1)) translateY(1.95%) scale(1.039) !important;
+  transform-origin: 50% 100% !important;
+  bottom: 0 !important;
+}
+
+/* walk4: visible alpha bbox 164x161 in a 190x213 canvas; 26px transparent below. */
+#world.chapter2-world #enemies > .enemy[data-sprite-type="chapter2_enemy_6"] .enemy-art .enemySprite[src$="chapter2_enemy_6_walk4.webp"] {
+  transform: translateX(-50%) translateY(var(--tune-chapter2-enemy-6-y, 0px)) scale(var(--tune-chapter2-enemy-6-scale, 1)) translateY(16.14%) scale(1.323) !important;
+  transform-origin: 50% 100% !important;
+  bottom: 0 !important;
+}

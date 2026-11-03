@@ -163,3 +163,27 @@
 .clue-item {
   animation-duration: var(--tune-clue-reveal-ms) !important;
 }
+
+/* 2026-11-03：第一章第 2、4 號敵人的所有姿勢均改用統一 300×300 原圖畫布。
+   不再按 hit／attack 檔名個別縮放；所有姿勢使用同一個美術框、contain 規則及底部錨點。
+   scale:none 清除舊版殘留比例，translate:none 清除舊版攻擊圖位移；transform 動畫仍可正常執行。
+   敵人 2 對應 shield/heavy 兩種戰鬥類型；敵人 4 對應 archer。碰撞盒及戰鬥參數不變。 */
+#world #enemies > .enemy.enemy-shield .enemy-art .enemySprite,
+#world #enemies > .enemy.enemy-heavy .enemy-art .enemySprite,
+#world #enemies > .enemy.enemy-archer .enemy-art .enemySprite {
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  scale: none !important;
+  translate: none !important;
+  transform-origin: 50% 100% !important;
+}

@@ -8,17 +8,17 @@
     function enemySpritePath(type, state) {
         // 第三章最終 Boss：素材為獨立 PNG 姿勢，不是 sprite sheet。
         if (type === "chapter3_boss_1") {
-            if (state === "dead") state = "idle"; // idle.png 是倒地圖；hit.png 只用於受擊反應。
+            if (state === "dead") state = "idle"; // idle.webp 是倒地圖；hit.webp 只用於受擊反應。
             else if (state === "idle") state = "normal";
             if (state === "walk") state = "walk" + (1 + (Math.floor(performance.now() / 130) % 8));
-            return "images/chapter3/enemies/chapter3_boss/chapter3_boss_1_" + state + ".png";
+            return "images/chapter3/enemies/chapter3_boss/chapter3_boss_1_" + state + ".webp";
         }
         // Boss 召喚的可消滅觸手。第一張檔名保留原素材的 other_1png 拼法。
         if (type === "chapter3_boss_1_tentacle") {
             let n = 1;
             const match = String(state || "").match(/other_?(\d)/);
             if (match) n = Math.max(1, Math.min(4, Number(match[1])));
-            const file = n === 1 ? "chapter3_boss_1_other_1png.png" : "chapter3_boss_1_other_" + n + ".png";
+            const file = n === 1 ? "chapter3_boss_1_other_1png.webp" : "chapter3_boss_1_other_" + n + ".webp";
             return "images/chapter3/enemies/chapter3_boss/" + file;
         }
         // 第三章鬼魂：素材集中在 chapter3/enemies/chapter3_enemy_1。
@@ -32,7 +32,7 @@
             if (state === "dead") state = "idle";
             if (state === "special") state = "attack";
             const file = "chapter3_enemy_1_" + state;
-            return "images/chapter3/enemies/chapter3_enemy_1/" + file + ".png";
+            return "images/chapter3/enemies/chapter3_enemy_1/" + file + ".webp";
         }
 
         // 第三章新增敵人：每種敵人獨立使用自己的素材資料夾。
@@ -44,7 +44,7 @@
                 ? "chapter3_enemy_6"
                 : type;
             const pose = state === "dead" ? "idle" : (state === "idle" ? "normal" : state);
-            return "images/chapter3/enemies/" + type + "/" + filePrefix + "_" + pose + ".png?v=20261028-foot-anchor-v5";
+            return "images/chapter3/enemies/" + type + "/" + filePrefix + "_" + pose + ".webp?v=20261028-foot-anchor-v5";
         }
 
         // 第二章：normal=待機、hit=受擊、attack=攻擊、idle=死亡。
@@ -57,7 +57,7 @@
                 state = "walk" + (1 + (Math.floor(performance.now() / 130) % frameCount));
             }
             const pose = state === "dead" ? "idle" : (state === "idle" ? "normal" : state);
-            return "images/chapter2/enemies/" + type + "/" + type + "_" + pose + ".png";
+            return "images/chapter2/enemies/" + type + "/" + type + "_" + pose + ".webp";
         }
 
         // 第一章：attack=攻擊、hit=受擊、idle=死亡、normal=待機。
@@ -79,14 +79,21 @@
                 ? "images/chapter1/boss/"
                 : "images/chapter1/enemies/" + number + "/";
             // 第一章各敵人均有 walk1–walk4；game.js 傳入具體影格名稱。
-            // 若其他呼叫端傳入 walk，這裡仍可自動循環，避免回退到不存在的 walk.png。
+            // 若其他呼叫端傳入 walk，這裡仍可自動循環，避免回退到不存在的 walk.webp。
             if (state === "walk") state = "walk" + (1 + (Math.floor(performance.now() / 130) % 4));
             const pose = state === "dead" ? "idle" : (state === "idle" ? "normal" : state);
-            return folder + "chapter1_" + kind + "_" + number + "_" + pose + ".png";
+            const assetPath = folder + "chapter1_" + kind + "_" + number + "_" + pose + ".webp";
+            // Enemy 2 / 4 source images were re-exported by the user with a normalized 300×300 canvas.
+            // A revision query forces browsers / GitHub Pages to load the new originals rather than
+            // reusing cached copies with the old source dimensions. All poses share this same revision.
+            if (type === "shield" || type === "heavy" || type === "archer") {
+                return assetPath + "?v=20261103-ch1-enemy2-enemy4-canvas300";
+            }
+            return assetPath;
         }
 
         // 其他未指定自訂素材的敵人沿用原有路徑。
-        return "images/enemies/enemy_" + state + ".png";
+        return "images/enemies/enemy_" + state + ".webp";
     }
 
     window.EnemyVisuals = { enemySpritePath };
