@@ -1,0 +1,5833 @@
+/* Stage Editor path-only export.
+ * Backgrounds: images/chapterN/backgrounds/
+ * Platforms + Hazard art: images/chapterN/bg/
+ * Enemies: images/chapterN/enemies/
+ * This JS stores relative paths only. Use the Stage Editor Resource ZIP export
+ * to create chapter folders and include the actual image files.
+ */
+window.PRINCE_STAGE_CONFIG = {
+  "schemaVersion": 10,
+  "projectName": "王子又不見了！Stage Project",
+  "currentStageId": "chapter4_stage3",
+  "assetLibrary": [
+    {
+      "id": "asset_1",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_1_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_2",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_2_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_3",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_3_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_4",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_4_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_5",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_5_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_6",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_6_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_7",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_7_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_8",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_8_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_9",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_9_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_10",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_10_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_11",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_11_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_12",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_12_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_13",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_13_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_14",
+      "name": "platform_fixed_03.webp",
+      "path": "images/chapter4/bg/asset_14_platform_fixed_03.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_15",
+      "name": "platform_fixed_03.webp",
+      "path": "images/chapter4/bg/asset_15_platform_fixed_03.webp",
+      "category": "moving",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_16",
+      "name": "platform_fixed_02.png.webp",
+      "path": "images/chapter4/bg/asset_16_platform_fixed_02_png.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_17",
+      "name": "platform_fixed_02.png.webp",
+      "path": "images/chapter4/bg/asset_17_platform_fixed_02_png.webp",
+      "category": "moving",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_18",
+      "name": "platform_fixed_03.webp",
+      "path": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+      "category": "moving",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_19",
+      "name": "platform_fixed_02.png.webp",
+      "path": "images/chapter4/bg/asset_19_platform_fixed_02_png.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_20",
+      "name": "platform_fixed_02.png.webp",
+      "path": "images/chapter4/bg/asset_20_platform_fixed_02_png.webp",
+      "category": "moving",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_21",
+      "name": "platform_fixed_02.png.webp",
+      "path": "images/chapter4/bg/asset_21_platform_fixed_02_png.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_22",
+      "name": "platform_fixed_04.webp",
+      "path": "images/chapter4/bg/asset_22_platform_fixed_04.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_23",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_23_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_24",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_24_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_25",
+      "name": "platform_fixed_04.webp",
+      "path": "images/chapter4/bg/asset_25_platform_fixed_04.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_26",
+      "name": "platform_fixed_03.webp",
+      "path": "images/chapter4/bg/asset_26_platform_fixed_03.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_27",
+      "name": "platform_fixed_04.webp",
+      "path": "images/chapter4/bg/asset_27_platform_fixed_04.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_28",
+      "name": "platform_fixed_04.webp",
+      "path": "images/chapter4/bg/asset_28_platform_fixed_04.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_29",
+      "name": "platform_fixed_03.webp",
+      "path": "images/chapter4/bg/asset_29_platform_fixed_03.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_30",
+      "name": "platform_fixed_01.png.png",
+      "path": "images/chapter4/bg/asset_30_platform_fixed_01_png.png",
+      "category": "fixed",
+      "mime": "image/png",
+      "chapter": 4
+    },
+    {
+      "id": "asset_31",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_31_platform_fixed_05.webp",
+      "category": "moving",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_32",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_32_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_33",
+      "name": "platform_fixed_01.png.png",
+      "path": "images/chapter4/bg/asset_33_platform_fixed_01_png.png",
+      "category": "fixed",
+      "mime": "image/png",
+      "chapter": 4
+    },
+    {
+      "id": "asset_34",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_34_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_35",
+      "name": "Chapter 4 · Stage 1 背景",
+      "path": "images/chapter4/backgrounds/asset_35_background.webp",
+      "category": "background",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_36",
+      "name": "Chapter 4 · Stage 2 背景",
+      "path": "images/chapter4/backgrounds/asset_36_background.webp",
+      "category": "background",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_37",
+      "name": "platform_fixed_01.png.png",
+      "path": "images/chapter4/bg/asset_37_platform_fixed_01_png.png",
+      "category": "fixed",
+      "mime": "image/png",
+      "chapter": 4
+    },
+    {
+      "id": "asset_38",
+      "name": "bg2.webp",
+      "path": "images/chapter4/backgrounds/asset_38_bg2.webp",
+      "category": "background",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_39",
+      "name": "stage_bg2_platform_01.webp",
+      "path": "images/chapter4/bg/asset_39_stage_bg2_platform_01.png",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_40",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_40_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_41",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_41_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_42",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/backgrounds/asset_42_platform_fixed_05.webp",
+      "category": "background",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_43",
+      "name": "bg2.webp",
+      "path": "images/chapter4/backgrounds/asset_43_bg2.webp",
+      "category": "background",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_44",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_44_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_45",
+      "name": "stage_bg2_platform_09.webp",
+      "path": "images/chapter4/bg/asset_45_stage_bg2_platform_09.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_46",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_46_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_47",
+      "name": "stage_bg2_platform_05.webp",
+      "path": "images/chapter4/bg/asset_47_stage_bg2_platform_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_48",
+      "name": "stage_bg2_platform_13.webp",
+      "path": "images/chapter4/bg/asset_48_stage_bg2_platform_13.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_49",
+      "name": "stage_bg2_platform_13.webp",
+      "path": "images/chapter4/bg/asset_49_stage_bg2_platform_13.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_50",
+      "name": "stage_bg2_platform_03.webp",
+      "path": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+      "category": "moving",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_51",
+      "name": "stage_bg2_platform_12.webp",
+      "path": "images/chapter4/bg/asset_51_stage_bg2_platform_12.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_52",
+      "name": "stage_bg2_platform_11.webp",
+      "path": "images/chapter4/bg/asset_52_stage_bg2_platform_11.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_53",
+      "name": "stage_bg2_platform_02.webp",
+      "path": "images/chapter4/bg/asset_53_stage_bg2_platform_02.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_54",
+      "name": "stage_bg2_platform_06.webp",
+      "path": "images/chapter4/bg/asset_54_stage_bg2_platform_06.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_55",
+      "name": "platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_55_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_56",
+      "name": "stage_bg2_platform_09.webp",
+      "path": "images/chapter4/bg/asset_56_stage_bg2_platform_09.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_57",
+      "name": "stage_bg2_platform_04.webp",
+      "path": "images/chapter4/bg/asset_57_stage_bg2_platform_04.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_58",
+      "name": "stage_bg2_platform_13.webp",
+      "path": "images/chapter4/bg/asset_58_stage_bg2_platform_13.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_59",
+      "name": "stage_bg2_platform_07.webp",
+      "path": "images/chapter4/bg/asset_59_stage_bg2_platform_07.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_60",
+      "name": "stage_bg2_platform_07.webp",
+      "path": "images/chapter4/bg/asset_60_stage_bg2_platform_07.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_61",
+      "name": "stage_bg2_platform_09.webp",
+      "path": "images/chapter4/bg/asset_61_stage_bg2_platform_09.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_62",
+      "name": "cheapter4_bg3.webp",
+      "path": "images/chapter4/backgrounds/cheapter4_bg3.webp",
+      "category": "background",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_63",
+      "name": "cheapter4_bg3.webp",
+      "path": "images/chapter4/backgrounds/cheapter4_bg3.webp",
+      "category": "background",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_64",
+      "name": "stage_bg3_platform_17.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_17.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_65",
+      "name": "stage_bg3_platform_28.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_28.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_66",
+      "name": "stage_bg3_platform_30.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_30.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_67",
+      "name": "stage_bg3_platform_12.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_12.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_68",
+      "name": "stage_bg3_platform_12.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_12.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_69",
+      "name": "stage_bg3_platform_10.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_10.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_70",
+      "name": "stage_bg3_platform_26.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_26.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_71",
+      "name": "stage_bg3_platform_6.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_6.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_72",
+      "name": "stage_bg3_platform_6.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_6.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_73",
+      "name": "stage_bg3_platform_6.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_6.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_74",
+      "name": "stage_bg3_platform_19.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_19.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_75",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_76",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_77",
+      "name": "stage_bg3_platform_2.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_2.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_78",
+      "name": "stage_bg3_platform_25.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_25.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_79",
+      "name": "stage_bg3_platform_9.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_9.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_80",
+      "name": "stage_bg3_platform_16.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_16.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_81",
+      "name": "stage_bg3_platform_4.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_4.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_82",
+      "name": "stage_bg3_platform_2.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_2.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_83",
+      "name": "stage_bg3_platform_8-9-stage_bg3_platform_16.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_8-9-stage_bg3_platform_16.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_84",
+      "name": "stage_bg3_platform_7.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_7.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_85",
+      "name": "stage_bg3_platform_28.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_28.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_86",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_87",
+      "name": "stage_bg3_platform_26.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_26.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_88",
+      "name": "stage_bg3_platform_28.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_28.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_89",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_90",
+      "name": "stage_bg3_platform_20.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_20.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_91",
+      "name": "stage_bg3_platform_20.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_20.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_92",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_93",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_94",
+      "name": "stage_bg3_platform_29.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_29.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_95",
+      "name": "stage_bg3_platform_2.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_2.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_96",
+      "name": "stage_bg3_platform_27.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_27.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_97",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_98",
+      "name": "asset_42_platform_fixed_05.webp",
+      "path": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_99",
+      "name": "stage_bg3_platform_23.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_23.webp",
+      "category": "moving",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_100",
+      "name": "stage_bg3_platform_27.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_27.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    },
+    {
+      "id": "asset_101",
+      "name": "stage_bg3_platform_5.webp",
+      "path": "images/chapter4/bg/stage_bg3_platform_5.webp",
+      "category": "fixed",
+      "mime": "image/webp",
+      "chapter": 4
+    }
+  ],
+  "stages": [
+    {
+      "id": "chapter4_stage1",
+      "name": "Chapter 4 · Stage 1",
+      "background": "images/chapter4/backgrounds/asset_35_background.webp",
+      "width": 1774,
+      "height": 1774,
+      "backgroundWidth": 1774,
+      "backgroundHeight": 1774,
+      "worldWidth": 1774,
+      "worldWidthManual": true,
+      "playerStart": {
+        "x": 1703,
+        "y": 1519
+      },
+      "platforms": [
+        {
+          "id": "platform_1",
+          "label": "P1",
+          "kind": "fixed",
+          "x1": 1747,
+          "x2": 1934,
+          "y": 1516,
+          "imageSrc": "images/chapter4/bg/asset_29_platform_fixed_03.webp",
+          "imageAssetId": "asset_29",
+          "imageHeight": 52,
+          "imageScale": 300,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.024224505632402582,
+            "y1": 0.13042491808689394,
+            "x2": 0.3794016433596811,
+            "y2": 0.11215973881966834
+          }
+        },
+        {
+          "id": "platform_2",
+          "label": "P2",
+          "kind": "fixed",
+          "x1": 1391,
+          "x2": 1578,
+          "y": 1438,
+          "imageSrc": "images/chapter4/bg/asset_30_platform_fixed_01_png.png",
+          "imageAssetId": "asset_30",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0,
+            "y1": 0.5746913144403508,
+            "x2": 0.9066219965188015,
+            "y2": 0.5424281782290051
+          }
+        },
+        {
+          "id": "platform_3",
+          "label": "P3",
+          "kind": "fixed",
+          "x1": 1144,
+          "x2": 1331,
+          "y": 1383,
+          "imageSrc": "images/chapter4/bg/asset_21_platform_fixed_02_png.webp",
+          "imageAssetId": "asset_21",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.1877207099942681,
+            "y1": 0.3726843286914519,
+            "x2": 0.8063550910776959,
+            "y2": 0.3666666447553696
+          }
+        },
+        {
+          "id": "platform_5",
+          "label": "P5",
+          "kind": "fixed",
+          "x1": 1488,
+          "x2": 1773,
+          "y": 1115,
+          "imageSrc": "images/chapter4/bg/asset_1_platform_fixed_05.webp",
+          "imageAssetId": "asset_1",
+          "imageHeight": 52,
+          "imageScale": 114,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_6",
+          "label": "P6",
+          "kind": "fixed",
+          "x1": 589,
+          "x2": 1752,
+          "y": 933,
+          "imageSrc": "images/chapter4/bg/asset_2_platform_fixed_05.webp",
+          "imageAssetId": "asset_2",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_8",
+          "label": "P8",
+          "kind": "fixed",
+          "x1": 420,
+          "x2": 667,
+          "y": 1242,
+          "imageSrc": "images/chapter4/bg/asset_4_platform_fixed_05.webp",
+          "imageAssetId": "asset_4",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_9",
+          "label": "P9",
+          "kind": "fixed",
+          "x1": 1,
+          "x2": 248,
+          "y": 1504,
+          "imageSrc": "images/chapter4/bg/asset_4_platform_fixed_05.webp",
+          "imageAssetId": "asset_4",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_12",
+          "label": "P12",
+          "kind": "fixed",
+          "x1": 1347,
+          "x2": 1733,
+          "y": 491,
+          "imageSrc": "images/chapter4/bg/asset_28_platform_fixed_04.webp",
+          "imageAssetId": "asset_28",
+          "imageHeight": 52,
+          "imageScale": 120,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.0766003784874591,
+            "y1": 0.17545564749560766,
+            "x2": 0.9782667854942397,
+            "y2": 0.17545564749560766
+          }
+        },
+        {
+          "id": "platform_13",
+          "label": "P13",
+          "kind": "fixed",
+          "x1": 1621,
+          "x2": 1866,
+          "y": 732,
+          "imageSrc": "images/chapter4/bg/asset_8_platform_fixed_05.webp",
+          "imageAssetId": "asset_8",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_14",
+          "label": "P14",
+          "kind": "fixed",
+          "x1": -18,
+          "x2": 233,
+          "y": 832,
+          "imageSrc": "images/chapter4/bg/asset_9_platform_fixed_05.webp",
+          "imageAssetId": "asset_9",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_18",
+          "label": "P18",
+          "kind": "fixed",
+          "x1": 269,
+          "x2": 450,
+          "y": 1419,
+          "imageSrc": "images/chapter4/bg/asset_13_platform_fixed_05.webp",
+          "imageAssetId": "asset_13",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_21",
+          "label": "P21",
+          "kind": "moving",
+          "x1": 745,
+          "x2": 846,
+          "y": 1273,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 796,
+              "y": 1273
+            },
+            "to": {
+              "x": 1575,
+              "y": 1275
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_22",
+          "label": "P22",
+          "kind": "fixed",
+          "x1": 219,
+          "x2": 470,
+          "y": 1040,
+          "imageSrc": "images/chapter4/bg/asset_9_platform_fixed_05.webp",
+          "imageAssetId": "asset_9",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_23",
+          "label": "P23",
+          "kind": "fixed",
+          "x1": 15,
+          "x2": 266,
+          "y": 1104,
+          "imageSrc": "images/chapter4/bg/asset_9_platform_fixed_05.webp",
+          "imageAssetId": "asset_9",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_19",
+          "label": "P19",
+          "kind": "moving",
+          "x1": 747,
+          "x2": 848,
+          "y": 1658,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 798,
+              "y": 1658
+            },
+            "to": {
+              "x": 1577,
+              "y": 1660
+            }
+          },
+          "standLine": {
+            "x1": 0.07462059863223319,
+            "y1": 0.1308189549589901,
+            "x2": 0.8862117330903989,
+            "y2": 0.1308189549589901
+          }
+        },
+        {
+          "id": "platform_20",
+          "label": "P20",
+          "kind": "moving",
+          "x1": 1301,
+          "x2": 1402,
+          "y": 1629,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1352,
+              "y": 1629
+            },
+            "to": {
+              "x": 1351,
+              "y": 1071
+            }
+          },
+          "standLine": {
+            "x1": 0.04731747172170592,
+            "y1": 0.14230819826889124,
+            "x2": 0.8821806181628411,
+            "y2": 0.15943819840875723
+          }
+        },
+        {
+          "id": "platform_24",
+          "label": "P24",
+          "kind": "fixed",
+          "x1": 1233,
+          "x2": 1420,
+          "y": 1607,
+          "imageSrc": "images/chapter4/bg/asset_21_platform_fixed_02_png.webp",
+          "imageAssetId": "asset_21",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.1877207099942681,
+            "y1": 0.3726843286914519,
+            "x2": 0.8063550910776959,
+            "y2": 0.3666666447553696
+          }
+        },
+        {
+          "id": "platform_25",
+          "label": "P25",
+          "kind": "fixed",
+          "x1": 446,
+          "x2": 633,
+          "y": 1120,
+          "imageSrc": "images/chapter4/bg/asset_21_platform_fixed_02_png.webp",
+          "imageAssetId": "asset_21",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.1877207099942681,
+            "y1": 0.3726843286914519,
+            "x2": 0.8063550910776959,
+            "y2": 0.3666666447553696
+          }
+        },
+        {
+          "id": "platform_26",
+          "label": "P26",
+          "kind": "fixed",
+          "x1": 1,
+          "x2": 188,
+          "y": 866,
+          "imageSrc": "images/chapter4/bg/asset_22_platform_fixed_04.webp",
+          "imageAssetId": "asset_22",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.9349001963327863,
+            "y1": 0.19104165799479567,
+            "x2": 0.143048128342246,
+            "y2": 0.19104165799479567
+          }
+        },
+        {
+          "id": "platform_27",
+          "label": "P27",
+          "kind": "fixed",
+          "x1": 454,
+          "x2": 641,
+          "y": 1523,
+          "imageSrc": "images/chapter4/bg/asset_22_platform_fixed_04.webp",
+          "imageAssetId": "asset_22",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.005356214090824374,
+            "y1": 0.20138414678886457,
+            "x2": 0.934683074371353,
+            "y2": 0.18711646854099467
+          }
+        },
+        {
+          "id": "platform_28",
+          "label": "P28",
+          "kind": "moving",
+          "x1": 904,
+          "x2": 1005,
+          "y": 790,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 955,
+              "y": 790
+            },
+            "to": {
+              "x": 959,
+              "y": 291
+            }
+          },
+          "standLine": {
+            "x1": 0.04731747172170592,
+            "y1": 0.14230819826889124,
+            "x2": 0.8821806181628411,
+            "y2": 0.15943819840875723
+          }
+        },
+        {
+          "id": "platform_29",
+          "label": "P29",
+          "kind": "moving",
+          "x1": 1361,
+          "x2": 1462,
+          "y": 1149,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 1412,
+              "y": 1149
+            },
+            "to": {
+              "x": 584,
+              "y": 1148
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_30",
+          "label": "P30",
+          "kind": "moving",
+          "x1": 488,
+          "x2": 589,
+          "y": 1005,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 539,
+              "y": 1005
+            },
+            "to": {
+              "x": 1202,
+              "y": 1003
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_31",
+          "label": "P31",
+          "kind": "fixed",
+          "x1": 568,
+          "x2": 729,
+          "y": 873,
+          "imageSrc": "images/chapter4/bg/asset_26_platform_fixed_03.webp",
+          "imageAssetId": "asset_26",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.025439612523809274,
+            "y1": 0.19068890321434245,
+            "x2": 0.8955469502698984,
+            "y2": 0.19978180800816225
+          }
+        },
+        {
+          "id": "platform_32",
+          "label": "P32",
+          "kind": "fixed",
+          "x1": 1198,
+          "x2": 1709,
+          "y": 832,
+          "imageSrc": "images/chapter4/bg/asset_27_platform_fixed_04.webp",
+          "imageAssetId": "asset_27",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.04879903854425638,
+            "y1": 0.171102628079272,
+            "x2": 0.8916630581847715,
+            "y2": 0.17404839407394146
+          }
+        },
+        {
+          "id": "platform_7",
+          "label": "P7",
+          "kind": "moving",
+          "x1": 635,
+          "x2": 736,
+          "y": 1706,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 686,
+              "y": 1706
+            },
+            "to": {
+              "x": 687,
+              "y": 999
+            }
+          },
+          "standLine": {
+            "x1": 0.07462059863223319,
+            "y1": 0.1308189549589901,
+            "x2": 0.8862117330903989,
+            "y2": 0.1308189549589901
+          }
+        },
+        {
+          "id": "platform_33",
+          "label": "P33",
+          "kind": "moving",
+          "x1": 1464,
+          "x2": 1565,
+          "y": 1371,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1515,
+              "y": 1371
+            },
+            "to": {
+              "x": 741,
+              "y": 1363
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_10",
+          "label": "P10",
+          "kind": "moving",
+          "x1": 1562,
+          "x2": 1663,
+          "y": 393,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1613,
+              "y": 393
+            },
+            "to": {
+              "x": 178,
+              "y": 393
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_34",
+          "label": "P34",
+          "kind": "moving",
+          "x1": 328,
+          "x2": 429,
+          "y": 698,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 379,
+              "y": 698
+            },
+            "to": {
+              "x": 1489,
+              "y": 694
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_35",
+          "label": "P35",
+          "kind": "moving",
+          "x1": 1318,
+          "x2": 1419,
+          "y": 769,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1369,
+              "y": 769
+            },
+            "to": {
+              "x": 643,
+              "y": 774
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_36",
+          "label": "P36",
+          "kind": "moving",
+          "x1": 1063,
+          "x2": 1164,
+          "y": 1040,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 10,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1114,
+              "y": 1040
+            },
+            "to": {
+              "x": 1107,
+              "y": 1754
+            }
+          },
+          "standLine": {
+            "x1": 0.07462059863223319,
+            "y1": 0.1308189549589901,
+            "x2": 0.8862117330903989,
+            "y2": 0.1308189549589901
+          }
+        },
+        {
+          "id": "platform_37",
+          "label": "P37",
+          "kind": "moving",
+          "x1": 754,
+          "x2": 855,
+          "y": 1015,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 40,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 805,
+              "y": 1015
+            },
+            "to": {
+              "x": 808,
+              "y": 1670
+            }
+          },
+          "standLine": {
+            "x1": 0.07462059863223319,
+            "y1": 0.1308189549589901,
+            "x2": 0.8862117330903989,
+            "y2": 0.1308189549589901
+          }
+        },
+        {
+          "id": "platform_38",
+          "label": "P38",
+          "kind": "moving",
+          "x1": 1226,
+          "x2": 1327,
+          "y": 617,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1277,
+              "y": 617
+            },
+            "to": {
+              "x": 680,
+              "y": 626
+            }
+          },
+          "standLine": {
+            "x1": 0.07647627918513894,
+            "y1": 0.1809401064796925,
+            "x2": 0.8924304976983489,
+            "y2": 0.17360045568214655
+          }
+        },
+        {
+          "id": "platform_39",
+          "label": "P39",
+          "kind": "fixed",
+          "x1": 334,
+          "x2": 521,
+          "y": 764,
+          "imageSrc": "images/chapter4/bg/asset_25_platform_fixed_04.webp",
+          "imageAssetId": "asset_25",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.05140948231872855,
+            "y1": 0.17804944157909086,
+            "x2": 0.9168645527246728,
+            "y2": 0.18207362684135303
+          }
+        },
+        {
+          "id": "platform_11",
+          "label": "P11",
+          "kind": "moving",
+          "x1": 454,
+          "x2": 555,
+          "y": 1155,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 505,
+              "y": 1155
+            },
+            "to": {
+              "x": 498,
+              "y": 816
+            }
+          },
+          "standLine": {
+            "x1": 0.07462059863223319,
+            "y1": 0.1308189549589901,
+            "x2": 0.8862117330903989,
+            "y2": 0.1308189549589901
+          }
+        },
+        {
+          "id": "platform_4",
+          "label": "P4",
+          "kind": "fixed",
+          "x1": 215,
+          "x2": 402,
+          "y": 411,
+          "imageSrc": "images/chapter4/bg/asset_21_platform_fixed_02_png.webp",
+          "imageAssetId": "asset_21",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.1877207099942681,
+            "y1": 0.3726843286914519,
+            "x2": 0.8063550910776959,
+            "y2": 0.3666666447553696
+          }
+        },
+        {
+          "id": "platform_16",
+          "label": "P16",
+          "kind": "fixed",
+          "x1": 415,
+          "x2": 602,
+          "y": 535,
+          "imageSrc": "images/chapter4/bg/asset_22_platform_fixed_04.webp",
+          "imageAssetId": "asset_22",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.07557990441165369,
+            "y1": 0.1807828599819783,
+            "x2": 0.8154038229291445,
+            "y2": 0.18883090813325348
+          }
+        },
+        {
+          "id": "platform_15",
+          "label": "P15",
+          "kind": "fixed",
+          "x1": -35,
+          "x2": 152,
+          "y": 357,
+          "imageSrc": "images/chapter4/bg/asset_21_platform_fixed_02_png.webp",
+          "imageAssetId": "asset_21",
+          "imageHeight": 52,
+          "imageScale": 300,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.7934522076968193,
+            "y1": 0.3498671985733216,
+            "x2": 0.28342245989304815,
+            "y2": 0.3468586779597572
+          }
+        },
+        {
+          "id": "platform_17",
+          "label": "P17",
+          "kind": "fixed",
+          "x1": -17,
+          "x2": 170,
+          "y": 1331,
+          "imageSrc": "images/chapter4/bg/asset_21_platform_fixed_02_png.webp",
+          "imageAssetId": "asset_21",
+          "imageHeight": 52,
+          "imageScale": 300,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.1877207099942681,
+            "y1": 0.3726843286914519,
+            "x2": 0.8063550910776959,
+            "y2": 0.3666666447553696
+          }
+        },
+        {
+          "id": "platform_40",
+          "label": "P40",
+          "kind": "moving",
+          "x1": 718,
+          "x2": 819,
+          "y": 1530,
+          "imageSrc": "images/chapter4/bg/asset_18_platform_fixed_03.webp",
+          "imageAssetId": "asset_18",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 100,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 769,
+              "y": 1530
+            },
+            "to": {
+              "x": 1548,
+              "y": 1532
+            }
+          },
+          "standLine": {
+            "x1": 0.07462059863223319,
+            "y1": 0.1308189549589901,
+            "x2": 0.8862117330903989,
+            "y2": 0.1308189549589901
+          }
+        },
+        {
+          "id": "platform_41",
+          "label": "P41",
+          "kind": "fixed",
+          "x1": 595,
+          "x2": 766,
+          "y": 910,
+          "imageSrc": "images/chapter4/bg/asset_32_platform_fixed_05.webp",
+          "imageAssetId": "asset_32",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_42",
+          "label": "P42",
+          "kind": "fixed",
+          "x1": -3,
+          "x2": 168,
+          "y": 289,
+          "imageSrc": "images/chapter4/bg/asset_33_platform_fixed_01_png.png",
+          "imageAssetId": "asset_33",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.9563444845238538,
+            "y1": 0.725942446390296,
+            "x2": 0.017543859649122806,
+            "y2": 0.708302198337762
+          }
+        },
+        {
+          "id": "platform_43",
+          "label": "P43",
+          "kind": "fixed",
+          "x1": 1515,
+          "x2": 1585,
+          "y": 809,
+          "imageSrc": "images/chapter4/bg/asset_37_platform_fixed_01_png.png",
+          "imageAssetId": "asset_37",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0,
+            "y1": 0.6545404024088675,
+            "x2": 0.8550519883156378,
+            "y2": 0.6545404024088675
+          }
+        },
+        {
+          "id": "platform_44",
+          "label": "P44",
+          "kind": "fixed",
+          "x1": 1567,
+          "x2": 1637,
+          "y": 772,
+          "imageSrc": "images/chapter4/bg/asset_37_platform_fixed_01_png.png",
+          "imageAssetId": "asset_37",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0,
+            "y1": 0.6545404024088675,
+            "x2": 0.8550519883156378,
+            "y2": 0.6545404024088675
+          }
+        }
+      ],
+      "exits": [
+        {
+          "id": "exit_1",
+          "label": "EX1",
+          "x": 1728,
+          "y": 484,
+          "width": 72,
+          "height": 112,
+          "targetStageId": "chapter4_stage2",
+          "targetTransitionId": "transition_1",
+          "effect": "fade"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "transition_1",
+          "label": "TP1",
+          "x": 61,
+          "y": 1445,
+          "facing": "right"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "enemy_1",
+          "label": "E1",
+          "type": "chapter4_enemy_1",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_projectile.webp",
+          "x": 456,
+          "y": 1242,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_8",
+          "facing": "left",
+          "patrol": {
+            "points": [
+              {
+                "u": 0.9349
+              },
+              {
+                "u": 0.0544
+              }
+            ],
+            "speed": 70,
+            "pauseSeconds": 0.1,
+            "mode": "loop"
+          },
+          "ai": {
+            "alertRange": 50,
+            "attackRange": 200,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_2",
+          "label": "E2",
+          "type": "chapter4_enemy_1",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_projectile.webp",
+          "x": 318,
+          "y": 803,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_39",
+          "facing": "left",
+          "patrol": {
+            "points": [
+              {
+                "u": 0
+              },
+              {
+                "u": 1
+              }
+            ],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_3",
+          "label": "E3",
+          "type": "chapter4_enemy_1",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_projectile.webp",
+          "x": 191.70754553785628,
+          "y": 538,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_4",
+          "facing": "left",
+          "patrol": {
+            "points": [
+              {
+                "u": 0
+              },
+              {
+                "u": 1
+              }
+            ],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_4",
+          "label": "E4",
+          "type": "chapter4_enemy_1",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_1/chapter4_enemy_1_projectile.webp",
+          "x": 284,
+          "y": 1419,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_18",
+          "facing": "left",
+          "patrol": {
+            "points": [
+              {
+                "u": 0.0605
+              },
+              {
+                "u": 0.8872
+              }
+            ],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_5",
+          "label": "E5",
+          "type": "chapter4_enemy_6",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_projectile.webp",
+          "x": 1232,
+          "y": 1478,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_3",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_8",
+          "label": "E8",
+          "type": "chapter4_enemy_6",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_projectile.webp",
+          "x": 382,
+          "y": 1040,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_22",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_9",
+          "label": "E9",
+          "type": "chapter4_enemy_9",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_9/chapter4_enemy_9_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_9/chapter4_enemy_9_projectile.webp",
+          "x": 93,
+          "y": 1504,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_9",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_10",
+          "label": "E10",
+          "type": "chapter4_enemy_4",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_4/chapter4_enemy_4_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_4/chapter4_enemy_4_projectile.webp",
+          "x": 1397,
+          "y": 883,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_32",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_11",
+          "label": "E11",
+          "type": "chapter4_enemy_8",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_8/chapter4_enemy_8_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_8/chapter4_enemy_8_projectile.webp",
+          "x": 1660,
+          "y": 1115,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_5",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_12",
+          "label": "E12",
+          "type": "chapter4_enemy_8",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_8/chapter4_enemy_8_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_8/chapter4_enemy_8_projectile.webp",
+          "x": 1467,
+          "y": 538,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_12",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_14",
+          "label": "E14",
+          "type": "chapter4_enemy_10",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_10/chapter4_enemy_10_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_10/chapter4_enemy_10_projectile.webp",
+          "x": 87,
+          "y": 324,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_42",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_13",
+          "label": "E13",
+          "type": "chapter4_enemy_3",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_3/chapter4_enemy_3_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_3/chapter4_enemy_3_projectile.webp",
+          "x": 1484,
+          "y": 883,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_32",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_15",
+          "label": "E15",
+          "type": "chapter4_enemy_7",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_projectile.webp",
+          "x": 585,
+          "y": 1554,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_27",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_6",
+          "label": "E6",
+          "type": "chapter4_enemy_5",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_projectile.webp",
+          "x": 599,
+          "y": 1242,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_8",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_7",
+          "label": "E7",
+          "type": "chapter4_enemy_5",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_projectile.webp",
+          "x": 201,
+          "y": 907,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_26",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_16",
+          "label": "E16",
+          "type": "chapter4_enemy_6",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_projectile.webp",
+          "x": 224,
+          "y": 1104,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_23",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        },
+        {
+          "id": "enemy_17",
+          "label": "E17",
+          "type": "chapter4_enemy_5",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_normal.webp",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_projectile.webp",
+          "x": 769,
+          "y": 1538,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_40",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "registryRuntimeStatus": "legacy",
+          "size": 100
+        }
+      ],
+      "checkpoints": [],
+      "hazards": [],
+      "traps": [],
+      "teleports": [],
+      "waves": []
+    },
+    {
+      "id": "chapter4_stage2",
+      "name": "Chapter 4 · Stage 2",
+      "background": "images/chapter4/backgrounds/asset_43_bg2.webp",
+      "width": 1774,
+      "height": 1774,
+      "backgroundWidth": 1774,
+      "backgroundHeight": 1774,
+      "worldWidth": 1774,
+      "worldWidthManual": true,
+      "playerStart": {
+        "x": 39,
+        "y": 1696
+      },
+      "platforms": [
+        {
+          "id": "platform_2",
+          "label": "P2",
+          "kind": "fixed",
+          "x1": 13,
+          "x2": 1780,
+          "y": 1251,
+          "imageSrc": "images/chapter4/bg/asset_39_stage_bg2_platform_01.png",
+          "imageAssetId": "asset_39",
+          "imageHeight": 52.00000000000001,
+          "imageScale": 102,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.009954377470097031,
+            "y1": 0.8267791553345747,
+            "x2": 0.9857411413689955,
+            "y2": 0.8235226807771854
+          }
+        },
+        {
+          "id": "platform_1",
+          "label": "P1",
+          "kind": "fixed",
+          "x1": 1379,
+          "x2": 1752,
+          "y": 1297,
+          "imageSrc": "images/chapter4/bg/asset_41_platform_fixed_05.webp",
+          "imageAssetId": "asset_41",
+          "imageHeight": 52.00000000000001,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.02620569721932131,
+            "y1": 0,
+            "x2": 0.9726950324944581,
+            "y2": 0
+          }
+        },
+        {
+          "id": "platform_3",
+          "label": "P3",
+          "kind": "fixed",
+          "x1": 1554,
+          "x2": 1709,
+          "y": 1445,
+          "imageSrc": "images/chapter4/bg/asset_44_platform_fixed_05.webp",
+          "imageAssetId": "asset_44",
+          "imageHeight": 52.00000000000001,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.09014026248263574,
+            "y1": 0.017802041183025197,
+            "x2": 0.9409806488425676,
+            "y2": 0.05229721932324949
+          }
+        },
+        {
+          "id": "platform_4",
+          "label": "P4",
+          "kind": "fixed",
+          "x1": 742,
+          "x2": 1388,
+          "y": 1349,
+          "imageSrc": "images/chapter4/bg/asset_45_stage_bg2_platform_09.webp",
+          "imageAssetId": "asset_45",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.18464650836470575,
+            "y1": 0.148303315799363,
+            "x2": 0.9555022737316754,
+            "y2": 0.10611737652233028
+          }
+        },
+        {
+          "id": "platform_5",
+          "label": "P5",
+          "kind": "fixed",
+          "x1": 786,
+          "x2": 963,
+          "y": 1472,
+          "imageSrc": "images/chapter4/bg/asset_46_platform_fixed_05.webp",
+          "imageAssetId": "asset_46",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_6",
+          "label": "P6",
+          "kind": "fixed",
+          "x1": 1192,
+          "x2": 1369,
+          "y": 1468,
+          "imageSrc": "images/chapter4/bg/asset_46_platform_fixed_05.webp",
+          "imageAssetId": "asset_46",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_7",
+          "label": "P7",
+          "kind": "fixed",
+          "x1": 335,
+          "x2": 795,
+          "y": 1300,
+          "imageSrc": "images/chapter4/bg/asset_49_stage_bg2_platform_13.webp",
+          "imageAssetId": "asset_49",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.020647022708440488,
+            "y1": 0.3948507355839321,
+            "x2": 0.965858634133946,
+            "y2": 0.3948507355839321
+          }
+        },
+        {
+          "id": "platform_8",
+          "label": "P8",
+          "kind": "moving",
+          "x1": 1405,
+          "x2": 1513,
+          "y": 1663,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 1459,
+              "y": 1663
+            },
+            "to": {
+              "x": 1461,
+              "y": 1338
+            }
+          },
+          "standLine": {
+            "x1": 0.055567267148622534,
+            "y1": 0.25847504582127323,
+            "x2": 1,
+            "y2": 0.2716935994595071
+          }
+        },
+        {
+          "id": "platform_9",
+          "label": "P9",
+          "kind": "moving",
+          "x1": 111,
+          "x2": 219,
+          "y": 1553,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 100,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 165,
+              "y": 1553
+            },
+            "to": {
+              "x": 1714,
+              "y": 1557
+            }
+          },
+          "standLine": null
+        },
+        {
+          "id": "platform_11",
+          "label": "P11",
+          "kind": "fixed",
+          "x1": 20,
+          "x2": 242,
+          "y": 1206,
+          "imageSrc": "images/chapter4/bg/asset_51_stage_bg2_platform_12.webp",
+          "imageAssetId": "asset_51",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.14056986874072103,
+            "y1": 0.38661659028301254,
+            "x2": 0.9503537661453085,
+            "y2": 0.37527778897562114
+          }
+        },
+        {
+          "id": "platform_10",
+          "label": "P10",
+          "kind": "moving",
+          "x1": 730,
+          "x2": 838,
+          "y": 885,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 784,
+              "y": 885
+            },
+            "to": {
+              "x": 779,
+              "y": 1174
+            }
+          },
+          "standLine": {
+            "x1": 0.055567267148622534,
+            "y1": 0.25847504582127323,
+            "x2": 1,
+            "y2": 0.2716935994595071
+          }
+        },
+        {
+          "id": "platform_12",
+          "label": "P12",
+          "kind": "moving",
+          "x1": 916,
+          "x2": 1024,
+          "y": 1290,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 970,
+              "y": 1290
+            },
+            "to": {
+              "x": 972,
+              "y": 965
+            }
+          },
+          "standLine": {
+            "x1": 0.055567267148622534,
+            "y1": 0.25847504582127323,
+            "x2": 1,
+            "y2": 0.2716935994595071
+          }
+        },
+        {
+          "id": "platform_13",
+          "label": "P13",
+          "kind": "fixed",
+          "x1": 431,
+          "x2": 814,
+          "y": 1138,
+          "imageSrc": "images/chapter4/bg/asset_52_stage_bg2_platform_11.webp",
+          "imageAssetId": "asset_52",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.03818983626003758,
+            "y1": 0.3813269899312178,
+            "x2": 0.9761387044215626,
+            "y2": 0.4023499648657865
+          }
+        },
+        {
+          "id": "platform_14",
+          "label": "P14",
+          "kind": "fixed",
+          "x1": 546,
+          "x2": 740,
+          "y": 916,
+          "imageSrc": "images/chapter4/bg/asset_53_stage_bg2_platform_02.webp",
+          "imageAssetId": "asset_53",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.9552018412973353,
+            "y1": 0.36520517095050176,
+            "x2": 0.13230240549828176,
+            "y2": 0.3591905375082694
+          }
+        },
+        {
+          "id": "platform_15",
+          "label": "P15",
+          "kind": "fixed",
+          "x1": 174,
+          "x2": 588,
+          "y": 894,
+          "imageSrc": "images/chapter4/bg/asset_54_stage_bg2_platform_06.webp",
+          "imageAssetId": "asset_54",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.005526760838709177,
+            "y1": 0.46447133133026963,
+            "x2": 0.9413130736669577,
+            "y2": 0.45123546349239974
+          }
+        },
+        {
+          "id": "platform_16",
+          "label": "P16",
+          "kind": "fixed",
+          "x1": -6,
+          "x2": 363,
+          "y": 1142,
+          "imageSrc": "images/chapter4/bg/asset_55_platform_fixed_05.webp",
+          "imageAssetId": "asset_55",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_17",
+          "label": "P17",
+          "kind": "fixed",
+          "x1": 1172,
+          "x2": 1818,
+          "y": 994,
+          "imageSrc": "images/chapter4/bg/asset_45_stage_bg2_platform_09.webp",
+          "imageAssetId": "asset_45",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.1830093758192553,
+            "y1": 0.09551598549748691,
+            "x2": 0.8531942841406353,
+            "y2": 0.08707934962311709
+          }
+        },
+        {
+          "id": "platform_18",
+          "label": "P18",
+          "kind": "fixed",
+          "x1": 1243,
+          "x2": 1420,
+          "y": 1116,
+          "imageSrc": "images/chapter4/bg/asset_46_platform_fixed_05.webp",
+          "imageAssetId": "asset_46",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_19",
+          "label": "P19",
+          "kind": "fixed",
+          "x1": 1630,
+          "x2": 1807,
+          "y": 1123,
+          "imageSrc": "images/chapter4/bg/asset_46_platform_fixed_05.webp",
+          "imageAssetId": "asset_46",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_20",
+          "label": "P20",
+          "kind": "fixed",
+          "x1": 1560,
+          "x2": 1815,
+          "y": 380,
+          "imageSrc": "images/chapter4/bg/asset_57_stage_bg2_platform_04.webp",
+          "imageAssetId": "asset_57",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.08846934683798352,
+            "y1": 0.6140905507125878,
+            "x2": 0.8225834148312622,
+            "y2": 0.6140905507125878
+          }
+        },
+        {
+          "id": "platform_21",
+          "label": "P21",
+          "kind": "fixed",
+          "x1": 1413,
+          "x2": 1677,
+          "y": 532,
+          "imageSrc": "images/chapter4/bg/asset_58_stage_bg2_platform_13.webp",
+          "imageAssetId": "asset_58",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.026779431212858196,
+            "y1": 0.37340550649037346,
+            "x2": 0.9875059071028875,
+            "y2": 0.39414944424735976
+          }
+        },
+        {
+          "id": "platform_22",
+          "label": "P22",
+          "kind": "fixed",
+          "x1": 168,
+          "x2": 535,
+          "y": 712,
+          "imageSrc": "images/chapter4/bg/asset_59_stage_bg2_platform_07.webp",
+          "imageAssetId": "asset_59",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.02450140744697188,
+            "y1": 0.29861259035951826,
+            "x2": 0.9889964602300716,
+            "y2": 0.30535699210468825
+          }
+        },
+        {
+          "id": "platform_23",
+          "label": "P23",
+          "kind": "fixed",
+          "x1": 833,
+          "x2": 1293,
+          "y": 893,
+          "imageSrc": "images/chapter4/bg/asset_49_stage_bg2_platform_13.webp",
+          "imageAssetId": "asset_49",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.05279299926651415,
+            "y1": 0.36650803708269736,
+            "x2": 0.9677092372662459,
+            "y2": 0.3784134389827074
+          }
+        },
+        {
+          "id": "platform_24",
+          "label": "P24",
+          "kind": "fixed",
+          "x1": 938,
+          "x2": 1321,
+          "y": 735,
+          "imageSrc": "images/chapter4/bg/asset_52_stage_bg2_platform_11.webp",
+          "imageAssetId": "asset_52",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.03818983626003758,
+            "y1": 0.3813269899312178,
+            "x2": 0.9761387044215626,
+            "y2": 0.4023499648657865
+          }
+        },
+        {
+          "id": "platform_25",
+          "label": "P25",
+          "kind": "moving",
+          "x1": 1469,
+          "x2": 1577,
+          "y": 467,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 1523,
+              "y": 467
+            },
+            "to": {
+              "x": 1523,
+              "y": 616
+            }
+          },
+          "standLine": {
+            "x1": 0.06381923431755215,
+            "y1": 0.21014645973118518,
+            "x2": 0.8539846844147574,
+            "y2": 0.2693742410572608
+          }
+        },
+        {
+          "id": "platform_26",
+          "label": "P26",
+          "kind": "fixed",
+          "x1": -111,
+          "x2": 515,
+          "y": 501,
+          "imageSrc": "images/chapter4/bg/asset_60_stage_bg2_platform_07.webp",
+          "imageAssetId": "asset_60",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.17842954224073476,
+            "y1": 0.26607143702820835,
+            "x2": 0.9397790357300813,
+            "y2": 0.273979964017494
+          }
+        },
+        {
+          "id": "platform_27",
+          "label": "P27",
+          "kind": "moving",
+          "x1": 1414,
+          "x2": 1522,
+          "y": 917,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 1468,
+              "y": 917
+            },
+            "to": {
+              "x": 1467,
+              "y": 717
+            }
+          },
+          "standLine": {
+            "x1": 0.055567267148622534,
+            "y1": 0.25847504582127323,
+            "x2": 1,
+            "y2": 0.2716935994595071
+          }
+        },
+        {
+          "id": "platform_28",
+          "label": "P28",
+          "kind": "moving",
+          "x1": -9,
+          "x2": 99,
+          "y": 773,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 45,
+              "y": 773
+            },
+            "to": {
+              "x": 44,
+              "y": 573
+            }
+          },
+          "standLine": {
+            "x1": 0.055567267148622534,
+            "y1": 0.25847504582127323,
+            "x2": 1,
+            "y2": 0.2716935994595071
+          }
+        },
+        {
+          "id": "platform_29",
+          "label": "P29",
+          "kind": "fixed",
+          "x1": 599,
+          "x2": 960,
+          "y": 545,
+          "imageSrc": "images/chapter4/bg/asset_61_stage_bg2_platform_09.webp",
+          "imageAssetId": "asset_61",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.14914322099117056,
+            "y1": 0.1355254923133667,
+            "x2": 0.9589558827887645,
+            "y2": 0.1204278840731347
+          }
+        },
+        {
+          "id": "platform_30",
+          "label": "P30",
+          "kind": "fixed",
+          "x1": 519,
+          "x2": 696,
+          "y": 650,
+          "imageSrc": "images/chapter4/bg/asset_46_platform_fixed_05.webp",
+          "imageAssetId": "asset_46",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_31",
+          "label": "P31",
+          "kind": "fixed",
+          "x1": 872,
+          "x2": 1049,
+          "y": 651,
+          "imageSrc": "images/chapter4/bg/asset_46_platform_fixed_05.webp",
+          "imageAssetId": "asset_46",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_32",
+          "label": "P32",
+          "kind": "moving",
+          "x1": 1025,
+          "x2": 1133,
+          "y": 548,
+          "imageSrc": "images/chapter4/bg/asset_50_stage_bg2_platform_03.webp",
+          "imageAssetId": "asset_50",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 1,
+          "loop": {
+            "from": {
+              "x": 1079,
+              "y": 548
+            },
+            "to": {
+              "x": 1267,
+              "y": 546
+            }
+          },
+          "standLine": {
+            "x1": 0.055567267148622534,
+            "y1": 0.25847504582127323,
+            "x2": 1,
+            "y2": 0.2716935994595071
+          }
+        }
+      ],
+      "exits": [
+        {
+          "id": "exit_1",
+          "label": "EX1",
+          "x": 1738,
+          "y": 458,
+          "width": 72,
+          "height": 112,
+          "targetStageId": "",
+          "targetTransitionId": "",
+          "effect": "fade"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "transition_1",
+          "label": "TP1",
+          "x": 42,
+          "y": 1692,
+          "facing": "right"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "enemy_1",
+          "label": "E1",
+          "type": "chapter4_enemy_5",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_projectile.webp",
+          "x": 915,
+          "y": 1381,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_4",
+          "facing": "left",
+          "patrol": {
+            "points": [
+              {
+                "u": 0.2446
+              },
+              {
+                "u": 0.8439
+              }
+            ],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 50,
+            "attackRange": 50,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_4",
+          "label": "E4",
+          "type": "chapter4_enemy_7",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_projectile.webp",
+          "x": 1313,
+          "y": 1468,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_6",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 50,
+            "attackRange": 50,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_2",
+          "label": "E2",
+          "type": "chapter4_enemy_5",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_5/chapter4_enemy_5_projectile.webp",
+          "x": 237,
+          "y": 795,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_22",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 100,
+            "attackRange": 100,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_6",
+          "label": "E6",
+          "type": "chapter4_enemy_6",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_projectile.webp",
+          "x": 326,
+          "y": 991,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_15",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 100,
+            "attackRange": 100,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_7",
+          "label": "E7",
+          "type": "chapter4_enemy_7",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_projectile.webp",
+          "x": 72,
+          "y": 564,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_26",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_8",
+          "label": "E8",
+          "type": "chapter4_enemy_7",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_projectile.webp",
+          "x": 841,
+          "y": 568,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_29",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_9",
+          "label": "E9",
+          "type": "chapter4_enemy_7",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_7/chapter4_enemy_7_projectile.webp",
+          "x": 1002,
+          "y": 803,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_24",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 50,
+            "attackRange": 50,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_5",
+          "label": "E5",
+          "type": "chapter4_enemy_6",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_6/chapter4_enemy_6_projectile.webp",
+          "x": 992,
+          "y": 1723,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_2",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_12",
+          "label": "E12",
+          "type": "chapter4_enemy_10",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_10/chapter4_enemy_10_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_10/chapter4_enemy_10_projectile.webp",
+          "x": 1639,
+          "y": 493,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_20",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 50,
+            "attackRange": 50,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_10",
+          "label": "E10",
+          "type": "chapter4_enemy_8",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_8/chapter4_enemy_8_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_8/chapter4_enemy_8_projectile.webp",
+          "x": 58,
+          "y": 1142,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_16",
+          "facing": "left",
+          "patrol": {
+            "points": [
+              {
+                "u": 0.1772
+              },
+              {
+                "u": 0.938
+              }
+            ],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_11",
+          "label": "E11",
+          "type": "chapter4_enemy_9",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_9/chapter4_enemy_9_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_9/chapter4_enemy_9_projectile.webp",
+          "x": 1056,
+          "y": 980,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_23",
+          "facing": "left",
+          "patrol": {
+            "points": [
+              {
+                "u": 0.1407
+              },
+              {
+                "u": 0.8801
+              }
+            ],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_3",
+          "label": "E3",
+          "type": "chapter4_enemy_2",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_projectile.webp",
+          "x": 1598,
+          "y": 636,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_21",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_13",
+          "label": "E13",
+          "type": "chapter4_enemy_2",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_projectile.webp",
+          "x": 1527,
+          "y": 635,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_21",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_14",
+          "label": "E14",
+          "type": "chapter4_enemy_2",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_projectile.webp",
+          "x": 646,
+          "y": 1207,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_13",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_15",
+          "label": "E15",
+          "type": "chapter4_enemy_3",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_3/chapter4_enemy_3_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_3/chapter4_enemy_3_projectile.webp",
+          "x": 557,
+          "y": 1207,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_13",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_17",
+          "label": "E17",
+          "type": "chapter4_enemy_4",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_4/chapter4_enemy_4_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_4/chapter4_enemy_4_projectile.webp",
+          "x": 600,
+          "y": 1207,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_13",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_18",
+          "label": "E18",
+          "type": "chapter4_enemy_4",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_4/chapter4_enemy_4_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_4/chapter4_enemy_4_projectile.webp",
+          "x": 518,
+          "y": 1207,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_13",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_16",
+          "label": "E16",
+          "type": "chapter4_enemy_2",
+          "spriteRoot": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_",
+          "projectilePath": "images/chapter4/enemies/chapter4_enemy_2/chapter4_enemy_2_projectile.webp",
+          "x": 688,
+          "y": 1208,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_13",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 430,
+            "attackRange": 230,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "legacy-runtime",
+            "attackMode": null,
+            "movementSpeed": 150,
+            "keepDistance": 190
+          },
+          "size": 100
+        },
+        {
+          "id": "enemy_19",
+          "label": "E19",
+          "type": "chapter4_enemy_12",
+          "spriteRoot": "asset://asset_0a17ceea-3fb9-407e-a2ff-85b8e90ccae1",
+          "projectilePath": "asset://asset_0a17ceea-3fb9-407e-a2ff-85b8e90ccae1",
+          "x": 690,
+          "y": 1722,
+          "width": 100,
+          "height": 100,
+          "platformId": "platform_2",
+          "facing": "left",
+          "patrol": {
+            "points": [],
+            "speed": 70,
+            "pauseSeconds": 0.5,
+            "mode": "pingpong"
+          },
+          "ai": {
+            "alertRange": 350,
+            "attackRange": 100,
+            "attackCooldownMs": 1450,
+            "damage": 1,
+            "attackPoseMs": 420,
+            "aiType": "not-connected",
+            "attackMode": null,
+            "movementSpeed": 70,
+            "keepDistance": 100
+          },
+          "registryRuntimeStatus": "editor-preview-only",
+          "size": 100
+        }
+      ],
+      "checkpoints": [],
+      "hazards": [],
+      "traps": [],
+      "teleports": [],
+      "waves": []
+    },
+    {
+      "id": "chapter4_stage3",
+      "name": "Chapter 4 · Stage 3",
+      "background": "images/chapter4/backgrounds/cheapter4_bg3.webp",
+      "width": 1774,
+      "height": 1774,
+      "backgroundWidth": 1774,
+      "backgroundHeight": 1774,
+      "worldWidth": 1774,
+      "worldWidthManual": true,
+      "music": "",
+      "musicVolume": 0.28,
+      "musicLoop": true,
+      "playerStart": {
+        "x": 353,
+        "y": 1689
+      },
+      "platforms": [
+        {
+          "id": "platform_1",
+          "label": "P1",
+          "kind": "fixed",
+          "x1": 164,
+          "x2": 1542,
+          "y": 1626,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_17.webp",
+          "imageAssetId": "asset_64",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.0007065329496956374,
+            "y1": 0.47934424377176,
+            "x2": 0.8576001026751511,
+            "y2": 0.44743608177411925
+          }
+        },
+        {
+          "id": "platform_3",
+          "label": "P3",
+          "kind": "fixed",
+          "x1": -100,
+          "x2": 171,
+          "y": 1181,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_12.webp",
+          "imageAssetId": "asset_67",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.14458198834038405,
+            "y1": 0.21115383063945847,
+            "x2": 0.9285087432898527,
+            "y2": 0.21115383063945847
+          }
+        },
+        {
+          "id": "platform_2",
+          "label": "P2",
+          "kind": "fixed",
+          "x1": -49,
+          "x2": 193,
+          "y": 1313,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_12.webp",
+          "imageAssetId": "asset_68",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.06407146412847481,
+            "y1": 0.190596955103787,
+            "x2": 0.9446999938884489,
+            "y2": 0.20798734097869737
+          }
+        },
+        {
+          "id": "platform_4",
+          "label": "P4",
+          "kind": "fixed",
+          "x1": -37,
+          "x2": 282,
+          "y": 1433,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_10.webp",
+          "imageAssetId": "asset_69",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.02481187360756265,
+            "y1": 0.2259984764508567,
+            "x2": 0.9312676334238505,
+            "y2": 0.2125156717792122
+          }
+        },
+        {
+          "id": "platform_5",
+          "label": "P5",
+          "kind": "fixed",
+          "x1": 22,
+          "x2": 312,
+          "y": 1527,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_26.webp",
+          "imageAssetId": "asset_70",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.04388158427217703,
+            "y1": 0.28458850211481546,
+            "x2": 0.9522922194682273,
+            "y2": 0.27292596947093883
+          }
+        },
+        {
+          "id": "platform_6",
+          "label": "P6",
+          "kind": "fixed",
+          "x1": 353,
+          "x2": 556,
+          "y": 1531,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_6.webp",
+          "imageAssetId": "asset_73",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.07890316462559666,
+            "y1": 0.5868589619694478,
+            "x2": 0.8292404087262832,
+            "y2": 0.5868589619694478
+          }
+        },
+        {
+          "id": "platform_7",
+          "label": "P7",
+          "kind": "fixed",
+          "x1": 696,
+          "x2": 1059,
+          "y": 1540,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_19.webp",
+          "imageAssetId": "asset_74",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.015662089973707216,
+            "y1": 0.36791559487378017,
+            "x2": 0.48588201667774256,
+            "y2": 0.3774120442177602
+          }
+        },
+        {
+          "id": "platform_8",
+          "label": "P8",
+          "kind": "fixed",
+          "x1": 820,
+          "x2": 1166,
+          "y": 1568,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_75",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_9",
+          "label": "P9",
+          "kind": "fixed",
+          "x1": 1131,
+          "x2": 1253,
+          "y": 1594,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_76",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_10",
+          "label": "P10",
+          "kind": "fixed",
+          "x1": 1685,
+          "x2": 1854,
+          "y": 1568,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_2.webp",
+          "imageAssetId": "asset_77",
+          "imageHeight": 52,
+          "imageScale": 300,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.08537070042551359,
+            "y1": 0.5388223767977983,
+            "x2": 0.8947533556471977,
+            "y2": 0.5752648348382638
+          }
+        },
+        {
+          "id": "platform_11",
+          "label": "P11",
+          "kind": "fixed",
+          "x1": 853,
+          "x2": 1069,
+          "y": 1355,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_9.webp",
+          "imageAssetId": "asset_79",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.05703926150750638,
+            "y1": 0.45940009312377383,
+            "x2": 0.8977868000958933,
+            "y2": 0.49400415770439776
+          }
+        },
+        {
+          "id": "platform_12",
+          "label": "P12",
+          "kind": "fixed",
+          "x1": 387,
+          "x2": 552,
+          "y": 1348,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_16.webp",
+          "imageAssetId": "asset_80",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.06022971169815278,
+            "y1": 0.38723260062822074,
+            "x2": 0.9923686511162881,
+            "y2": 0.4004588247997686
+          }
+        },
+        {
+          "id": "platform_13",
+          "label": "P13",
+          "kind": "fixed",
+          "x1": 1382,
+          "x2": 1503,
+          "y": 1602,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_4.webp",
+          "imageAssetId": "asset_81",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.16746442204065215,
+            "y1": 0.7609223236296199,
+            "x2": 0.9790767286226724,
+            "y2": 0.40791595521782487
+          }
+        },
+        {
+          "id": "platform_14",
+          "label": "P14",
+          "kind": "fixed",
+          "x1": 933,
+          "x2": 1223,
+          "y": 1022,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_26.webp",
+          "imageAssetId": "asset_70",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.04388158427217703,
+            "y1": 0.28458850211481546,
+            "x2": 0.9522922194682273,
+            "y2": 0.27292596947093883
+          }
+        },
+        {
+          "id": "platform_15",
+          "label": "P15",
+          "kind": "fixed",
+          "x1": 1122,
+          "x2": 1473,
+          "y": 1341,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_8-9-stage_bg3_platform_16.webp",
+          "imageAssetId": "asset_83",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.012722864386587374,
+            "y1": 0.4266257767634948,
+            "x2": 0.9839894004827077,
+            "y2": 0.3617449266324155
+          }
+        },
+        {
+          "id": "platform_16",
+          "label": "P16",
+          "kind": "fixed",
+          "x1": 654,
+          "x2": 919,
+          "y": 1136,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_7.webp",
+          "imageAssetId": "asset_84",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.023374103666955248,
+            "y1": 0.48552937783095934,
+            "x2": 1,
+            "y2": 0.49959777980145303
+          }
+        },
+        {
+          "id": "platform_17",
+          "label": "P17",
+          "kind": "fixed",
+          "x1": 264,
+          "x2": 379,
+          "y": 1130,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_28.webp",
+          "imageAssetId": "asset_85",
+          "imageHeight": 52,
+          "imageScale": 300,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.009779256588868246,
+            "y1": 0.46607753286455733,
+            "x2": 0.6265260119660822,
+            "y2": 0.46607753286455733
+          }
+        },
+        {
+          "id": "platform_18",
+          "label": "P18",
+          "kind": "fixed",
+          "x1": 314,
+          "x2": 516,
+          "y": 1238,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_86",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.05309638331314037,
+            "y1": 0,
+            "x2": 0.7321816005784423,
+            "y2": 0
+          }
+        },
+        {
+          "id": "platform_19",
+          "label": "P19",
+          "kind": "fixed",
+          "x1": 955,
+          "x2": 1197,
+          "y": 1256,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_12.webp",
+          "imageAssetId": "asset_68",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.06407146412847481,
+            "y1": 0.190596955103787,
+            "x2": 0.9446999938884489,
+            "y2": 0.20798734097869737
+          }
+        },
+        {
+          "id": "platform_20",
+          "label": "P20",
+          "kind": "fixed",
+          "x1": -11,
+          "x2": 173,
+          "y": 1047,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_26.webp",
+          "imageAssetId": "asset_87",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.9138925003387185,
+            "y1": 0.26445457559408503,
+            "x2": 0.08476808393368346,
+            "y2": 0.2439335071599099
+          }
+        },
+        {
+          "id": "platform_21",
+          "label": "P21",
+          "kind": "fixed",
+          "x1": 484,
+          "x2": 605,
+          "y": 1138,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_4.webp",
+          "imageAssetId": "asset_81",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.16746442204065215,
+            "y1": 0.7609223236296199,
+            "x2": 0.9790767286226724,
+            "y2": 0.40791595521782487
+          }
+        },
+        {
+          "id": "platform_22",
+          "label": "P22",
+          "kind": "fixed",
+          "x1": 550,
+          "x2": 888,
+          "y": 1308,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_28.webp",
+          "imageAssetId": "asset_88",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.005063219681133824,
+            "y1": 0.4885912215174227,
+            "x2": 0.5585335855618956,
+            "y2": 0.4837674667867774
+          }
+        },
+        {
+          "id": "platform_23",
+          "label": "P23",
+          "kind": "fixed",
+          "x1": 734,
+          "x2": 864,
+          "y": 1406,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_89",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_24",
+          "label": "P24",
+          "kind": "fixed",
+          "x1": 882,
+          "x2": 1164,
+          "y": 555,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_20.webp",
+          "imageAssetId": "asset_90",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.02932565585378849,
+            "y1": 0.27492178726135735,
+            "x2": 0.793144208037825,
+            "y2": 0.2884662369238704
+          }
+        },
+        {
+          "id": "platform_25",
+          "label": "P25",
+          "kind": "fixed",
+          "x1": 443,
+          "x2": 685,
+          "y": 921,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_12.webp",
+          "imageAssetId": "asset_68",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.06407146412847481,
+            "y1": 0.190596955103787,
+            "x2": 0.9446999938884489,
+            "y2": 0.20798734097869737
+          }
+        },
+        {
+          "id": "platform_26",
+          "label": "P26",
+          "kind": "fixed",
+          "x1": 662,
+          "x2": 1082,
+          "y": 923,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_20.webp",
+          "imageAssetId": "asset_91",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.027189695430728356,
+            "y1": 0.23496535727979062,
+            "x2": 0.7688530207285734,
+            "y2": 0.26224774874285256
+          }
+        },
+        {
+          "id": "platform_27",
+          "label": "P27",
+          "kind": "fixed",
+          "x1": 931,
+          "x2": 1069,
+          "y": 982,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_92",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_28",
+          "label": "P28",
+          "kind": "fixed",
+          "x1": 0,
+          "x2": 456,
+          "y": 905,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_93",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.002007684723370151,
+            "y1": 0,
+            "x2": 0.9999603922610805,
+            "y2": 0.3442793670711532
+          }
+        },
+        {
+          "id": "platform_29",
+          "label": "P29",
+          "kind": "fixed",
+          "x1": 1376,
+          "x2": 1779,
+          "y": 1219,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_29.webp",
+          "imageAssetId": "asset_94",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.0174592030803859,
+            "y1": 0.3196310128919585,
+            "x2": 0.9825661238572343,
+            "y2": 0.32585909296812743
+          }
+        },
+        {
+          "id": "platform_30",
+          "label": "P30",
+          "kind": "fixed",
+          "x1": 931,
+          "x2": 1052,
+          "y": 696,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_4.webp",
+          "imageAssetId": "asset_81",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.16746442204065215,
+            "y1": 0.7609223236296199,
+            "x2": 0.9790767286226724,
+            "y2": 0.40791595521782487
+          }
+        },
+        {
+          "id": "platform_31",
+          "label": "P31",
+          "kind": "fixed",
+          "x1": 1337,
+          "x2": 1619,
+          "y": 1059,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_20.webp",
+          "imageAssetId": "asset_90",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.02932565585378849,
+            "y1": 0.27492178726135735,
+            "x2": 0.793144208037825,
+            "y2": 0.2884662369238704
+          }
+        },
+        {
+          "id": "platform_32",
+          "label": "P32",
+          "kind": "fixed",
+          "x1": -23,
+          "x2": 289,
+          "y": 477,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_2.webp",
+          "imageAssetId": "asset_95",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.055172395610791625,
+            "y1": 0.5444567914211365,
+            "x2": 0.7932692307692308,
+            "y2": 0.5091961541572028
+          }
+        },
+        {
+          "id": "platform_33",
+          "label": "P33",
+          "kind": "fixed",
+          "x1": 1547,
+          "x2": 1779,
+          "y": 733,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_27.webp",
+          "imageAssetId": "asset_96",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.0072687519109730925,
+            "y1": 0.3924383731357214,
+            "x2": 0.7392241379310345,
+            "y2": 0.3872363449667856
+          }
+        },
+        {
+          "id": "platform_34",
+          "label": "P34",
+          "kind": "fixed",
+          "x1": 1163,
+          "x2": 1453,
+          "y": 672,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_26.webp",
+          "imageAssetId": "asset_70",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.04388158427217703,
+            "y1": 0.28458850211481546,
+            "x2": 0.9522922194682273,
+            "y2": 0.27292596947093883
+          }
+        },
+        {
+          "id": "platform_35",
+          "label": "P35",
+          "kind": "fixed",
+          "x1": -23,
+          "x2": 296,
+          "y": 344,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_10.webp",
+          "imageAssetId": "asset_69",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.02481187360756265,
+            "y1": 0.2259984764508567,
+            "x2": 0.9312676334238505,
+            "y2": 0.2125156717792122
+          }
+        },
+        {
+          "id": "platform_36",
+          "label": "P36",
+          "kind": "fixed",
+          "x1": 362,
+          "x2": 725,
+          "y": 735,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_19.webp",
+          "imageAssetId": "asset_74",
+          "imageHeight": 52,
+          "imageScale": 200,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.3620110077668959,
+            "y1": 0.19385548429164595,
+            "x2": 0.9277008647348304,
+            "y2": 0.2097565873327863
+          }
+        },
+        {
+          "id": "platform_37",
+          "label": "P37",
+          "kind": "fixed",
+          "x1": 781,
+          "x2": 905,
+          "y": 792,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_38",
+          "label": "P38",
+          "kind": "fixed",
+          "x1": 288,
+          "x2": 412,
+          "y": 318,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_39",
+          "label": "P39",
+          "kind": "fixed",
+          "x1": 191,
+          "x2": 528,
+          "y": 790,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_98",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_41",
+          "label": "P41",
+          "kind": "moving",
+          "x1": 1243,
+          "x2": 1313,
+          "y": 1637,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_23.webp",
+          "imageAssetId": "asset_99",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1278,
+              "y": 1637
+            },
+            "to": {
+              "x": 1272,
+              "y": 1401
+            }
+          },
+          "standLine": {
+            "x1": 0.03681714398649416,
+            "y1": 0.36296820935969676,
+            "x2": 0.9815058033842661,
+            "y2": 0.3794465876281321
+          }
+        },
+        {
+          "id": "platform_44",
+          "label": "P44",
+          "kind": "fixed",
+          "x1": 1608,
+          "x2": 1852,
+          "y": 626,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_27.webp",
+          "imageAssetId": "asset_100",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.03355623815574277,
+            "y1": 0.37781394095013726,
+            "x2": 0.9262295081967213,
+            "y2": 0.3332968376130704
+          }
+        },
+        {
+          "id": "platform_40",
+          "label": "P40",
+          "kind": "fixed",
+          "x1": 847,
+          "x2": 971,
+          "y": 1666,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_42",
+          "label": "P42",
+          "kind": "moving",
+          "x1": 254,
+          "x2": 324,
+          "y": 1537,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_23.webp",
+          "imageAssetId": "asset_99",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 289,
+              "y": 1537
+            },
+            "to": {
+              "x": 283,
+              "y": 1301
+            }
+          },
+          "standLine": {
+            "x1": 0.03681714398649416,
+            "y1": 0.36296820935969676,
+            "x2": 0.9815058033842661,
+            "y2": 0.3794465876281321
+          }
+        },
+        {
+          "id": "platform_43",
+          "label": "P43",
+          "kind": "moving",
+          "x1": 1321,
+          "x2": 1391,
+          "y": 1340,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_23.webp",
+          "imageAssetId": "asset_99",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1356,
+              "y": 1340
+            },
+            "to": {
+              "x": 1350,
+              "y": 1104
+            }
+          },
+          "standLine": {
+            "x1": 0.03681714398649416,
+            "y1": 0.36296820935969676,
+            "x2": 0.9815058033842661,
+            "y2": 0.3794465876281321
+          }
+        },
+        {
+          "id": "platform_45",
+          "label": "P45",
+          "kind": "moving",
+          "x1": 1708,
+          "x2": 1778,
+          "y": 1202,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_23.webp",
+          "imageAssetId": "asset_99",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1743,
+              "y": 1202
+            },
+            "to": {
+              "x": 1737,
+              "y": 966
+            }
+          },
+          "standLine": {
+            "x1": 0.03681714398649416,
+            "y1": 0.36296820935969676,
+            "x2": 0.9815058033842661,
+            "y2": 0.3794465876281321
+          }
+        },
+        {
+          "id": "platform_46",
+          "label": "P46",
+          "kind": "moving",
+          "x1": 1401,
+          "x2": 1471,
+          "y": 1023,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_23.webp",
+          "imageAssetId": "asset_99",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1436,
+              "y": 1023
+            },
+            "to": {
+              "x": 1430,
+              "y": 787
+            }
+          },
+          "standLine": {
+            "x1": 0.03681714398649416,
+            "y1": 0.36296820935969676,
+            "x2": 0.9815058033842661,
+            "y2": 0.3794465876281321
+          }
+        },
+        {
+          "id": "platform_47",
+          "label": "P47",
+          "kind": "moving",
+          "x1": 1534,
+          "x2": 1604,
+          "y": 802,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_23.webp",
+          "imageAssetId": "asset_99",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 1569,
+              "y": 802
+            },
+            "to": {
+              "x": 1563,
+              "y": 566
+            }
+          },
+          "standLine": {
+            "x1": 0.03681714398649416,
+            "y1": 0.36296820935969676,
+            "x2": 0.9815058033842661,
+            "y2": 0.3794465876281321
+          }
+        },
+        {
+          "id": "platform_48",
+          "label": "P48",
+          "kind": "moving",
+          "x1": 235,
+          "x2": 305,
+          "y": 724,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_23.webp",
+          "imageAssetId": "asset_99",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": {
+            "from": {
+              "x": 270,
+              "y": 724
+            },
+            "to": {
+              "x": 269,
+              "y": 526
+            }
+          },
+          "standLine": {
+            "x1": 0.03681714398649416,
+            "y1": 0.36296820935969676,
+            "x2": 0.9815058033842661,
+            "y2": 0.3794465876281321
+          }
+        },
+        {
+          "id": "platform_49",
+          "label": "P49",
+          "kind": "fixed",
+          "x1": 413,
+          "x2": 537,
+          "y": 369,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_50",
+          "label": "P50",
+          "kind": "fixed",
+          "x1": 539,
+          "x2": 663,
+          "y": 399,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_51",
+          "label": "P51",
+          "kind": "fixed",
+          "x1": 664,
+          "x2": 788,
+          "y": 431,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_52",
+          "label": "P52",
+          "kind": "fixed",
+          "x1": 789,
+          "x2": 913,
+          "y": 459,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_53",
+          "label": "P53",
+          "kind": "fixed",
+          "x1": 908,
+          "x2": 1032,
+          "y": 486,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_54",
+          "label": "P54",
+          "kind": "fixed",
+          "x1": 1033,
+          "x2": 1157,
+          "y": 513,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_55",
+          "label": "P55",
+          "kind": "fixed",
+          "x1": 1161,
+          "x2": 1285,
+          "y": 536,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_56",
+          "label": "P56",
+          "kind": "fixed",
+          "x1": 1436,
+          "x2": 1560,
+          "y": 545,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_5.webp",
+          "imageAssetId": "asset_101",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.06341885376996326,
+            "y1": 0.5357497000645249,
+            "x2": 0.9212023246166869,
+            "y2": 0.5753389203112075
+          }
+        },
+        {
+          "id": "platform_57",
+          "label": "P57",
+          "kind": "fixed",
+          "x1": 572,
+          "x2": 884,
+          "y": 542,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_2.webp",
+          "imageAssetId": "asset_95",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.055172395610791625,
+            "y1": 0.5444567914211365,
+            "x2": 0.7932692307692308,
+            "y2": 0.5091961541572028
+          }
+        },
+        {
+          "id": "platform_58",
+          "label": "P58",
+          "kind": "fixed",
+          "x1": 1612,
+          "x2": 1894,
+          "y": 1364,
+          "imageSrc": "images/chapter4/bg/stage_bg3_platform_20.webp",
+          "imageAssetId": "asset_90",
+          "imageHeight": 52,
+          "imageScale": 150,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": {
+            "x1": 0.02932565585378849,
+            "y1": 0.27492178726135735,
+            "x2": 0.793144208037825,
+            "y2": 0.2884662369238704
+          }
+        },
+        {
+          "id": "platform_59",
+          "label": "P59",
+          "kind": "fixed",
+          "x1": 1563,
+          "x2": 1687,
+          "y": 1123,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_60",
+          "label": "P60",
+          "kind": "fixed",
+          "x1": 909,
+          "x2": 1033,
+          "y": 1151,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_61",
+          "label": "P61",
+          "kind": "fixed",
+          "x1": 517,
+          "x2": 641,
+          "y": 861,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        },
+        {
+          "id": "platform_62",
+          "label": "P62",
+          "kind": "fixed",
+          "x1": 1175,
+          "x2": 1299,
+          "y": 781,
+          "imageSrc": "images/chapter4/bg/asset_42_platform_fixed_05.webp",
+          "imageAssetId": "asset_97",
+          "imageHeight": 52,
+          "imageScale": 100,
+          "imageOffsetX": 0,
+          "imageOffsetY": 0,
+          "imageRotation": 0,
+          "imageOpacity": 100,
+          "collisionThickness": 12,
+          "speed": 80,
+          "pauseSeconds": 0.25,
+          "loop": null,
+          "standLine": null
+        }
+      ],
+      "enemies": [],
+      "exits": [
+        {
+          "id": "exit_1",
+          "label": "EX1",
+          "x": 31,
+          "y": 479,
+          "width": 72,
+          "height": 112,
+          "targetStageId": "",
+          "targetTransitionId": "",
+          "effect": "fade"
+        }
+      ],
+      "transitions": [],
+      "checkpoints": [],
+      "hazards": [],
+      "traps": [],
+      "teleports": [
+        {
+          "id": "teleport_1",
+          "label": "TP1",
+          "x": 39,
+          "y": 322,
+          "width": 74,
+          "height": 88,
+          "enabled": true,
+          "destinationX": 1922,
+          "destinationY": 1673,
+          "destinationStageId": "",
+          "destinationTransitionId": "",
+          "cooldownMs": 1000,
+          "facing": "right"
+        }
+      ],
+      "waves": []
+    }
+  ]
+};

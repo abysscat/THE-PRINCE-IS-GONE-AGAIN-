@@ -86,26 +86,18 @@
   pointer-events: none;
 }
 .enemy.hitflash .enemySprite {
-  animation: enemyHit .18s ease-out;
+  animation: enemyHitWhiteFlash var(--enemy-hit-flash-duration, 180ms) ease-out both;
 }
 .enemy.dead .enemySprite {
   filter: none !important;
   animation: none !important;
   transform: none !important;
 }
-@keyframes enemyHit {
-  0% {
-    transform: translateX(0) rotate(0);
-    filter: brightness(1);
-  }
-  35% {
-    transform: translateX(-8px) rotate(-7deg);
-    filter: brightness(1.8) sepia(.25);
-  }
-  100% {
-    transform: translateX(0) rotate(0);
-    filter: brightness(1);
-  }
+@keyframes enemyHitWhiteFlash {
+  0% { transform:translateX(0) rotate(0); filter:brightness(1); }
+  18% { transform:translateX(-5px) rotate(-4deg); filter:brightness(0) invert(1); }
+  43% { transform:translateX(-5px) rotate(-4deg); filter:brightness(0) invert(1); }
+  100% { transform:translateX(0) rotate(0); filter:brightness(1); }
 }
 .secondary {
   display: block;

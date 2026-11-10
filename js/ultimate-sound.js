@@ -1,48 +1,18 @@
-/*
- * ultimate-sound.js — 女主角 Q 大絕音效管理
- * startCharge(): 開始蓄力時播放循環火焰聲
- * playBlast(): 大絕爆發時播放一次金焰爆發聲
- * stopAll(): 停止音效（重開遊戲或返回首頁時使用）
- */
+/* Configurable ultimate ability audio; defaults preserve the original charge and blast sounds. */
 (()=> {
-  const chargeAudio = new Audio('audio/holy_flame_charge.ogg');
-  chargeAudio.loop = true;
-  chargeAudio.volume = 0.22;
-
-  const blastAudio = new Audio('audio/holy_flame_blast.ogg');
-  blastAudio.volume = 0.40;
-
-  function safePlay(audio) {
-    try {
-      const result = audio.play();
-      if (result && result.catch) result.catch(() => {});
-    } catch (error) {
-      // 音效播放失敗不應阻止遊戲繼續運作。
-    }
-  }
-
-  function stopCharge() {
-    chargeAudio.pause();
-    chargeAudio.currentTime = 0;
-  }
-
-  window.createUltimateSound = function() {
-    return {
-      startCharge() {
-        stopCharge();
-        safePlay(chargeAudio);
-      },
-      stopCharge,
-      playBlast() {
-        blastAudio.pause();
-        blastAudio.currentTime = 0;
-        safePlay(blastAudio);
-      },
-      stopAll() {
-        stopCharge();
-        blastAudio.pause();
-        blastAudio.currentTime = 0;
-      }
-    };
+  const audioRuntime=window.PrinceAudioRuntime||null;
+  const create=(key,fallback,volume,loop=false)=>{
+    const path=audioRuntime?.getSfxPath?.(key,fallback)||fallback;
+    const audio=new Audio(path);audio.loop=loop;audio.preload='auto';
+    audio.volume=audioRuntime?.getSfxVolume?.(volume)??volume;return audio;
   };
+  const chargeAudio=create('ultimateCharge','audio/holy_flame_charge.ogg',0.22,true);
+  const blastAudio=create('ultimateBlast','audio/holy_flame_blast.ogg',0.40,false);
+  function safePlay(audio){if(audioRuntime?.getConfig?.().settings?.sfxEnabled===false)return;try{const result=audio.play();if(result&&result.catch)result.catch(()=>{});}catch(error){}}
+  function stopCharge(){try{chargeAudio.pause();chargeAudio.currentTime=0;}catch(error){}}
+  window.createUltimateSound=function(){return {
+    startCharge(){stopCharge();safePlay(chargeAudio);},stopCharge,
+    playBlast(){try{blastAudio.pause();blastAudio.currentTime=0;}catch(error){}safePlay(blastAudio);},
+    stopAll(){stopCharge();try{blastAudio.pause();blastAudio.currentTime=0;}catch(error){}}
+  };};
 })();

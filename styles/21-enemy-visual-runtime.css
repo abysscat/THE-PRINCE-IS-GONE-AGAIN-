@@ -1,9 +1,11 @@
-/* Shared visual control wrapper. Loaded by both the normal game and Editor build. */
+/* Shared visual control wrappers. Base enemy scale/offset and pose-only scale stay on different layers. */
 #world #enemies > .enemy .enemy-art > .eve-art-control {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  transform-origin: 50% 100% !important;
-  pointer-events: none;
+  position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important;
+  transform-origin: 50% 100% !important; pointer-events: none;
 }
+#world #enemies > .enemy .eve-sprite-control {
+  position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important;
+  transform-origin: 50% 100% !important; pointer-events: none;
+}
+#world #enemies > .enemy .eve-sprite-control > .enemySprite { position:absolute; inset:0; width:100%; height:100%; }
+#enemyVisualEditor .eve-preview-box { position:relative; overflow:hidden; }

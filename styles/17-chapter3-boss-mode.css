@@ -27,7 +27,7 @@ body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="ch
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-art,
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-art-frame { overflow: visible; }
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemySprite {
-  object-fit: contain; object-position: center bottom !important; filter: none !important; animation: none !important; transform-origin: 50% 100%;
+  object-fit: contain; object-position: center bottom !important; filter: none; animation: none !important; transform-origin: 50% 100%;
 }
 body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"] .enemy-name {
   top: -24px !important; background: #082d50; border-color: #66c9ff; color: #e8f9ff;

@@ -29,22 +29,36 @@ body {
   -webkit-user-select: none;
 }
 
-/* Remove the old full-container golden glow. Keep hit feedback subtle and temporary. */
-#world #enemies > .enemy.hitflash {
-  filter: none !important;
-}
+/* White silhouette hit flash: applies to sprite pixels only, not HP bar/container/effects. */
+#world #enemies > .enemy.hitflash { filter:none !important; }
 #world #enemies > .enemy.hitflash .enemySprite {
-  filter: none !important;
-  animation: enemyHitNoGlow 180ms ease-out both !important;
-  transition: none !important;
+  animation:enemyHitWhiteFlash var(--enemy-hit-flash-duration,180ms) ease-out both !important;
+  transition:none !important;
 }
-@keyframes enemyHitNoGlow {
-  0%, 100% { opacity: 1; }
-  35% { opacity: .82; }
-  70% { opacity: 1; }
-}
+#world #enemies > .enemy.dead .enemySprite { animation:none !important; filter:none !important; }
 
 @media (max-width: 620px) {
   body { padding: 6px; }
   .stage { border-radius: 10px; }
+}
+
+
+/* V1.8: Boss-specific animation:none / hit-reaction rules must not suppress a real hit flash.
+   These selectors outrank the Chapter 1, Spider Boss and Chapter 3 Boss sprite overrides. */
+#world #enemies > .enemy.enemy-boss[data-sprite-type="boss"].chapter1-boss-hit.hitflash .enemySprite,
+#world #enemies > .enemy.enemy-boss[data-sprite-type="boss"].chapter1-boss-heavy-hit.hitflash .enemySprite {
+  animation:enemyHitWhiteFlash var(--enemy-hit-flash-duration,180ms) ease-out both !important;
+  animation-duration:var(--enemy-hit-flash-duration,180ms) !important;
+}
+#world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_2"].spider-boss-lifting.hitflash .enemy-art .enemySprite,
+#world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_2"].spider-boss-returning.hitflash .enemy-art .enemySprite,
+#world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_2"].spider-boss-awakening.hitflash .enemy-art .enemySprite,
+#world #enemies > .enemy.enemy-boss[data-sprite-type="chapter2_boss_2"].spider-boss-final-hit2.hitflash .enemy-art .enemySprite {
+  animation:enemyHitWhiteFlash var(--enemy-hit-flash-duration,180ms) ease-out both !important;
+  animation-duration:var(--enemy-hit-flash-duration,180ms) !important;
+}
+body.chapter3-boss-mode #world #enemies > .enemy.enemy-boss[data-sprite-type="chapter3_boss_1"].hitflash .enemySprite,
+body.chapter3-boss-mode #world #enemies > .enemy.chapter3-boss-tentacle.hitflash .enemySprite {
+  animation:enemyHitWhiteFlash var(--enemy-hit-flash-duration,180ms) ease-out both !important;
+  animation-duration:var(--enemy-hit-flash-duration,180ms) !important;
 }

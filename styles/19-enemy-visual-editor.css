@@ -96,3 +96,51 @@ body.eve-show-frame #enemies > .enemy.eve-selected .enemy-art { filter:drop-shad
   #enemyVisualEditorLauncher { right:8px; top:max(8px,env(safe-area-inset-top)); padding:8px 10px; font-size:10px; }
   #enemyVisualEditor { top:max(52px,calc(env(safe-area-inset-top) + 47px)); right:8px; width:min(350px,calc(100vw - 16px)); max-height:calc(100dvh - 64px - env(safe-area-inset-bottom)); padding:12px; }
 }
+
+/* V1.8 Chapter → Enemy → Pose browser */
+#enemyVisualEditor { width:min(520px,calc(100vw - 24px)); }
+#enemyVisualEditor .eve-step-title { color:#e9c985; font-size:11px; font-weight:800; letter-spacing:.08em; margin-bottom:9px; }
+#enemyVisualEditor .eve-chapters { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-bottom:14px; }
+#enemyVisualEditor .eve-chapter-tab { min-height:35px; border:1px solid #596a80; border-radius:9px; color:#dce5ef; background:#22354b; font:inherit; font-size:11px; font-weight:800; cursor:pointer; }
+#enemyVisualEditor .eve-chapter-tab.active { border-color:#e3bf79; color:#352817; background:linear-gradient(180deg,#f0d69f,#c99e58); }
+#enemyVisualEditor .eve-enemy-section,#enemyVisualEditor .eve-pose-section { margin:10px 0 14px; }
+#enemyVisualEditor .eve-section-title { margin:0 0 7px; color:#9fb0c2; font-size:10px; font-weight:800; letter-spacing:.09em; }
+#enemyVisualEditor .eve-enemy-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+#enemyVisualEditor .eve-enemy-card,#enemyVisualEditor .eve-pose-card { min-width:0; border:1px solid rgba(151,171,192,.22); border-radius:10px; padding:6px; color:#eaf0f6; background:rgba(10,20,32,.42); text-align:center; cursor:pointer; }
+#enemyVisualEditor .eve-enemy-card.selected,#enemyVisualEditor .eve-pose-card.selected { border:2px solid #e4bd72; padding:5px; background:rgba(201,158,88,.15); box-shadow:0 0 0 1px rgba(228,189,114,.12); }
+#enemyVisualEditor .eve-enemy-thumb { display:flex; align-items:center; justify-content:center; width:100%; height:66px; border-radius:7px; background:rgba(215,224,234,.09); overflow:hidden; }
+#enemyVisualEditor .eve-enemy-thumb img { width:100%; height:100%; object-fit:contain; object-position:center bottom; }
+#enemyVisualEditor .eve-enemy-name { display:block; margin-top:5px; font-size:10px; font-weight:700; line-height:1.35; overflow-wrap:anywhere; }
+#enemyVisualEditor .eve-pose-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+#enemyVisualEditor .eve-pose-thumb { display:flex; align-items:center; justify-content:center; height:58px; border-radius:7px; overflow:hidden; background:rgba(215,224,234,.08); }
+#enemyVisualEditor .eve-pose-thumb img { width:100%; height:100%; object-fit:contain; object-position:center bottom; }
+#enemyVisualEditor .eve-pose-name { display:block; margin-top:4px; font-size:9px; line-height:1.3; overflow-wrap:anywhere; }
+#enemyVisualEditor .eve-selected-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+#enemyVisualEditor .eve-selected-heading strong { color:#f4e8ce; font-size:13px; }
+#enemyVisualEditor .eve-preview-row { display:flex; gap:12px; align-items:center; padding:9px; border-radius:10px; margin-bottom:12px; background:rgba(0,0,0,.19); }
+#enemyVisualEditor .eve-preview-box { flex:0 0 112px; width:112px; height:112px; display:flex; align-items:center; justify-content:center; border-radius:8px; background-color:#354458; background-image:linear-gradient(45deg,#46576b 25%,transparent 25%),linear-gradient(-45deg,#46576b 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#46576b 75%),linear-gradient(-45deg,transparent 75%,#46576b 75%); background-size:16px 16px; background-position:0 0,0 8px,8px -8px,-8px 0; }
+#enemyVisualEditor .eve-preview-box img { display:block; width:100%; height:100%; object-fit:contain; object-position:center bottom; transform-origin:50% 100%; }
+#enemyVisualEditor .eve-preview-meta { display:flex; flex-direction:column; gap:5px; min-width:0; color:#b8c4d0; font-size:10px; line-height:1.4; }
+#enemyVisualEditor .eve-preview-meta strong { color:#f2dfb8; font-size:12px; }
+#enemyVisualEditor .eve-preview-meta code { color:#a9bdd2; font-size:10px; overflow-wrap:anywhere; }
+#enemyVisualEditor .eve-divider-label { margin:12px 0 9px; padding-top:10px; border-top:1px solid rgba(151,171,192,.19); color:#e8c982; font-size:10px; font-weight:800; letter-spacing:.06em; }
+#enemyVisualEditor .eve-combined { display:flex; justify-content:space-between; align-items:center; margin:9px 0; padding:9px; border-radius:8px; background:rgba(0,0,0,.24); color:#aab8c6; font-size:10px; }
+#enemyVisualEditor .eve-combined strong { color:#f3d99f; font-size:15px; font-variant-numeric:tabular-nums; }
+@media (max-width:620px) {
+  #enemyVisualEditor { width:min(480px,calc(100vw - 16px)); }
+  #enemyVisualEditor .eve-enemy-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #enemyVisualEditor .eve-pose-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+
+#enemyVisualEditor #eve-preview-placeholder { display:none !important; }
+
+/* Chapter 4 Canvas pages: keep the launcher clear of the toolbar and game HUD. */
+body.eve-canvas-runtime-page #enemyVisualEditorLauncher {
+  top: auto;
+  bottom: max(86px, calc(env(safe-area-inset-bottom) + 82px));
+}
+
+#enemyVisualEditor select{width:100%;padding:9px 11px;border:1px solid rgba(148,163,184,.45);border-radius:9px;background:#101c30;color:#f8fafc;font:inherit}#enemyVisualEditor .eve-divider-label{margin-top:16px}
+#enemyVisualEditor .eve-projectile-preview{height:126px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(148,163,184,.25);border-radius:10px;background:radial-gradient(ellipse at center,rgba(45,75,112,.35),rgba(8,18,34,.9));margin:8px 0 12px}#enemyVisualEditor .eve-projectile-range-ring{position:absolute;width:82px;height:82px;border:2px dashed #ff5252;border-radius:50%;background:rgba(255,50,50,.10);transition:transform .12s}#enemyVisualEditor .eve-projectile-core{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#b8f7ff,#2582c9 65%,#12345b);box-shadow:0 0 16px #38bdf8;color:#081526;font-size:7px;font-weight:900;transition:transform .12s}#enemyVisualEditor .eve-projectile-preview small{position:absolute;bottom:7px;color:#fda4af;font-size:10px}
+
+#enemyVisualEditor .eve-projectile-preview{height:126px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(148,163,184,.25);border-radius:10px;background:radial-gradient(ellipse at center,rgba(45,75,112,.35),rgba(8,18,34,.9));margin:8px 0 12px}#enemyVisualEditor .eve-projectile-range-ring{position:absolute;width:82px;height:82px;border:2px dashed #ff5252;border-radius:50%;background:rgba(255,50,50,.10);transition:transform .12s}#enemyVisualEditor .eve-projectile-core{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#b8f7ff,#2582c9 65%,#12345b);box-shadow:0 0 16px #38bdf8;color:#081526;font-size:7px;font-weight:900;transition:transform .12s}#enemyVisualEditor .eve-projectile-preview small{position:absolute;bottom:7px;color:#fda4af;font-size:10px}

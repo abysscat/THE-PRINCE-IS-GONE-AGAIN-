@@ -1,0 +1,112 @@
+/* Chapter quick-start controls — development/editor entry only. */
+.chapter-quick-start {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  padding: 7px 9px;
+  border: 1px solid rgba(238, 207, 150, .72);
+  border-radius: 13px;
+  color: #f8e8c4;
+  background: rgba(17, 34, 54, .84);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(7px);
+}
+.chapter-quick-start-label {
+  padding: 0 5px;
+  color: #f4d99f;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+  letter-spacing: .04em;
+}
+.chapter-quick-start button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 94px;
+  min-height: 38px;
+  padding: 5px 10px;
+  border: 1px solid rgba(231, 198, 132, .64);
+  border-radius: 9px;
+  color: #fff8e9;
+  background: linear-gradient(180deg, #405a78, #243a55);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.chapter-quick-start button strong {
+  font-size: 11px;
+  line-height: 1.1;
+}
+.chapter-quick-start button small {
+  color: #d3dbe4;
+  font-size: 9px;
+  line-height: 1.1;
+}
+.chapter-quick-start button:hover,
+.chapter-quick-start button:focus-visible {
+  border-color: #ffe2a5;
+  background: linear-gradient(180deg, #657f9d, #344e6c);
+  outline: 2px solid rgba(255, 226, 165, .55);
+  outline-offset: 2px;
+}
+.chapter-quick-start button:active { transform: translateY(1px); }
+@media (max-width: 620px) {
+  .chapter-quick-start {
+    left: 8px;
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    transform: none;
+    max-width: none;
+    gap: 5px;
+    padding: 6px;
+  }
+  .chapter-quick-start-label { display: none; }
+  .chapter-quick-start button { flex: 1 1 0; min-width: 0; min-height: 37px; padding: 4px 5px; }
+  .chapter-quick-start button strong { font-size: 10px; }
+  .chapter-quick-start button small { font-size: 8px; }
+}
+
+/* Chapter 4 uses a separate Canvas runtime, so its quick-start control is a direct link. */
+.chapter-quick-start-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 94px;
+  min-height: 38px;
+  padding: 5px 10px;
+  border: 1px solid rgba(231, 198, 132, .64);
+  border-radius: 9px;
+  color: #fff8e9;
+  background: linear-gradient(180deg, #405a78, #243a55);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.chapter-quick-start-link strong { font-size: 11px; line-height: 1.1; }
+.chapter-quick-start-link small { color: #d3dbe4; font-size: 9px; line-height: 1.1; }
+.chapter-quick-start-link:hover,
+.chapter-quick-start-link:focus-visible {
+  border-color: #ffe2a5;
+  background: linear-gradient(180deg, #657f9d, #344e6c);
+  outline: 2px solid rgba(255, 226, 165, .55);
+  outline-offset: 2px;
+}
+.chapter-quick-start-link:active { transform: translateY(1px); }
+@media (max-width: 620px) {
+  .chapter-quick-start-link { flex: 1 1 0; min-width: 0; min-height: 37px; padding: 4px 5px; }
+  .chapter-quick-start-link strong { font-size: 10px; }
+  .chapter-quick-start-link small { font-size: 8px; }
+}

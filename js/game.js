@@ -28,6 +28,8 @@
     const CHAPTER1_FINAL_CHARGE_MS=5000,CHAPTER1_FINAL_DROP_MS=850,CHAPTER1_FINAL_HIT_DELAY_MS=1000;
     // 音效延遲時間請到 js/game-tuning.js 的 effects.boss1FinalSfxDelayMs 修改。
     const gameSettings=window.GAME_SETTINGS;
+    const princeAudio=window.PrinceAudioRuntime||null;
+    const audioPath=(key,fallback)=>princeAudio?.getSfxPath?.(key,fallback)||fallback;
     // 升降機可由獨立測試頁啟用，或在正式流程第 9 關啟用。
     const elevatorStandaloneTest=window.GAME_TEST_ELEVATOR===1;
     let elevatorMode=elevatorStandaloneTest;
@@ -89,7 +91,7 @@
     // Q 大絕音效由 js/ultimate-sound.js 獨立管理，避免混在戰鬥邏輯中。
     const ultimateSound=window.createUltimateSound();
     const targets=gameSettings.targets,levelConfigs=gameSettings.levels,enemyList=[];
-    let pendingChapterTransition=false;
+    let pendingChapterTransition=false, pendingChapter4Transition=false;
     const bgFiles=gameSettings.backgroundFiles;
     const ultimateSpriteFiles=gameSettings.ultimateSpriteFiles;
     const ultimateFrameImages=ultimateSpriteFiles.map(path=> {
@@ -113,9 +115,10 @@
     const bgmAudio=new Audio('audio/fantasy_rpg_bgm.ogg');
     bgmAudio.loop=true;
     bgmAudio.volume=0.28;
-    let musicEnabled=true;
+    let musicEnabled=princeAudio?.getConfig?.().settings?.musicEnabled!==false;
     function startTitleMusic() {
         if(!musicEnabled)return;
+        princeAudio?.applyMusic?.(titleAudio,{title:true},'audio/title_bgm.ogg',0.25);
         try {
             const p=titleAudio.play();
             if(p&&p.catch)p.catch(()=> {
@@ -177,8 +180,8 @@
     // 不支援 Web Audio 或音效尚未解碼時，使用可動態擴充的 HTMLAudio 後備通道。
     // 通道全忙時新增通道，不會為了重播而 pause 正在播放的聲音，也不會丟掉這次攻擊。
     const fallbackSfxPools={
-        thrust:{src:'audio/spear_thrust.ogg',volume:SFX_VOLUME,voices:[]},
-        bash:{src:'audio/shield_bash.ogg',volume:SFX_VOLUME,voices:[]}
+        thrust:{src:audioPath('playerThrust','audio/spear_thrust.ogg'),volume:princeAudio?.getSfxVolume?.(SFX_VOLUME)??SFX_VOLUME,voices:[]},
+        bash:{src:audioPath('playerBash','audio/shield_bash.ogg'),volume:princeAudio?.getSfxVolume?.(SFX_VOLUME)??SFX_VOLUME,voices:[]}
     };
     function createFallbackVoice(pool) {
         const audio=new Audio(pool.src);
@@ -207,6 +210,11 @@
     }
     function playSfx(kind) {
         const key=kind==='bash'?'bash':'thrust';
+        const alias=key==='bash'?'playerBash':'playerThrust';
+        const fallback=key==='bash'?'audio/shield_bash.ogg':'audio/spear_thrust.ogg';
+        if(princeAudio?.getConfig?.().settings?.sfxEnabled===false)return;
+        const selected=audioPath(alias,fallback);
+        if(selected!==fallback&&princeAudio?.playSfx){princeAudio.playSfx(alias,fallback,{volume:SFX_VOLUME});return;}
         const ctx=attackAudioContext;
         const buffer=attackAudioBuffers[key];
         if(ctx&&buffer) {
@@ -218,7 +226,7 @@
                 const source=ctx.createBufferSource();
                 const gain=ctx.createGain();
                 source.buffer=buffer;
-                gain.gain.value=SFX_VOLUME;
+                gain.gain.value=princeAudio?.getSfxVolume?.(SFX_VOLUME)??SFX_VOLUME;
                 source.connect(gain);
                 gain.connect(ctx.destination);
                 source.onended=()=>{try{source.disconnect();gain.disconnect();}catch(error){}};
@@ -232,16 +240,16 @@
     }
     // 第三章雷暴 Boss 音效：閃電獨立播放；所有觸手共用唯一 Audio 通道與有限佇列。
     const chapter3BossSfxFiles={
-        lightning:'audio/chapter3_boss/lightning_04.ogg',
-        charge1:'audio/chapter3_boss/tentacle_charge_1.ogg',
-        charge2:'audio/chapter3_boss/tentacle_charge_2.ogg',
-        attack1:'audio/chapter3_boss/tentacle_attack_1.ogg',
-        attack2:'audio/chapter3_boss/tentacle_attack_2.ogg'
+        lightning:audioPath('chapter3Lightning','audio/chapter3_boss/lightning_04.ogg'),
+        charge1:audioPath('chapter3TentacleCharge1','audio/chapter3_boss/tentacle_charge_1.ogg'),
+        charge2:audioPath('chapter3TentacleCharge2','audio/chapter3_boss/tentacle_charge_2.ogg'),
+        attack1:audioPath('chapter3TentacleAttack1','audio/chapter3_boss/tentacle_attack_1.ogg'),
+        attack2:audioPath('chapter3TentacleAttack2','audio/chapter3_boss/tentacle_attack_2.ogg')
     };
     const chapter3BossSfxPools={};
     const chapter3TentacleAudio={
         audio:null,queue:[],active:null,nextId:1,paused:false,maxQueue:48,
-        getAudio(){if(!this.audio){this.audio=new Audio();this.audio.preload='auto';this.audio.volume=.34;this.audio.addEventListener('ended',()=>this.finishCurrent());this.audio.addEventListener('error',()=>this.finishCurrent());}return this.audio;},
+        getAudio(){if(!this.audio){this.audio=new Audio();this.audio.preload='auto';this.audio.volume=princeAudio?.getSfxVolume?.(.34)??.34;this.audio.addEventListener('ended',()=>this.finishCurrent());this.audio.addEventListener('error',()=>this.finishCurrent());}return this.audio;},
         enqueue(tentacle,kind){
             if(!tentacle||tentacle.classList.contains('dead')||tentacle.dataset.chapter3Tentacle!=='1')return;
             const src=chapter3BossSfxFiles[kind];if(!src)return;
@@ -263,12 +271,12 @@
             this.pump();
         },
         pump(){
-            if(this.paused||this.active)return;
+            if(this.paused||this.active||princeAudio?.getConfig?.().settings?.sfxEnabled===false)return;
             while(this.queue.length){
                 const item=this.queue.shift();
                 if(!item.owner||!item.owner.isConnected||item.owner.classList.contains('dead')||item.owner.dataset.tentacleAudioId!==item.id)continue;
                 const audio=this.getAudio();this.active=item;
-                try{audio.pause();audio.currentTime=0;audio.src=item.src;audio.volume=item.kind.startsWith('charge')?.30:.34;const result=audio.play();if(result&&result.catch)result.catch(()=>{if(this.active===item)this.finishCurrent();});}
+                try{audio.pause();audio.currentTime=0;audio.src=item.src;audio.volume=princeAudio?.getSfxVolume?.(item.kind.startsWith('charge')?.30:.34)??(item.kind.startsWith('charge')?.30:.34);const result=audio.play();if(result&&result.catch)result.catch(()=>{if(this.active===item)this.finishCurrent();});}
                 catch(error){this.finishCurrent();}
                 return;
             }
@@ -286,9 +294,10 @@
         clear(){this.queue.length=0;this.active=null;this.paused=false;if(this.audio){try{this.audio.pause();this.audio.currentTime=0;this.audio.removeAttribute('src');this.audio.load();}catch(error){}}}
     };
     function playChapter3BossSfx(kind){
+        if(princeAudio?.getConfig?.().settings?.sfxEnabled===false)return;
         if(kind==='charge1'||kind==='charge2'||kind==='attack1'||kind==='attack2')return; // 觸手必須經由單一管理器播放。
         const src=chapter3BossSfxFiles[kind];if(!src)return;
-        let pool=chapter3BossSfxPools[kind];if(!pool){pool=chapter3BossSfxPools[kind]={voices:[],volume:.42};}
+        let pool=chapter3BossSfxPools[kind];if(!pool){pool=chapter3BossSfxPools[kind]={voices:[],volume:princeAudio?.getSfxVolume?.(.42)??.42};}
         let voice=pool.voices.find(item=>item.audio.ended||item.audio.paused||item.audio.currentTime===0);
         if(!voice){const audio=new Audio(src);audio.preload='auto';audio.volume=pool.volume;voice={audio};pool.voices.push(voice);}
         try{voice.audio.pause();voice.audio.currentTime=0;voice.audio.src=src;voice.audio.volume=pool.volume;const result=voice.audio.play();if(result&&result.catch)result.catch(()=>{});}catch(error){}
@@ -608,20 +617,21 @@
     const SPIDER_LAST_PHASE_FRAMES=['chapter2_boss_2_skin1_last1.webp','chapter2_boss_2_skin1_last2.webp','chapter2_boss_2_skin1_last3.webp','chapter2_boss_2_skin1_last4.webp'];
     // 蜘蛛 Boss 專用音效；與普通武器音效分開，避免技能時機互相干擾。
     const spiderBossAudio={
-        fight:new Audio('audio/Boss fighting_sound effect.ogg'),
-        triple:new Audio('audio/boss2 attack.ogg'),
-        final:new Audio('audio/boss 2_final attack.ogg'),
-        run:new Audio('audio/Boss fighting_sound run.ogg'),
-        goddessDead:new Audio('audio/Boss fighting_sound_ggodnees_dead.ogg')
+        fight:new Audio(audioPath('spiderBossFight','audio/Boss fighting_sound effect.ogg')),
+        triple:new Audio(audioPath('spiderBossTriple','audio/boss2 attack.ogg')),
+        final:new Audio(audioPath('spiderBossFinal','audio/boss 2_final attack.ogg')),
+        run:new Audio(audioPath('spiderBossRun','audio/Boss fighting_sound run.ogg')),
+        goddessDead:new Audio(audioPath('spiderBossDead','audio/Boss fighting_sound_ggodnees_dead.ogg'))
     };
     spiderBossAudio.fight.loop=true;
-    spiderBossAudio.fight.volume=0.28;
-    spiderBossAudio.triple.volume=0.38;
-    spiderBossAudio.final.volume=0.42;
-    spiderBossAudio.run.volume=0.48;
-    spiderBossAudio.goddessDead.volume=0.58;
+    spiderBossAudio.fight.volume=princeAudio?.getSfxVolume?.(0.28)??0.28;
+    spiderBossAudio.triple.volume=princeAudio?.getSfxVolume?.(0.38)??0.38;
+    spiderBossAudio.final.volume=princeAudio?.getSfxVolume?.(0.42)??0.42;
+    spiderBossAudio.run.volume=princeAudio?.getSfxVolume?.(0.48)??0.48;
+    spiderBossAudio.goddessDead.volume=princeAudio?.getSfxVolume?.(0.58)??0.58;
     Object.values(spiderBossAudio).forEach(audio=>{audio.preload='auto';});
     function spiderStartFightAudio(){
+        if(princeAudio?.getConfig?.().settings?.sfxEnabled===false)return;
         const audio=spiderBossAudio.fight;
         if(!audio.paused&&!audio.ended)return;
         try{
@@ -636,6 +646,7 @@
         try{audio.pause();audio.currentTime=0;}catch(error){}
     }
     function spiderPlayOneShot(audio){
+        if(princeAudio?.getConfig?.().settings?.sfxEnabled===false)return;
         try{
             audio.pause();
             audio.currentTime=0;
@@ -645,6 +656,7 @@
     }
     // 多隻蜘蛛小弟可能同時施放毒攻擊；使用獨立播放通道，避免後一隻重設音效而截斷前一隻。
     function spiderPlayOneShotIndependent(audio){
+        if(princeAudio?.getConfig?.().settings?.sfxEnabled===false)return;
         try{
             const voice=audio.cloneNode();voice.loop=false;voice.volume=audio.volume;voice.currentTime=0;
             const result=voice.play();
@@ -672,6 +684,7 @@
         if(!isSpiderBoss(e)||!e.isConnected||e.classList.contains('dead'))return false;
         spiderBossSkill.boss=e;
         if(spiderBossSkill.active||spiderBossSkill.queue.length||spiderBossSkill.invulnerable||spiderBossSkill.finalHit2Triggered||isSpiderBroodProtected(e))return false;
+        flashEnemy(e,140);
         if(now-(Number(e._spiderLastHitAt)||0)>SPIDER_BOSS_COMBO_GAP_MS)e._spiderHitSequenceCount=0;
         e._spiderLastHitAt=now;
         e._spiderHitSequenceCount=(Number(e._spiderHitSequenceCount)||0)+1;
@@ -1490,8 +1503,8 @@
             if(elapsed>=(tuneEffects.boss1FinalSfxDelayMs ?? 1000) && !chapter1FinalSkill.chargeSfxPlayed && !e.classList.contains('dead')) {
                 chapter1FinalSkill.chargeSfxPlayed=true;
                 try {
-                    const chargeSfx=new Audio('audio/crash2.mp3');
-                    chargeSfx.volume=0.7;
+                    const chargeSfx=new Audio(audioPath('enemyCharge','audio/crash2.mp3'));
+                    chargeSfx.volume=princeAudio?.getSfxVolume?.(0.7)??0.7;
                     chargeSfx.currentTime=0;
                     chapter1FinalSkill.chargeSfx=chargeSfx;
                     const playResult=chargeSfx.play();
@@ -2107,6 +2120,7 @@
         // 特殊技能與最終絕招的動畫不由普通受擊覆蓋。
         if(chapter3BossState.phase!=='combat'&&chapter3BossState.phase!=='mixed20Combat')return;
         const now=performance.now();
+        flashEnemy(boss,140);
         boss.dataset.chapter3HitUntil=String(now+Math.max(120,Number(duration)||310));
         boss.dataset.chapter3AttackUntil='0';
         boss.dataset.chapter3AttackHitAt='0';
@@ -3401,9 +3415,12 @@
         titleAudio.pause();
         const config=levelConfigs[level-1]||{};
         // Chapter 3 BGM is 20% louder (0.336 vs normal 0.28); other chapters remain unchanged.
-        bgmAudio.volume=config.chapter===3?0.336:0.28;
+        const baseVolume=config.chapter===3?0.336:0.28;
         const fallbackPath=config.chapter===2?'audio/forest.ogg':'audio/fantasy_rpg_bgm.ogg';
-        const musicPath=config.music||fallbackPath;
+        const legacyPath=config.music||fallbackPath;
+        princeAudio?.applyMusic?.(bgmAudio,{chapter:config.chapter,stageId:config.id||`level${level}`},legacyPath,baseVolume);
+        if(!princeAudio)bgmAudio.volume=baseVolume;
+        const musicPath=bgmAudio.getAttribute('src')||legacyPath;
         const resolvedPath=new URL(musicPath,document.baseURI).href;
         // 第 9 關使用 audio/ghost.ogg；若音檔載入失敗，便退回預設背景音樂。
         bgmAudio.onerror = musicPath==='audio/ghost.ogg' ? () => {
@@ -3455,10 +3472,12 @@
     function flashEnemy(e, duration) {
         clearTimeout(e._hitFlashTimer);
         e.classList.remove('hitflash');
+        e.style.setProperty('--enemy-hit-flash-duration', `${Math.max(0, Number(duration) || 180)}ms`);
         void e.offsetWidth;
         e.classList.add('hitflash');
         e._hitFlashTimer=setTimeout(()=> {
             e.classList.remove('hitflash');
+            e.style.removeProperty('--enemy-hit-flash-duration');
             e._hitFlashTimer=0;
         }, Math.max(0, duration || 180));
     }
@@ -3466,12 +3485,14 @@
         clearTimeout(e._hitFlashTimer);
         e._hitFlashTimer=0;
         e.classList.remove('hitflash');
+        e.style.removeProperty('--enemy-hit-flash-duration');
     }
 
     // 第一章 Boss 專用短促受擊回饋：只加視覺效果與短暫 hit-stop，不改傷害、座標或攻擊判定。
     function applyChapter1BossHit(e, heavy=false) {
         if(level!==4 || !e || e.dataset.boss!=='1' || e.dataset.spriteType!=='boss' || e.classList.contains('dead'))return;
         const now=performance.now(), duration=heavy?120:80, stop=heavy?70:35;
+        flashEnemy(e,heavy?150:120);
         registerChapter1BossHitSprite(e,now);
         clearTimeout(e._chapter1HitTimer);
         clearTimeout(e._chapter1SparkTimer);
@@ -3821,7 +3842,7 @@
         updateHud()
     }
     function startSecondChapter() {
-        pendingChapterTransition=false;
+        pendingChapterTransition=false; pendingChapter4Transition=false;
         $('modalTitle').textContent='第二章：王國的秘密';
         $('modalDesc').textContent='新的線索指向王室深處。冒險仍未結束——繼續前往封印之門。';
         overlay.style.display='none';
@@ -3843,7 +3864,8 @@
         if(level>=levelConfigs.length) {
             running=false;
             pendingChapterTransition=false;
-            showEnd('第三章完成：港口的真相','十五關全部完成！你已穿越水晶洞、海港與雷暴戰場，完成第三章冒險。','再玩一次');
+            pendingChapter4Transition=true;
+            showEnd('第三章完成：港口的真相','雷暴海王已被擊敗。你已完成第一至第三章的冒險，現在可以繼續前往第四章。','進入第四章 Stage 1 ▶');
             return
         }
         startLevel(level+1,true)
@@ -4338,6 +4360,20 @@
     $('start').addEventListener('click',()=> {
         if(clueModalPhase)return;
         if(pendingChapterTransition) { startSecondChapter(); return; }
+        if(pendingChapter4Transition) {
+            // Carry forward the completed campaign's player status and user settings.
+            // Chapter 1–3 game state itself remains untouched; Chapter 4 runs in its own runtime.
+            try {
+                localStorage.setItem('PRINCE_CHAPTER4_CAMPAIGN_STATE', JSON.stringify({
+                    hp: hp, mp: mp, gems: Math.max(0, Math.min(3, Math.ceil(mp / 34))), kills: kills,
+                    musicEnabled: musicEnabled, clues: clues.slice(), foundClues: Array.from(foundClues),
+                    completedChapter: 3, startStageId: 'chapter4_stage1',
+                    savedAt: new Date().toISOString()
+                }));
+            } catch (error) { console.warn('Unable to save Chapter 4 handoff state:', error); }
+            window.location.href='chapter4_start.html?stage=chapter4_stage1&campaign=1';
+            return;
+        }
         if(running&&paused) {
             keys= {
             };

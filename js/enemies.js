@@ -5,7 +5,18 @@
 (() => {
     "use strict";
 
+    function v2EnemySpritePath(type, state) {
+        if (!/^chapter4_enemy_\d+$/.test(String(type || ''))) return null;
+        const bridge = window.PrinceEnemyRegistryV2;
+        const frame = bridge?.frameFor?.(type, state || 'normal');
+        return frame?.path || frame?.src || null;
+    }
+
     function enemySpritePath(type, state) {
+        // V2 chapter4 enemy images are stored in Enemy Library's IndexedDB.
+        // The DOM bridge resolves asset:// to Blob URLs after this path is assigned.
+        const customFrame = v2EnemySpritePath(type, state);
+        if (customFrame) return customFrame;
         // 第三章最終 Boss：素材為獨立 PNG 姿勢，不是 sprite sheet。
         if (type === "chapter3_boss_1") {
             if (state === "dead") state = "idle"; // idle.webp 是倒地圖；hit.webp 只用於受擊反應。
